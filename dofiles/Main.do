@@ -51,8 +51,33 @@ import excel "RAW_DATA_1.xlsx", sheet("RAW_DATA") firstrow clear cellrange(A1:H6
 	label variable m ""
 	label variable pop ""
 	
-
-	
 //set time series format
+replace date = qofd(date)
+format date %tq
+tsset date
+
+//rescale variables from BCN to millions of cords
+foreach i in gdp gov_con pub_inv priv_inv x m {
+replace `i'=`i'*10^6
+}
+
+//create dummies and gdp per capita
+gen gdp_pc = gdp/pop
+label variable gdp_pc "GDP per capita constructed with GDP and POP series"
+gen tr_op = (x+m)/gdp 
+label variable tr_op "Trade openness index constructed as the sum of exports and imports as a share of gdp"
+gen d_2008 = 0
+replace d_2008 = 1 if date >= 2008q3 & date <= 2009q1
+label variable
+
+gen d_2018 = 0
+replace d_2008 = 1 if
+label variable 
+
+//create variables adjusted by gdp_pc
+foreach i in gov_con pub_inv priv_inv {
+replace `i'_=`i'*10^6
+}
+
 
 	
