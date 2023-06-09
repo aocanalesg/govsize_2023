@@ -61,15 +61,8 @@ foreach i in gdp gov_con pub_inv priv_inv x m {
 replace `i'=`i'*10^6
 }
 
-<<<<<<< Updated upstream
-=======
-//create dummies and gdp per capita
-gen gdp_pc = gdp/pop
-label variable gdp_pc "GDP per capita constructed with GDP and POP series"
+//create dummies 
 
-gen tr_op = (x+m)/gdp 
-label variable tr_op "Trade openness index constructed as the sum of exports and imports as a share of gdp"
->>>>>>> Stashed changes
 gen d_2008 = 0
 replace d_2008 = 1 if date >= tq(2008q3) & date <= tq(2009q1)
 label variable d_2008 "Dummy variable that captures international financial crisis"
@@ -78,13 +71,22 @@ gen d_2018 = 0
 replace d_2018 = 1 if date > tq(2018q1) 
 label variable d_2018 ""
 
-//create variables adjusted by gdp_pc
+//create gdp_pc and variables adjusted by gdp
+gen gdp_pc = gdp/pop
+label variable gdp_pc "GDP per capita constructed with GDP and POP series"
+
+gen gov_gdp = (gov_con +pub_inv)/gdp 
+label variable gov_gdp "Government size defined as the sum of government consumption plus public fixed investment to gdp"
+
 gen tr_op = (x+m)/gdp 
 label variable tr_op "Trade openness index constructed as the sum of exports and imports as a share of gdp"
 
 foreach i in gov_con pub_inv priv_inv {
-replace `i'_=`i'*10^6
+gen `i'_gdp =`i'/gdp
 }
 
+// Export variables to perform Variables Seasonal Adjustment in R
+
+export excel gdp_pc gov_gdp gov_con_gdp pub_inv_gdp priv_inv_gdp tr_op  using pre_seasonal_adj, firstrow(variables) replace
 
 	
