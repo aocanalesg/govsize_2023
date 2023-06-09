@@ -61,6 +61,15 @@ foreach i in gdp gov_con pub_inv priv_inv x m {
 replace `i'=`i'*10^6
 }
 
+<<<<<<< Updated upstream
+=======
+//create dummies and gdp per capita
+gen gdp_pc = gdp/pop
+label variable gdp_pc "GDP per capita constructed with GDP and POP series"
+
+gen tr_op = (x+m)/gdp 
+label variable tr_op "Trade openness index constructed as the sum of exports and imports as a share of gdp"
+>>>>>>> Stashed changes
 gen d_2008 = 0
 replace d_2008 = 1 if date >= tq(2008q3) & date <= tq(2009q1)
 label variable d_2008 "Dummy variable that captures international financial crisis"
