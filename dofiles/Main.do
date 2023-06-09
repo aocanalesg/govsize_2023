@@ -61,20 +61,18 @@ foreach i in gdp gov_con pub_inv priv_inv x m {
 replace `i'=`i'*10^6
 }
 
-//create dummies and gdp per capita
-gen gdp_pc = gdp/pop
-label variable gdp_pc "GDP per capita constructed with GDP and POP series"
-gen tr_op = (x+m)/gdp 
-label variable tr_op "Trade openness index constructed as the sum of exports and imports as a share of gdp"
 gen d_2008 = 0
-replace d_2008 = 1 if date >= 2008q3 & date <= 2009q1
-label variable
+replace d_2008 = 1 if date >= tq(2008q3) & date <= tq(2009q1)
+label variable d_2008 "Dummy variable that captures international financial crisis"
 
 gen d_2018 = 0
-replace d_2008 = 1 if
-label variable 
+replace d_2018 = 1 if date > tq(2018q1) 
+label variable d_2018 ""
 
 //create variables adjusted by gdp_pc
+gen tr_op = (x+m)/gdp 
+label variable tr_op "Trade openness index constructed as the sum of exports and imports as a share of gdp"
+
 foreach i in gov_con pub_inv priv_inv {
 replace `i'_=`i'*10^6
 }
