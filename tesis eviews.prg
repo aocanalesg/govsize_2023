@@ -1,0 +1,430 @@
+'===============================
+'Preparación de los datos
+'===============================
+
+
+
+
+
+
+'Desestacionalizar
+pibpc.stl pibpc_saf pibpc_trend logpibcap_sa
+delete pibpc_saf pibpc_trend
+
+rgobagr.stl rgobagr_saf rgobagr_trend x1_sa
+delete rgobagr_saf rgobagr_trend
+
+rinvpub.stl rinvpub_saf rinvpub_trend rinvpub_sa
+delete rinvpub_saf rinvpub_trend
+
+rgob.stl rgob_saf rrgob_trend rgob_sa
+delete rgob_saf rrgob_trend
+
+rfbkf.stl rfbkf_saf rfbkf_trend x2_sa
+delete rfbkf_saf rfbkf_trend
+
+ac.stl ac_saf ac_trend x3_sa
+delete ac_saf ac_trend
+
+'Aquí se crean las dummies
+
+series d_2008 = @recode(@date<@dateval("2008q3") or @date>@dateval("2009q1"),1,0)
+
+series d_2018= @recode(@date>@dateval("2018q2"),1,0)
+
+'===============================
+'Aquí se realizan los test de raíces unitarias
+'===============================
+
+'ADF
+'Niveles	
+
+freeze(adftable_logpibcap_sa_c) logpibcap_sa.uroot(dif=1)
+freeze(adftable_logpibcap_sa_ct) logpibcap_sa.uroot(exog=trend, dif=1)
+freeze(adftable_logpibcap_sa_nc) logpibcap_sa.uroot(exog=none, dif=1)
+
+freeze(adftable_rinvpub_sa_c) rinvpub_sa.uroot(dif=1)
+freeze(adftable_rinvpub_sa_ct) rinvpub_sa.uroot(exog=trend, dif=1)
+freeze(adftable_lrinvpub_sa_nc) rinvpub_sa.uroot(exog=none, dif=1)
+
+for !i=1 to 3
+freeze(adftable{!i}_c) x{!i}_sa.uroot(dif=1)
+freeze(adftable{!i}_ct) x{!i}_sa.uroot(exog=trend, dif=1)
+freeze(adftable{!i}_nc) x{!i}_sa.uroot(exog=none, dif=1)
+
+next
+
+'diferencias
+
+
+'Phillips-perron 
+'Niveles
+
+
+freeze(pptable_logpibcap_sa_c) logpibcap_sa.uroot(pp)
+freeze(pptable_logpibcap_sa_c) logpibcap_sa.uroot(exog=trend, pp)
+freeze(pptable_logpibcap_sa_c) logpibcap_sa.uroot(exog=none, pp)
+
+freeze(pptable_logpibcap_sa_c) rinvpub_sa.uroot(pp)
+freeze(pptable_logpibcap_sa_c) rinvpub_sa.uroot(exog=trend, pp)
+freeze(pptable_logpibcap_sa_c) rinvpub_sa.uroot(exog=none, pp)
+
+for !i=1 to 3
+freeze(pptable{!i}_c) x{!i}_sa.uroot(pp)
+freeze(pptable{!i}_ct) x{!i}_sa.uroot(exog=trend, pp)
+freeze(pptable{!i}_nc) x{!i}_sa.uroot(exog=none, pp)
+
+next
+
+'Diferencias
+freeze(pptable_logpibcap_sa_c) logpibcap_sa.uroot(dif=1, pp)
+freeze(pptable_logpibcap_sa_c) logpibcap_sa.uroot(exog=trend, dif=1, pp)
+freeze(pptable_logpibcap_sa_c) logpibcap_sa.uroot(exog=none,dif=1, pp)
+
+freeze(pptable_logpibcap_sa_c) rinvpub_sa.uroot(dif=1,pp)
+freeze(pptable_logpibcap_sa_c) rinvpub_sa.uroot(exog=trend, dif=1, pp)
+freeze(pptable_logpibcap_sa_c) rinvpub_sa.uroot(exog=none, dif=1, pp)
+
+for !i=1 to 3
+freeze(pptable{!i}_c) x{!i}_sa.uroot(dif=1, pp)
+freeze(pptable{!i}_ct) x{!i}_sa.uroot(exog=trend, dif=1, pp)
+freeze(pptable{!i}_nc) x{!i}_sa.uroot(exog=none, dif=1, pp)
+
+next
+
+'==========================
+'Criterio de selección de rezagos
+'==========================
+
+
+
+
+'===========================
+'Precedencia temporal
+'===========================
+
+
+
+
+'===========================
+'Cointegración
+'===========================
+
+
+
+'===========================
+'Estimaciones de LP
+'===========================
+
+
+
+
+'=============================
+'Aquí se corren los modelos
+'=============================
+
+'Variable independiente del gobierno: consumo agregado
+
+'Modelos lineales
+
+smpl @all
+equation eql1.ls logpibcap_sa c x1_sa x2_sa x3_sa d_2008 d_2018
+
+
+smpl @all
+equation eql2.cointreg logpibcap_sa x1_sa  x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eql3.cointreg(method=ccr) logpibcap_sa x1_sa x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eql4.ls logpibcap_sa c x1_sa x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eql5.cointreg logpibcap_sa x1_sa  x2_sa x3_sa @determ d_2008 
+
+smpl 2006Q1 2017Q4
+equation eql6.cointreg(method=ccr) logpibcap_sa x1_sa  x2_sa x3_sa @determ d_2008 
+
+
+
+'Modelos cuadráticos
+smpl @all
+equation eq1.ls logpibcap_sa c x1_sa (x1_sa)^2 x2_sa x3_sa d_2008 d_2018
+
+
+smpl @all
+equation eq2.cointreg logpibcap_sa x1_sa (x1_sa)^2 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq3.cointreg(method=ccr) logpibcap_sa x1_sa (x1_sa)^2 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq4.ls logpibcap_sa c x1_sa (x1_sa)^2 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq5.cointreg logpibcap_sa x1_sa (x1_sa)^2 x2_sa x3_sa @determ d_2008 
+
+smpl 2006Q1 2017Q4
+equation eq6.cointreg(method=ccr) logpibcap_sa x1_sa (x1_sa)^2 x2_sa x3_sa @determ d_2008 
+
+
+
+'Modelos cúbicos
+smpl @all
+equation eq7.ls logpibcap_sa c x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa d_2008 d_2018
+
+smpl @all
+equation eq8.cointreg logpibcap_sa x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq9.cointreg(method=ccr) logpibcap_sa  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq10.ls logpibcap_sa c x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq11.cointreg logpibcap_sa  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008
+
+smpl 2006Q1 2017Q4
+equation eq12.cointreg(method=ccr) logpibcap_sa  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008 
+
+'Modelos cuaticos
+
+smpl @all
+equation eq13.ls logpibcap_sa c x1_sa (x1_sa)^2 (x1_sa)^3 (x1_sa)^4 x2_sa x3_sa d_2008 d_2018
+
+smpl @all
+equation eq14.cointreg logpibcap_sa x1_sa (x1_sa)^2 (x1_sa)^3 (x1_sa)^4 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq15.cointreg(method=ccr) logpibcap_sa x1_sa (x1_sa)^2 (x1_sa)^3 (x1_sa)^4 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq16.ls logpibcap_sa c x1_sa (x1_sa)^2 (x1_sa)^3 (x1_sa)^4 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq17.cointreg logpibcap_sa x1_sa (x1_sa)^2 (x1_sa)^3 (x1_sa)^4 x2_sa x3_sa @determ d_2008
+ 
+smpl 2006Q1 2017Q4
+equation eq18.cointreg(method=ccr) logpibcap_sa x1_sa (x1_sa)^2 (x1_sa)^3 (x1_sa)^4 x2_sa x3_sa @determ d_2008
+
+
+'Variable independiente del gobierno: Inversion fija pública
+'Modelos lineales
+
+smpl @all
+equation eql19.ls logpibcap_sa c rinvpub_sa  x2_sa x3_sa d_2008 d_2018
+
+
+smpl @all
+equation eql20.cointreg logpibcap_sa rinvpub_sa  x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eql21.cointreg(method=ccr) logpibcap_sa rinvpub_sa x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eql22.ls logpibcap_sa c rinvpub_sa  x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eql23.cointreg logpibcap_sa rinvpub_sa  x2_sa x3_sa @determ d_2008 
+
+smpl 2006Q1 2017Q4
+equation eql24.cointreg(method=ccr) logpibcap_sa rinvpub_sa  x2_sa x3_sa @determ d_2008 
+
+
+'Modelos cuadráticos
+
+smpl @all
+equation eq19.ls logpibcap_sa c rinvpub_sa (rinvpub_sa)^2 x2_sa x3_sa d_2008 d_2018
+
+smpl @all
+equation eq20.cointreg logpibcap_sa rinvpub_sa (rinvpub_sa)^2 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq21.cointreg(method=ccr) logpibcap_sa rinvpub_sa (rinvpub_sa)^2 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq22.ls logpibcap_sa c rinvpub_sa (rinvpub_sa)^2 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq23.cointreg logpibcap_sa rinvpub_sa (rinvpub_sa)^2 x2_sa x3_sa @determ d_2008 
+
+smpl 2006Q1 2017Q4
+equation eq24.cointreg(method=ccr) logpibcap_sa rinvpub_sa (rinvpub_sa)^2 x2_sa x3_sa @determ d_2008 
+
+'Modelos cúbicos
+
+smpl @all
+equation eq25.ls logpibcap_sa c rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 x2_sa x3_sa d_2008 d_2018
+
+smpl @all
+equation eq26.cointreg logpibcap_sa rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq27.cointreg(method=ccr) logpibcap_sa rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq28.ls logpibcap_sa c rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq29.cointreg logpibcap_sa rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 x2_sa x3_sa @determ d_2008
+
+smpl 2006Q1 2017Q4
+equation eq30.cointreg(method=ccr) logpibcap_sa rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 x2_sa x3_sa @determ d_2008 
+
+'Modelos cuaticos
+
+smpl @all
+equation eq31.ls logpibcap_sa c rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 (rinvpub_sa)^4 x2_sa x3_sa d_2008 d_2018
+
+smpl @all
+equation eq32.cointreg logpibcap_sa rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 (rinvpub_sa)^4 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq33.cointreg(method=ccr) logpibcap_sa rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 (rinvpub_sa)^4 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq34.ls logpibcap_sa c rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 (rinvpub_sa)^4 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq35.cointreg logpibcap_sa rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3 (rinvpub_sa)^4 x2_sa x3_sa @determ d_2008 
+smpl 2006Q1 2017Q4
+equation eq36.cointreg(method=ccr) logpibcap_sa rinvpub_sa (rinvpub_sa)^2 (rinvpub_sa)^3  (rinvpub_sa)^4 x2_sa x3_sa @determ d_2008
+
+'--------------------------------------------------------------------------------------------------------
+'Variable independiente del gobierno: consumo publico
+'--------------------------------------------------------------------------------------------------------
+
+'Modelos lineales
+
+smpl @all
+equation eql37.ls logpibcap_sa c rgob_sa  x2_sa x3_sa d_2008 d_2018
+
+
+smpl @all
+equation eql38.cointreg logpibcap_sa rgob_sa  x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eql39.cointreg(method=ccr) logpibcap_sa rgob_sa  x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eql40.ls logpibcap_sa c rgob_sa  x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eql41.cointreg logpibcap_sa rgob_sa  x2_sa x3_sa @determ d_2008 
+
+smpl 2006Q1 2017Q4
+equation eql42.cointreg(method=ccr) logpibcap_sa rgob_sa  x2_sa x3_sa @determ d_2008
+
+'Modelos cuadráticos
+
+smpl @all
+equation eq37.ls logpibcap_sa c rgob_sa (rgob_sa)^2 x2_sa x3_sa d_2008 d_2018
+
+smpl @all
+equation eq38.cointreg logpibcap_sa rgob_sa (rgob_sa)^2 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq39.cointreg(method=ccr) logpibcap_sa rgob_sa (rgob_sa)^2 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq40.ls logpibcap_sa c rgob_sa (rgob_sa)^2 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq41.cointreg logpibcap_sa rgob_sa (rgob_sa)^2 x2_sa x3_sa @determ d_2008 
+
+smpl 2006Q1 2017Q4
+equation eq42.cointreg(method=ccr) logpibcap_sa rgob_sa (rgob_sa)^2 x2_sa x3_sa @determ d_2008
+
+'Modelos cúbicos
+
+smpl @all
+equation eq42.ls logpibcap_sa c rgob_sa (rgob_sa)^2 (rgob_sa)^3 x2_sa x3_sa d_2008 d_2018
+
+smpl @all
+equation eq43.cointreg logpibcap_sa rgob_sa (rgob_sa)^2 (rgob_sa)^3 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq44.cointreg(method=ccr) logpibcap_sa  rgob_sa (rgob_sa)^2 (rgob_sa)^3 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq45.ls logpibcap_sa c rgob_sa (rgob_sa)^2 (rgob_sa)^3 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq46.cointreg logpibcap_sa  rgob_sa (rgob_sa)^2 (rgob_sa)^3 x2_sa x3_sa @determ d_2008
+
+smpl 2006Q1 2017Q4
+equation eq47.cointreg(method=ccr) logpibcap_sa rgob_sa (rgob_sa)^2 (rgob_sa)^3 x2_sa x3_sa @determ d_2008 
+
+'Modelos cuaticos
+
+smpl @all
+equation eq48.ls logpibcap_sa c rgob_sa (rgob_sa)^2 (rgob_sa)^3 (rgob_sa)^4 x2_sa x3_sa d_2008 d_2018
+
+smpl @all
+equation eq49.cointreg logpibcap_sa rgob_sa (rgob_sa)^2 (rgob_sa)^3 (rgob_sa)^4 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl @all
+equation eq50.cointreg(method=ccr) logpibcap_sa rgob_sa (rgob_sa)^2 (rgob_sa)^3 (rgob_sa)^4 x2_sa x3_sa @determ d_2008 d_2018
+
+smpl 2006Q1 2017Q4
+equation eq51.ls logpibcap_sa c rgob_sa (rgob_sa)^2 (rgob_sa)^3 (rgob_sa)^4 x2_sa x3_sa d_2008
+
+smpl 2006Q1 2017Q4
+equation eq52.cointreg logpibcap_sa rgob_sa (rgob_sa)^2 (rgob_sa)^3 (rgob_sa)^4 x2_sa x3_sa @determ d_2008 
+
+smpl 2006Q1 2017Q4
+equation eq53.cointreg(method=ccr) logpibcap_sa rgob_sa (rgob_sa)^2 (rgob_sa)^3 (rgob_sa)^4 x2_sa x3_sa @determ d_2008
+
+
+'=============================
+'Bootstrap
+'=============================
+'Gasto agregado
+
+for !x=1 to 30
+if !x<13 then
+smpl @first+{!x} @last
+equation reg_agregado{!x}.COINTREG LOGPIBCAP_SA X1_SA (X1_SA)^2 X2_SA X3_SA @DETERM D_2008 D_2018
+else
+smpl @first+{!x} @last
+equation reg_agregado{!x}.COINTREG LOGPIBCAP_SA X1_SA (X1_SA)^2 X2_SA X3_SA @DETERM D_2018
+endif
+
+next
+
+for !x=1 to 30
+table(30,1) lineales_agregado
+table(30,1) cuadraticos_agregado
+lineales_agregado({!x},1) = reg_agregado{!x}.@coef(1)
+cuadraticos_agregado({!x},1) = reg_agregado{!x}.@coef(2)
+next
+
+'inversion Fija publica
+
+for !x=1 to 30
+if !x<13 then
+
+smpl @first+{!x} @last
+equation reg_inversion{!x}.COINTREG LOGPIBCAP_SA RINVPUB_SA (RINVPUB_SA)^2 X2_SA X3_SA @DETERM D_2008 D_2018
+else
+smpl @first+{!x} @last
+equation reg_inversion{!x}.COINTREG LOGPIBCAP_SA RINVPUB_SA (RINVPUB_SA)^2 X2_SA X3_SA @DETERM D_2018
+endif
+next
+
+for !x=1 to 30
+table(30,1) lineales_inversion
+table(30,1) cuadraticos_inversion
+lineales_inversion({!x},1) = reg_inversion{!x}.@coef(1)
+cuadraticos_inversion({!x},1) = reg_inversion{!x}.@coef(2)
+next
+
+
+
+
+
+
+
+
