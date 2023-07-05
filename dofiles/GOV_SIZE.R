@@ -4,20 +4,26 @@
 #CLEAR
 rm(list = ls())
 
-#Workind directory
+#Working directory
 setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
-#Packages
+#Packages to install/load 
 #install.packages("googlesheets4")
 #install.packages("timeSeries")
 #install.packages("zoo")
 #install.packages("xts")
-library(xts)
+install.packages("seasonal")
+install.packages("TSstudio")
+install.packages("ggpubr")
+install.packages("patchwork")
 library(dplyr)
 library(googlesheets4)
 library(lubridate)
-library(zoo)
+library(seasonal)
+library(TSstudio)
 
-#Importar data (Euler)
+library(patchwork)
+
+#Import data from Drive (Euler)
 
 raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
            sheet = "RAW_DATA2",
@@ -26,7 +32,7 @@ raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHg
            )
 
 
-#Limpieza datos (Euler)
+#Data cleaning (Euler)
 
 #rename
 raw_data <- raw_data %>%
@@ -41,12 +47,13 @@ raw_data <- raw_data %>%
     "pop" = "RAW_POP"
   )
 
+#Declare vector of names 
 var_names_bcn <- c("date", "gdp", "gov_con", "pub_inv", "priv_inv", "x", "m", "pop")
 
 
 
 
-#rescale variables from BCN to millions of cords
+#Rescale variables from BCN to millions of cords
 raw_data <- raw_data %>%
   mutate(
     gdp = gdp*10^6,
@@ -75,26 +82,65 @@ raw_data <- raw_data %>%
 #create dummies 
 raw_data <- raw_data %>%
   mutate(
-    d_2008 = ifelse(date >= "2008-10-1" & date <= "2009-1-1" ,1,0)
+    d_2008 = ifelse(date >= "2008-7-1" & date <= "2009-4-1" ,1,0)
+  )
+
+raw_data <- raw_data %>%
+  mutate(
+    d_2018 = ifelse(date >= "2017-10-1",1,0)
   )
 
 
 #Time series set
-ts_vars <- ts(data = raw_data,
-              start = c(2006,1),
-              frequency = 4
+ts_vars <- ts(data = cbind(raw_data[,1],raw_data[,9:16]),
+             start = c(2006,1),
+             frequency = 4
 )
 
-#ts_vars[,1] <- as.yearqtr(ts_vars[,1],           # Convert dates to quarterly
- #          format = "%Y-%m-%d")
+df <- as.data.frame(ts_vars)
+df$date<-as.Date(df$date)
 
+ts_plot(ts_vars[,1])
+ts_plot(ts_vars[,2])
+ts_plot(ts_vars[,3])
+ts_plot(ts_vars[,4])
+ts_plot(ts_vars[,5])
+ts_plot(ts_vars[,6])
 
-
+ggplot(df, aes(x = date, y = df[,2])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
 
 #Desestacionalizacion (Done)
 
 
+seasonal_adj <- seas(x = ts_vars[,2:7])
+#series(seasonal_adj,c("forecast.forecasts","s12"))
+seasonal_adj <- final(seasonal_adj)
 
+#Basic graph
+plot1 <- ts_plot(seasonal_adj[,1])
+plot2 <- ts_plot(seasonal_adj[,2])
+plot3 <- ts_plot(seasonal_adj[,3])
+plot4 <- ts_plot(seasonal_adj[,4])
+plot5 <- ts_plot(seasonal_adj[,5])
+plot6 <- ts_plot(seasonal_adj[,6])
+
+#Graph with ggplot
+
+
+
+combined_plot <- ggarrange(plot1,
+                           plot2,
+                           plot3,
+                           plot4,
+                           plot5,
+                           plot6,
+                           nrow = 2,
+                           ncol = 3) #nrow & ncol depend on how you want to 
+#organize your plots
+
+plot1 + plot2 + plot3 + plot4
 #Estacionariedad (Tony Stark)
 
 
