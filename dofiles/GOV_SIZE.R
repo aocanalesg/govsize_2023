@@ -11,16 +11,16 @@ setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
 #install.packages("timeSeries")
 #install.packages("zoo")
 #install.packages("xts")
-install.packages("seasonal")
-install.packages("TSstudio")
-install.packages("ggpubr")
-install.packages("patchwork")
+#install.packages("seasonal")
+#install.packages("TSstudio")
+#install.packages("ggpubr")
+#install.packages("patchwork")
 library(dplyr)
 library(googlesheets4)
 library(lubridate)
 library(seasonal)
 library(TSstudio)
-
+library(ggpubr)
 library(patchwork)
 
 #Import data from Drive (Euler)
@@ -92,29 +92,53 @@ raw_data <- raw_data %>%
 
 
 #Time series set
-ts_vars <- ts(data = cbind(raw_data[,1],raw_data[,9:16]),
+ts_vars <- ts(data = raw_data[,9:14],
              start = c(2006,1),
              frequency = 4
 )
 
-df <- as.data.frame(ts_vars)
-df$date<-as.Date(df$date)
+df <- as.data.frame(raw_data)
+df$date<-as.Date(df$date,  "%m/%d/%y")
 
-ts_plot(ts_vars[,1])
-ts_plot(ts_vars[,2])
-ts_plot(ts_vars[,3])
-ts_plot(ts_vars[,4])
-ts_plot(ts_vars[,5])
-ts_plot(ts_vars[,6])
 
-ggplot(df, aes(x = date, y = df[,2])) +
+raw_plot1 <- ggplot(df, aes(x = date, y = gdp_pc)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
+raw_plot2 <- ggplot(df, aes(x = date, y = df[,3])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+raw_plot3 <- ggplot(df, aes(x = date, y = df[,4])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+raw_plot4 <- ggplot(df, aes(x = date, y = df[,5])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+raw_plot5 <- ggplot(df, aes(x = date, y = df[,6])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+raw_plot6 <- ggplot(df, aes(x = date, y = df[,7])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+combined_plot <- ggarrange(raw_plot1,
+                          raw_plot2,
+                          raw_plot3,
+                          raw_plot4,
+                          raw_plot5,
+                          raw_plot6,
+                          nrow = 2,
+                          ncol = 3) #nrow & ncol depend on how you want to #organize your plots
+
+combined_plot
 #Desestacionalizacion (Done)
 
 
-seasonal_adj <- seas(x = ts_vars[,2:7])
+seasonal_adj <- seas(x = ts_vars)
 #series(seasonal_adj,c("forecast.forecasts","s12"))
 seasonal_adj <- final(seasonal_adj)
 
@@ -126,21 +150,69 @@ plot4 <- ts_plot(seasonal_adj[,4])
 plot5 <- ts_plot(seasonal_adj[,5])
 plot6 <- ts_plot(seasonal_adj[,6])
 
+
+plot1
+plot2
+plot3
+plot4
+plot5
+plot6
+#ggplot_graph
+
+df_seas <- as.data.frame(seasonal_adj)
+df_seas<- cbind(df$date, df_seas[,])
+
+df_seas <- df_seas %>% 
+  rename("date" = "df$date",
+         "gdp_pc_s"="gdp_pc",
+         "gov_gdp_s"="gov_gdp",
+         "gov_con_gdp_s"="gov_con_gdp",
+         "pub_inv_gdp_s"="pub_inv_gdp",
+         "priv_inv_gdp_s"="priv_inv_gdp",
+         "tr_op_s"="tr_op"
+         )
+
+df_seas$date<-as.Date(df_seas$date,  "%m/%d/%y")
+
 #Graph with ggplot
 
+seas_plot1 <- ggplot(df_seas, aes(x = date, y = df_seas[,2])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
 
+seas_plot2 <- ggplot(df_seas, aes(x = date, y = df_seas[,3])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
 
-combined_plot <- ggarrange(plot1,
-                           plot2,
-                           plot3,
-                           plot4,
-                           plot5,
-                           plot6,
+seas_plot3 <- ggplot(df_seas, aes(x = date, y = df_seas[,4])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+seas_plot4 <- ggplot(df_seas, aes(x = date, y = df_seas[,5])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+seas_plot5 <- ggplot(df_seas, aes(x = date, y = df_seas[,6])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+seas_plot6 <- ggplot(df_seas, aes(x = date, y = df_seas[,7])) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+combined_plot_seas <- ggarrange(seas_plot1,
+                                seas_plot2,
+                                seas_plot3,
+                                seas_plot4,
+                                seas_plot5,
+                                seas_plot6,
                            nrow = 2,
-                           ncol = 3) #nrow & ncol depend on how you want to 
-#organize your plots
+                           ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
-plot1 + plot2 + plot3 + plot4
+combined_plot_seas
+
+
+
 #Estacionariedad (Tony Stark)
 
 
