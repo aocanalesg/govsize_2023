@@ -72,6 +72,12 @@ raw_data <- raw_data %>%
   )
 
 
+#create dummies 
+raw_data <- raw_data %>%
+  mutate(
+    d_2008 = ifelse(date >= "2008-10-1" & date <= "2009-1-1" ,1,0)
+  )
+
 
 #Time series set
 ts_vars <- ts(data = raw_data,
@@ -79,29 +85,8 @@ ts_vars <- ts(data = raw_data,
               frequency = 4
 )
 
-ts_vars[,1] <- as.yearqtr(ts_vars[,1],           # Convert dates to quarterly
-           format = "%Y-%m-%d")
-
-#create dummies 
-tt <- seq(as.Date("1959-01-01"), as.Date("1990-12-01"), by='mon')
-tsMloa_x <- xts(unclass(tsMloa)[,1:3], order.by=tt)
-
-tsMloa_x$meanLog <- tsMloa_x$log - mean(tsMloa_x$log)
-
-ts_vars[,"dummy_2008"] <- seq(0) 
-
-
-dat$dummy[which(dat$date >= "2018-01-01")] <- 1
-
-
-replace d_2008 = 1 if date >= tq(2008q3) & date <= tq(2009q1)
-label variable d_2008 "Dummy variable that captures international financial crisis"
-
-gen d_2018 = 0
-replace d_2018 = 1 if date > tq(2018q1) 
-label variable d_2018 ""
-
-ts_vars$dummie1 = ifelse(date > ,1,0)
+#ts_vars[,1] <- as.yearqtr(ts_vars[,1],           # Convert dates to quarterly
+ #          format = "%Y-%m-%d")
 
 
 
