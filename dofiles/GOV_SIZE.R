@@ -15,6 +15,10 @@ setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
 #install.packages("TSstudio")
 #install.packages("ggpubr")
 #install.packages("patchwork")
+#install.packages("urca")
+#install.packages("cointReg")
+library(cointReg)
+library(urca)
 library(dplyr)
 library(googlesheets4)
 library(lubridate)
@@ -105,23 +109,23 @@ raw_plot1 <- ggplot(df, aes(x = date, y = gdp_pc)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot2 <- ggplot(df, aes(x = date, y = df[,3])) +
+raw_plot2 <- ggplot(df, aes(x = date, y = df[,10])) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot3 <- ggplot(df, aes(x = date, y = df[,4])) +
+raw_plot3 <- ggplot(df, aes(x = date, y = df[,11])) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot4 <- ggplot(df, aes(x = date, y = df[,5])) +
+raw_plot4 <- ggplot(df, aes(x = date, y = df[,12])) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot5 <- ggplot(df, aes(x = date, y = df[,6])) +
+raw_plot5 <- ggplot(df, aes(x = date, y = df[,13])) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot6 <- ggplot(df, aes(x = date, y = df[,7])) +
+raw_plot6 <- ggplot(df, aes(x = date, y = df[,14])) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
@@ -142,25 +146,10 @@ seasonal_adj <- seas(x = ts_vars)
 #series(seasonal_adj,c("forecast.forecasts","s12"))
 seasonal_adj <- final(seasonal_adj)
 
-#Basic graph
-plot1 <- ts_plot(seasonal_adj[,1])
-plot2 <- ts_plot(seasonal_adj[,2])
-plot3 <- ts_plot(seasonal_adj[,3])
-plot4 <- ts_plot(seasonal_adj[,4])
-plot5 <- ts_plot(seasonal_adj[,5])
-plot6 <- ts_plot(seasonal_adj[,6])
-
-
-plot1
-plot2
-plot3
-plot4
-plot5
-plot6
 #ggplot_graph
 
 df_seas <- as.data.frame(seasonal_adj)
-df_seas<- cbind(df$date, df_seas[,])
+df_seas <- cbind(df$date, df_seas[,])
 
 df_seas <- df_seas %>% 
   rename("date" = "df$date",
@@ -174,31 +163,60 @@ df_seas <- df_seas %>%
 
 df_seas$date<-as.Date(df_seas$date,  "%m/%d/%y")
 
+#Log tranasformation
+df_seas <- df_seas %>% 
+  mutate(
+         log_gdp_pc_s= log(gdp_pc_s),
+         log_gov_gdp_s=log(gov_gdp_s),
+         log_gov_con_gdp_s=log(gov_con_gdp_s),
+         log_pub_inv_gdp_s=log(pub_inv_gdp_s),
+         log_priv_inv_gdp_s=log(priv_inv_gdp_s),
+         log_tr_op_s=log(tr_op_s)
+  )
+
 #Graph with ggplot
 
 seas_plot1 <- ggplot(df_seas, aes(x = date, y = df_seas[,2])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")
+  scale_x_date(date_labels = "%b %Y")+
+  theme_classic()+
+  ggtitle("Producto Interno Bruto Per Capita")+
+  labs(x="",y="")
 
 seas_plot2 <- ggplot(df_seas, aes(x = date, y = df_seas[,3])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")
+  scale_x_date(date_labels = "%b %Y")+
+  theme_classic()+
+  ggtitle("Gasto de Gobierno agregado")+
+  labs(x="",y="")
 
 seas_plot3 <- ggplot(df_seas, aes(x = date, y = df_seas[,4])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")
+  scale_x_date(date_labels = "%b %Y")+
+  theme_classic()+
+  ggtitle("Gasto de Gobierno corriente")+
+  labs(x="",y="")
 
 seas_plot4 <- ggplot(df_seas, aes(x = date, y = df_seas[,5])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")
+  scale_x_date(date_labels = "%b %Y")+
+  theme_classic()+
+  ggtitle("Inverion fija publica")+
+  labs(x="",y="")
 
 seas_plot5 <- ggplot(df_seas, aes(x = date, y = df_seas[,6])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")
+  scale_x_date(date_labels = "%b %Y")+
+  theme_classic()+
+  ggtitle("Inversion fija privada")+
+  labs(x="",y="")
 
 seas_plot6 <- ggplot(df_seas, aes(x = date, y = df_seas[,7])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")
+  scale_x_date(date_labels = "%b %Y")+
+  theme_classic()+
+  ggtitle("Apertura comercial")+
+  labs(x="",y="")
 
 combined_plot_seas <- ggarrange(seas_plot1,
                                 seas_plot2,
@@ -219,6 +237,8 @@ combined_plot_seas
 
 
 #Incluye montar la tabla y exportarla a codigo latex
+
+
 #Criterio de seleccion de rezagos Gasto Agregado (Tony Stark)
 
 
@@ -239,13 +259,52 @@ combined_plot_seas
 
 #Prueba de cointegracion (Euler)
 
+jotest=ca.jo(df_seas[,2:6], type="trace", K=2, ecdet="none", spec="longrun")
+summary(jotest)
+
 
 #Ecuacion de largo plazo Gasto Agregado (Tony Stark)
 
 
 
 
-#Ecuacion de largo plazo Inversion Fija (Euler)
+### Ecuacion de largo plazo Inversion Fija (Euler)
+
+##### Preparing data base for regression
+
+#inclusion of dummies
+
+
+df_seas <- data.frame(df_seas,df[,15:16])
+
+
+#inclusion of quadratic
+df_seas <- df_seas %>%
+  mutate(
+    log_pub_inv_gdp_s_2= log_pub_inv_gdp_s*log_pub_inv_gdp_s,
+)
+    
+
+#inclusion of cubic
+
+df_seas <- df_seas %>%
+  mutate(
+    log_pub_inv_gdp_s_3= log_pub_inv_gdp_s_2*log_pub_inv_gdp_s,
+  )
+
+
+#lineal
+
+#####  MCO
+lin_2_mco <- lm(log(gdp_pc_s) ~ log(pub_inv_gdp_s) + log(priv_inv_gdp_s) + log(tr_op_s) + d_2008 + d_2018, df_seas)
+summary(lin_2_mco)
+#####  FMOLS
+
+lin_2_fmols <- cointReg(method = c("FM"), df_seas[,2], df_seas[,3:7])
+
+#####  Canonical Cointegration Regression
+
+#Pausa
 
 
 
