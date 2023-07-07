@@ -5,24 +5,19 @@
 rm(list = ls())
 
 #Working directory
-setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023/dofiles')
+setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
 #Packages to install/load 
 
-install.packages("googlesheets4")
-install.packages("timeSeries")
-install.packages("zoo")
-install.packages("xts")
-install.packages("seasonal")
-install.packages("TSstudio")
-install.packages("ggpubr")
-install.packages("patchwork")
-install.packages("tidyverse")
-install.packages("fpp2")
-library(fpp2)
-library(tidyverse)
-library(zoo)
-library(xts)
-
+#install.packages("googlesheets4")
+#install.packages("timeSeries")
+#install.packages("zoo")
+#install.packages("xts")
+#install.packages("seasonal")
+#install.packages("TSstudio")
+#install.packages("ggpubr")
+#install.packages("patchwork")
+#install.packages("tidyverse")
+#install.packages("fpp2")
 #install.packages("googlesheets4")
 #install.packages("timeSeries")
 #install.packages("zoo")
@@ -33,23 +28,23 @@ library(xts)
 #install.packages("patchwork")
 #install.packages("urca")
 #install.packages("cointReg")
-install.packages("xtable")
+#install.packages("xtable")
+
+library(tidyverse)
 library(xtable)#para tablas de latex
 library(cointReg)#para FMOLS
 library(urca)#para test de Johansen
-
 library(dplyr)
 library(googlesheets4)#para importar de G. Drive
 library(lubridate)
-
 library(seasonal)
 library(TSstudio)
 library(patchwork)
-
+library(zoo)
 library(seasonal)#Para desestacionalizar
 library(TSstudio)#PAra desestacionalizar
 library(ggpubr)
-library(patchwork)# para combinar graficos
+library(patchwork) # para combinar graficos
 
 
 #Import data from Drive (Euler)
@@ -92,23 +87,80 @@ raw_data <- raw_data %>%
          )
 
 
-#Quiebre estructural debido a cambios metodologicos 
-# Para recuperar la tendencia reflejada a partir de 2013, se restar al cambio porcentual de la serie
-# en el punto de quiebre, la tasa de crecimiento trimestral de los datos previo al quiebre en el trimestre correspondiente.
+### Grafica de la serie poblacion
+raw_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+raw_pop
+
+
+###R Debido a cambio estructural en la serie de poblacion, se procedio a reescalar la serie. 
+#Para reflejar la tendencia reflejada a partir de 2013, es restar al cambio porcentual de la serie
+#punto de quiebre, la tasa de crecimiento trimestral de los datos previo al quiebre en el trimestre 
+# correspondiente. 
 
 raw_data <- raw_data %>%
-  mutate(growth_rate_pop = ifelse(!is.na(pop),(pop - lag(pop))/lag(pop),0))
+  mutate(
+    growth_pop = ifelse(date >= "2012-10-01" & date<= "2021-04-01"  , pop/lag_1_pop-1,0)
+  )
 
 
 
-#growth_rate_pop <- 0
-#for (val in raw_data$pop) {
-  #if(val %% 2 == 0)  growth_rate_pop = (raw_data$pop/raw_data$pop)-1
-#}
-#print(count)
+for (x in 62:64) {
+ raw_data[x,17] = (raw_data[x-1,17] +raw_data[x-2,17] +raw_data[x-3,17] +raw_data[x-4,17])/4
+}
+
+for (x in 28:1) {
+  raw_data[x,17] = (raw_data[x+1,17] +raw_data[x+2,17] +raw_data[x+3,17] +raw_data[x+4,17])/4
+}
+
+for (x in 26:1) { 
+  raw_data[x, 8] = raw_data[x+1, 8]/(1+raw_data[x+1,17])
+}
+
+for (x in 62:64) {
+  raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,17])
+}
+
+#
+### Pronosticar valores revertidos de la serie poblacion
+#library(forecast)
+#x <- ts(raw_data[27:64,8], frequency=4)
+#h <- 27
+#f <- 4
+# Reverse time
+#revx <- ts(rev(x), frequency=f)
+# Forecast
+#fc <- forecast(auto.arima(revx), h)
+#plot(fc)
+####  Revertir tiempo de nuevo para volverlo a su valor original
+#fc$mean <- ts(rev(fc$mean),end=tsp(x)[1] - 1/f, frequency=f)
+#fc$upper <- fc$upper[h:1,]
+#fc$lower <- fc$lower[h:1,]
+#fc$x <- x
+# Plot result
+#plot(fc, xlim=c(tsp(x)[1]-h/f, tsp(x)[2]))
+
+###Transformar valores pronosticados a dataframe
+#install.packages("reshape2")
+#library(reshape2)
+#pop_input <- data.frame(date=as.Date(index(fc$mean)), Y = melt(fc$mean)$value)
+
+#Grafica de pop_input
+#pop_input_graph <- ggplot(pop_input, aes(x = as.Date(date), y = pop_input$Y)) +
+ # geom_line() +
+  #scale_x_date(date_labels = "%b %Y")
+#pop_input_graph
+
+#Reemplazar los valores previos al quiebre de la serie pop con los valores pronosticados pop_input
+#raw_data <- raw_data %>%
+  #mutate(
+   # pop = ifelse(date <= "2012-04-01", pop_input$Y, pop)
+  #)
 
 
-#Variables as share of PIB per capita
+
+#Variables as share of PIB per capitalength
 raw_data <- raw_data %>%
   mutate(
     gdp_pc = gdp/pop,
