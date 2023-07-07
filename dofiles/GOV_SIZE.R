@@ -5,28 +5,33 @@
 rm(list = ls())
 
 #Working directory
-setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
+setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023/dofiles')
 #Packages to install/load 
-#install.packages("googlesheets4")
-#install.packages("timeSeries")
-#install.packages("zoo")
-#install.packages("xts")
+install.packages("googlesheets4")
+install.packages("timeSeries")
+install.packages("zoo")
+install.packages("xts")
 install.packages("seasonal")
 install.packages("TSstudio")
 install.packages("ggpubr")
 install.packages("patchwork")
+install.packages("tidyverse")
+install.packages("fpp2")
+library(fpp2)
+library(tidyverse)
+library(zoo)
+library(xts)
 library(dplyr)
 library(googlesheets4)
 library(lubridate)
 library(seasonal)
 library(TSstudio)
-
 library(patchwork)
 
 #Import data from Drive (Euler)
 
 raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
-           sheet = "RAW_DATA2",
+           sheet = "RAW_DATA",
            col_names = TRUE,
            range = "A1:H65"
            )
@@ -51,8 +56,6 @@ raw_data <- raw_data %>%
 var_names_bcn <- c("date", "gdp", "gov_con", "pub_inv", "priv_inv", "x", "m", "pop")
 
 
-
-
 #Rescale variables from BCN to millions of cords
 raw_data <- raw_data %>%
   mutate(
@@ -65,7 +68,21 @@ raw_data <- raw_data %>%
          )
 
 
-#Backast (Tony Stark)
+#Quiebre estructural debido a cambios metodologicos 
+# Para recuperar la tendencia reflejada a partir de 2013, se restar al cambio porcentual de la serie
+# en el punto de quiebre, la tasa de crecimiento trimestral de los datos previo al quiebre en el trimestre correspondiente.
+
+raw_data <- raw_data %>%
+  mutate(growth_rate_pop = ifelse(!is.na(pop),(pop - lag(pop))/lag(pop),0))
+
+
+
+#growth_rate_pop <- 0
+#for (val in raw_data$pop) {
+  #if(val %% 2 == 0)  growth_rate_pop = (raw_data$pop/raw_data$pop)-1
+#}
+#print(count)
+
 
 #Variables as share of PIB per capita
 raw_data <- raw_data %>%
