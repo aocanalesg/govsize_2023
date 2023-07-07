@@ -17,15 +17,17 @@ setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
 #install.packages("patchwork")
 #install.packages("urca")
 #install.packages("cointReg")
-library(cointReg)
-library(urca)
+install.packages("xtable")
+library(xtable)#para tablas de latex
+library(cointReg)#para FMOLS
+library(urca)#para test de Johansen
 library(dplyr)
-library(googlesheets4)
+library(googlesheets4)#para importar de G. Drive
 library(lubridate)
-library(seasonal)
-library(TSstudio)
+library(seasonal)#Para desestacionalizar
+library(TSstudio)#PAra desestacionalizar
 library(ggpubr)
-library(patchwork)
+library(patchwork)# para combinar graficos
 
 #Import data from Drive (Euler)
 
@@ -257,10 +259,26 @@ combined_plot_seas
 
 
 
-#Prueba de cointegracion (Euler)
+#Prueba de cointegracion de Johansen (Euler)
 
 jotest=ca.jo(df_seas[,2:6], type="trace", K=2, ecdet="none", spec="longrun")
 summary(jotest)
+
+#Tabla
+
+
+jotest_table <- rbind.data.frame(c("Variable", "Tipo de prueba"),
+                                 c("Variable", "Tipo de prueba"),
+                                 c("Variable", "Tipo de prueba"),
+                                 c("Variable", "Tipo de prueba"),
+                                 c("Variable", "Tipo de prueba"),
+                                 c("Variable", "Tipo de prueba"),
+                                 c("Variable", "Tipo de prueba"),
+                                 col.names)=
+  
+  )
+print(xtable(jotest_table, type="latex"))
+#tablas a Latex
 
 
 #Ecuacion de largo plazo Gasto Agregado (Tony Stark)
@@ -281,7 +299,7 @@ df_seas <- data.frame(df_seas,df[,15:16])
 #inclusion of quadratic
 df_seas <- df_seas %>%
   mutate(
-    log_pub_inv_gdp_s_2= log_pub_inv_gdp_s*log_pub_inv_gdp_s,
+    log_pub_inv_gdp_s_2= log(pub_inv_gdp_s)*log(pub_inv_gdp_s),
 )
     
 
@@ -289,25 +307,41 @@ df_seas <- df_seas %>%
 
 df_seas <- df_seas %>%
   mutate(
-    log_pub_inv_gdp_s_3= log_pub_inv_gdp_s_2*log_pub_inv_gdp_s,
+    log_pub_inv_gdp_s_3=  log_pub_inv_gdp_s_2*log(pub_inv_gdp_s),
   )
 
+######### Estimates
 
-#lineal
+####### lineal model
 
 #####  MCO
 lin_2_mco <- lm(log(gdp_pc_s) ~ log(pub_inv_gdp_s) + log(priv_inv_gdp_s) + log(tr_op_s) + d_2008 + d_2018, df_seas)
 summary(lin_2_mco)
+
 #####  FMOLS
 
-lin_2_fmols <- cointReg(method = c("FM"), df_seas[,2], df_seas[,3:7])
+lin_2_fmols <- cointReg(method = c("FM"), df_seas[,8], df_seas[,11:15])
+print(lin_2_fmols)
 
 #####  Canonical Cointegration Regression
 
 #Pausa
 
+####### Quadratic model
+
+#####  MCO
+
+quad_2_mco <- lm(log(gdp_pc_s) ~ log(pub_inv_gdp_s) + log(priv_inv_gdp_s) + log_pub_inv_gdp_s_2 + log(tr_op_s) + d_2008 + d_2018, df_seas)
+summary(quad_2_mco)
 
 
+
+#####  FMOLS
+
+quad_2_fmols <- cointReg(method = c("FM"), df_seas[,8], df_seas[,11:16])
+print(quad_2_fmols)
+
+#####  Canonical Cointegration Regression
 
 #Estimacion del tamano optiomo (Euler)
 
