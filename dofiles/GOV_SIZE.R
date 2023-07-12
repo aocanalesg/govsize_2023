@@ -32,17 +32,15 @@ install.packages("xtable")
 install.packages("aTSA")
 install.packages("broom")
 
-library(tidyverse)
+library(tidyverse)#manipulation de datos en general
 library(xtable)#para tablas de latex
 library(cointReg)#para FMOLS
 library(urca)#para test de Johansen
-library(dplyr)
+library(dplyr)#manipulacion de datos en general
 library(googlesheets4)#para importar de G. Drive
-library(lubridate)
-library(seasonal)
 library(TSstudio)
-library(patchwork)
-library(zoo)
+library(patchwork)#para combinar graficos en una imagen
+library(zoo)#funciones de series de tiempo
 library(seasonal)#Para desestacionalizar
 library(TSstudio)#PAra desestacionalizar
 library(ggpubr)
