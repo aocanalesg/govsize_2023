@@ -5,30 +5,32 @@
 rm(list = ls())
 
 #Working directory
-setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
+setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
 #Packages to install/load 
 
-#install.packages("googlesheets4")
-#install.packages("timeSeries")
-#install.packages("zoo")
-#install.packages("xts")
-#install.packages("seasonal")
-#install.packages("TSstudio")
-#install.packages("ggpubr")
-#install.packages("patchwork")
-#install.packages("tidyverse")
-#install.packages("fpp2")
-#install.packages("googlesheets4")
-#install.packages("timeSeries")
-#install.packages("zoo")
-#install.packages("xts")
-#install.packages("seasonal")
-#install.packages("TSstudio")
-#install.packages("ggpubr")
-#install.packages("patchwork")
-#install.packages("urca")
-#install.packages("cointReg")
-#install.packages("xtable")
+install.packages("googlesheets4")
+install.packages("timeSeries")
+install.packages("zoo")
+install.packages("xts")
+install.packages("seasonal")
+install.packages("TSstudio")
+install.packages("ggpubr")
+install.packages("patchwork")
+install.packages("tidyverse")
+install.packages("fpp2")
+install.packages("googlesheets4")
+install.packages("timeSeries")
+install.packages("zoo")
+install.packages("xts")
+install.packages("seasonal")
+install.packages("TSstudio")
+install.packages("ggpubr")
+install.packages("patchwork")
+install.packages("urca")
+install.packages("cointReg")
+install.packages("xtable")
+install.packages("aTSA")
+install.packages("broom")
 
 library(tidyverse)#manipulation de datos en general
 library(xtable)#para tablas de latex
@@ -43,7 +45,8 @@ library(seasonal)#Para desestacionalizar
 library(TSstudio)#PAra desestacionalizar
 library(ggpubr)
 library(patchwork) # para combinar graficos
-
+library(aTSA)
+library(broom)
 
 #Import data from Drive (Euler)
 
@@ -92,73 +95,39 @@ raw_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
 raw_pop
 
 
-###R Debido a cambio estructural en la serie de poblacion, se procedio a reescalar la serie. 
+### Debido a cambio estructural en la serie de poblacion, se procedio a reescalar la serie. 
 #Para reflejar la tendencia reflejada a partir de 2013, es restar al cambio porcentual de la serie
 #punto de quiebre, la tasa de crecimiento trimestral de los datos previo al quiebre en el trimestre 
 # correspondiente. 
 
 raw_data <- raw_data %>%
   mutate(
-    growth_pop = ifelse(date >= "2012-10-01" & date<= "2021-04-01"  , pop/lag_1_pop-1,0)
+    growth_pop = ifelse(date >= "2012-10-01" & date<= "2021-04-01"  , pop/lag(pop)-1,0)
   )
 
-
-
 for (x in 62:64) {
- raw_data[x,17] = (raw_data[x-1,17] +raw_data[x-2,17] +raw_data[x-3,17] +raw_data[x-4,17])/4
+ raw_data[x,9] = (raw_data[x-1,9] +raw_data[x-2,9] +raw_data[x-3,9] +raw_data[x-4,9])/4
 }
 
 for (x in 28:1) {
-  raw_data[x,17] = (raw_data[x+1,17] +raw_data[x+2,17] +raw_data[x+3,17] +raw_data[x+4,17])/4
+  raw_data[x,9] = (raw_data[x+1,9] +raw_data[x+2,9] +raw_data[x+3,9] +raw_data[x+4,9])/4
 }
 
 for (x in 26:1) { 
-  raw_data[x, 8] = raw_data[x+1, 8]/(1+raw_data[x+1,17])
+  raw_data[x, 8] = raw_data[x+1, 8]/(1+raw_data[x+1,9])
 }
 
 for (x in 62:64) {
-  raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,17])
+  raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,9])
 }
+##Grafico de poblacion reescalada 
 
-#
-### Pronosticar valores revertidos de la serie poblacion
-#library(forecast)
-#x <- ts(raw_data[27:64,8], frequency=4)
-#h <- 27
-#f <- 4
-# Reverse time
-#revx <- ts(rev(x), frequency=f)
-# Forecast
-#fc <- forecast(auto.arima(revx), h)
-#plot(fc)
-####  Revertir tiempo de nuevo para volverlo a su valor original
-#fc$mean <- ts(rev(fc$mean),end=tsp(x)[1] - 1/f, frequency=f)
-#fc$upper <- fc$upper[h:1,]
-#fc$lower <- fc$lower[h:1,]
-#fc$x <- x
-# Plot result
-#plot(fc, xlim=c(tsp(x)[1]-h/f, tsp(x)[2]))
+tr_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+tr_pop
+#Variables as share of PIB per capita
 
-###Transformar valores pronosticados a dataframe
-#install.packages("reshape2")
-#library(reshape2)
-#pop_input <- data.frame(date=as.Date(index(fc$mean)), Y = melt(fc$mean)$value)
-
-#Grafica de pop_input
-#pop_input_graph <- ggplot(pop_input, aes(x = as.Date(date), y = pop_input$Y)) +
- # geom_line() +
-  #scale_x_date(date_labels = "%b %Y")
-#pop_input_graph
-
-#Reemplazar los valores previos al quiebre de la serie pop con los valores pronosticados pop_input
-#raw_data <- raw_data %>%
-  #mutate(
-   # pop = ifelse(date <= "2012-04-01", pop_input$Y, pop)
-  #)
-
-
-
-#Variables as share of PIB per capitalength
 raw_data <- raw_data %>%
   mutate(
     gdp_pc = gdp/pop,
@@ -183,7 +152,7 @@ raw_data <- raw_data %>%
 
 
 #Time series set
-ts_vars <- ts(data = raw_data[,9:14],
+ts_vars <- ts(data = raw_data[,10:15],
              start = c(2006,1),
              frequency = 4
 )
@@ -227,7 +196,6 @@ combined_plot <- ggarrange(raw_plot1,
 
 combined_plot
 #Desestacionalizacion (Done)
-
 
 seasonal_adj <- seas(x = ts_vars)
 #series(seasonal_adj,c("forecast.forecasts","s12"))
@@ -316,11 +284,20 @@ combined_plot_seas <- ggarrange(seas_plot1,
 
 combined_plot_seas
 
+##############Estacionariedad (Tony Stark)####################
 
+### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
 
-#Estacionariedad (Tony Stark)
+#Creando tablas por variable para guardar resultado de pp test
 
+variables <- df_seas[,8:13]
+save <- matrix(nrow=18, ncol=3)
+for (i in 1:ncol(variables)) {
+col <- variables[,i]
+save[[i]] <- tidy(pp.test(col))
+}
 
+### Test de Raiz Unitaria Phillips-Perron para serie en diferencias
 
 
 #Incluye montar la tabla y exportarla a codigo latex
@@ -334,7 +311,7 @@ combined_plot_seas
 
 
 
-#Prueba de presedencia temporal Gasto Agregado  (Tony Stark)
+#Prueba de precedencia temporal Gasto Agregado  (Tony Stark)
 
 
 
