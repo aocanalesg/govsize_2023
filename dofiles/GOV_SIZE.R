@@ -30,6 +30,7 @@ install.packages("urca")
 install.packages("cointReg")
 install.packages("xtable")
 install.packages("aTSA")
+install.packages("broom")
 
 library(tidyverse)
 library(xtable)#para tablas de latex
@@ -47,6 +48,7 @@ library(TSstudio)#PAra desestacionalizar
 library(ggpubr)
 library(patchwork) # para combinar graficos
 library(aTSA)
+library(broom)
 
 #Import data from Drive (Euler)
 
@@ -287,9 +289,15 @@ combined_plot_seas
 ##############Estacionariedad (Tony Stark)####################
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
+
 #Creando tablas por variable para guardar resultado de pp test
 
-
+variables <- df_seas[,8:13]
+save <- matrix(nrow=18, ncol=3)
+for (i in 1:ncol(variables)) {
+col <- variables[,i]
+save[[i]] <- tidy(pp.test(col))
+}
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en diferencias
 
