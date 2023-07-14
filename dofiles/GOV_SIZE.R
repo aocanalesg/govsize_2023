@@ -5,7 +5,10 @@
 rm(list = ls())
 
 #Working directory
-setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
+#Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
+#Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
+
+setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
 #Packages to install/load 
 
 install.packages("googlesheets4")
@@ -33,7 +36,11 @@ install.packages("aTSA")
 install.packages("broom")
 install.packages("dplyr")
 install.packages("vars")
+install.packages('forecast')
+install.packages('vars')
 
+library(vars)
+library(forecast)#for lag selection VAR
 library(tidyverse)#manipulation de datos en general
 library(xtable)#para tablas de latex
 library(cointReg)#para FMOLS
@@ -124,13 +131,16 @@ for (x in 26:1) {
 for (x in 62:64) {
   raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,9])
 }
-##Grafico de poblacion reescalada 
+##Graph of re-scaled population
 
 tr_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")
+  scale_x_date(date_labels = "%b %Y")+ 
+  theme_classic()+
+  ggtitle("Población")+
+  labs(x="",y="")
 tr_pop
-#Variables as share of PIB per capita
+#Creating variables as share of GDP per capita
 
 raw_data <- raw_data %>%
   mutate(
@@ -142,6 +152,12 @@ raw_data <- raw_data %>%
     tr_op = (x+m)/gdp,
   )
 
+#create growth gdp per capita
+
+raw_data <- raw_data %>%
+  mutate(
+    growth_gdp_pc = gdp_pc/lag(gdp_pc)-1
+  )
 
 #create dummies 
 raw_data <- raw_data %>%
@@ -156,40 +172,41 @@ raw_data <- raw_data %>%
 
 
 #Time series set
-ts_vars <- ts(data = raw_data[,10:15],
+ts_vars <- ts(data = raw_data[,10:ncol(raw_data)],
              start = c(2006,1),
              frequency = 4
 )
 
+#creating variable for date
 df <- as.data.frame(raw_data)
 df$date<-as.Date(df$date,  "%m/%d/%y")
 
 
-raw_plot1 <- ggplot(df, aes(x = date, y = gdp_pc)) +
+raw_plot1 <- ggplot(df, aes(x = date, y = df$gdp_pc)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot2 <- ggplot(df, aes(x = date, y = df[,10])) +
+raw_plot2 <- ggplot(df, aes(x = date, y = df$gov_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot3 <- ggplot(df, aes(x = date, y = df[,11])) +
+raw_plot3 <- ggplot(df, aes(x = date, y = df$gov_con_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot4 <- ggplot(df, aes(x = date, y = df[,12])) +
+raw_plot4 <- ggplot(df, aes(x = date, y = df$pub_inv_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot5 <- ggplot(df, aes(x = date, y = df[,13])) +
+raw_plot5 <- ggplot(df, aes(x = date, y = df$priv_inv_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot6 <- ggplot(df, aes(x = date, y = df[,14])) +
+raw_plot6 <- ggplot(df, aes(x = date, y =  df$tr_op)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-combined_plot <- ggarrange(raw_plot1,
+combined_plot_raw <- ggarrange(raw_plot1,
                           raw_plot2,
                           raw_plot3,
                           raw_plot4,
@@ -198,10 +215,12 @@ combined_plot <- ggarrange(raw_plot1,
                           nrow = 2,
                           ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
-combined_plot
+combined_plot_raw
+
+
 #Desestacionalizacion (Done)
 
-seasonal_adj <- seas(x = ts_vars)
+seasonal_adj <- seas(x = ts_vars[,1:7])
 #series(seasonal_adj,c("forecast.forecasts","s12"))
 seasonal_adj <- final(seasonal_adj)
 
@@ -222,18 +241,14 @@ df_seas <- df_seas %>%
 
 df_seas$date<-as.Date(df_seas$date,  "%m/%d/%y")
 
-#Log tranasformation
+#Log tranasformation to GDP_pc
+
 df_seas <- df_seas %>% 
   mutate(
-         log_gdp_pc_s= log(gdp_pc_s),
-         log_gov_gdp_s=log(gov_gdp_s),
-         log_gov_con_gdp_s=log(gov_con_gdp_s),
-         log_pub_inv_gdp_s=log(pub_inv_gdp_s),
-         log_priv_inv_gdp_s=log(priv_inv_gdp_s),
-         log_tr_op_s=log(tr_op_s)
+         log_gdp_pc_s= log(gdp_pc_s)
   )
 
-#Graph with ggplot
+#Graph of seasonal adjusted variables with ggplot
 
 seas_plot1 <- ggplot(df_seas, aes(x = date, y = df_seas[,2])) +
   geom_line() +
@@ -288,7 +303,11 @@ combined_plot_seas <- ggarrange(seas_plot1,
 
 combined_plot_seas
 
-##############Estacionariedad (Tony Stark)####################
+##############                                      ##############     
+
+##############    Estacionariedad (Tony Stark).    ####################
+
+##############                                      ##############   
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
 ##Variables en log-niveles
@@ -390,10 +409,6 @@ u_root <- u_root %>% relocate(series)
   \\multicolumn{1}{c}{I. y T.} \\\\
   \\bottomrule")
  print(xtable(u_root), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
- 
- 
- 
- 
 
 #Criterio de seleccion de rezagos Gasto Agregado (Tony Stark)
  var_gob <-  variables[,1:2]
@@ -461,9 +476,23 @@ u_root <- u_root %>% relocate(series)
 
 
 #Prueba de cointegracion de Johansen (Euler)
+df_modelo1 <- as.data.frame(c(df_seas[,2:3],df_seas[,6:7]))
+colnames(df_modelo1)<- c("gdp_pc_s", "gov_gdp_s", "priv_inv_gdp_s","tr_op_s")                        
 
-jotest=ca.jo(df_seas[,2:6], type="trace", K=2, ecdet="none", spec="longrun")
-summary(jotest)
+df_modelo2 <- as.data.frame(cbind.data.frame(df_seas[,2],df_seas[,5:7]))
+colnames(df_modelo2)<- c("gdp_pc_s", "pub_inv_gdp_s", "priv_inv_gdp_s","tr_op_s")     
+
+#Lag selection criteria
+
+lagselect <- VARselect(df_modelo1, lag.max=7, type = 'cons')
+lagselect2 <- VARselect(df_modelo2, lag.max=7, type = 'cons')
+lagselect$selection
+lagselect2$selection
+
+jotest1=ca.jo(df_modelo1, type="trace", K=2, ecdet="none", spec="longrun")
+summary(jotest1)
+jotest2=ca.jo(df_modelo2, type="trace", K=2, ecdet="none", spec="longrun")
+summary(jotest2)
 
 #Tabla
 
@@ -474,10 +503,9 @@ jotest_table <- rbind.data.frame(c("Variable", "Tipo de prueba"),
                                  c("Variable", "Tipo de prueba"),
                                  c("Variable", "Tipo de prueba"),
                                  c("Variable", "Tipo de prueba"),
-                                 c("Variable", "Tipo de prueba"),
-                                 col.names)=
-  
+                                 c("Variable", "Tipo de prueba")
   )
+view(jotest_table)
 print(xtable(jotest_table, type="latex"))
 #tablas a Latex
 
