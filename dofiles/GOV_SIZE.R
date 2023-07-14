@@ -5,7 +5,10 @@
 rm(list = ls())
 
 #Working directory
-setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
+#Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
+#Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
+
+setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
 #Packages to install/load 
 
 install.packages("googlesheets4")
@@ -138,6 +141,12 @@ raw_data <- raw_data %>%
     tr_op = (x+m)/gdp,
   )
 
+#create growth gdp per capita
+
+raw_data <- raw_data %>%
+  mutate(
+    growth_gdp_pc = gdp_pc/lag(gdp_pc)-1
+  )
 
 #create dummies 
 raw_data <- raw_data %>%
@@ -152,36 +161,37 @@ raw_data <- raw_data %>%
 
 
 #Time series set
-ts_vars <- ts(data = raw_data[,10:15],
+ts_vars <- ts(data = raw_data[,10:ncol(raw_data)],
              start = c(2006,1),
              frequency = 4
 )
 
+#creating variable for date
 df <- as.data.frame(raw_data)
 df$date<-as.Date(df$date,  "%m/%d/%y")
 
 
-raw_plot1 <- ggplot(df, aes(x = date, y = gdp_pc)) +
+raw_plot1 <- ggplot(df, aes(x = date, y = df$gdp_pc)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot2 <- ggplot(df, aes(x = date, y = df[,10])) +
+raw_plot2 <- ggplot(df, aes(x = date, y = df$gov_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot3 <- ggplot(df, aes(x = date, y = df[,11])) +
+raw_plot3 <- ggplot(df, aes(x = date, y = df$gov_con_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot4 <- ggplot(df, aes(x = date, y = df[,12])) +
+raw_plot4 <- ggplot(df, aes(x = date, y = df$pub_inv_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot5 <- ggplot(df, aes(x = date, y = df[,13])) +
+raw_plot5 <- ggplot(df, aes(x = date, y = df$priv_inv_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot6 <- ggplot(df, aes(x = date, y = df[,14])) +
+raw_plot6 <- ggplot(df, aes(x = date, y =  df$tr_op)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
@@ -197,7 +207,7 @@ combined_plot <- ggarrange(raw_plot1,
 combined_plot
 #Desestacionalizacion (Done)
 
-seasonal_adj <- seas(x = ts_vars)
+seasonal_adj <- seas(x = ts_vars[,1:7])
 #series(seasonal_adj,c("forecast.forecasts","s12"))
 seasonal_adj <- final(seasonal_adj)
 
@@ -335,10 +345,9 @@ jotest_table <- rbind.data.frame(c("Variable", "Tipo de prueba"),
                                  c("Variable", "Tipo de prueba"),
                                  c("Variable", "Tipo de prueba"),
                                  c("Variable", "Tipo de prueba"),
-                                 c("Variable", "Tipo de prueba"),
-                                 col.names)=
-  
+                                 c("Variable", "Tipo de prueba")
   )
+view(jotest_table)
 print(xtable(jotest_table, type="latex"))
 #tablas a Latex
 
