@@ -34,7 +34,12 @@ install.packages("cointReg")
 install.packages("xtable")
 install.packages("aTSA")
 install.packages("broom")
+install.packages("dplyr")
+install.packages('forecast')
+install.packages('vars')
 
+library(vars)
+library(forecast)#for lag selection VAR
 library(tidyverse)#manipulation de datos en general
 library(xtable)#para tablas de latex
 library(cointReg)#para FMOLS
@@ -50,6 +55,7 @@ library(ggpubr)
 library(patchwork) # para combinar graficos
 library(aTSA)
 library(broom)
+library(dplyr)
 
 #Import data from Drive (Euler)
 
@@ -123,13 +129,16 @@ for (x in 26:1) {
 for (x in 62:64) {
   raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,9])
 }
-##Grafico de poblacion reescalada 
+##Graph of re-scaled population
 
 tr_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")
+  scale_x_date(date_labels = "%b %Y")+ 
+  theme_classic()+
+  ggtitle("Población")+
+  labs(x="",y="")
 tr_pop
-#Variables as share of PIB per capita
+#Creating variables as share of GDP per capita
 
 raw_data <- raw_data %>%
   mutate(
@@ -195,7 +204,7 @@ raw_plot6 <- ggplot(df, aes(x = date, y =  df$tr_op)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-combined_plot <- ggarrange(raw_plot1,
+combined_plot_raw <- ggarrange(raw_plot1,
                           raw_plot2,
                           raw_plot3,
                           raw_plot4,
@@ -204,7 +213,9 @@ combined_plot <- ggarrange(raw_plot1,
                           nrow = 2,
                           ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
-combined_plot
+combined_plot_raw
+
+
 #Desestacionalizacion (Done)
 
 seasonal_adj <- seas(x = ts_vars[,1:7])
@@ -228,18 +239,14 @@ df_seas <- df_seas %>%
 
 df_seas$date<-as.Date(df_seas$date,  "%m/%d/%y")
 
-#Log tranasformation
+#Log tranasformation to GDP_pc
+
 df_seas <- df_seas %>% 
   mutate(
-         log_gdp_pc_s= log(gdp_pc_s),
-         log_gov_gdp_s=log(gov_gdp_s),
-         log_gov_con_gdp_s=log(gov_con_gdp_s),
-         log_pub_inv_gdp_s=log(pub_inv_gdp_s),
-         log_priv_inv_gdp_s=log(priv_inv_gdp_s),
-         log_tr_op_s=log(tr_op_s)
+         log_gdp_pc_s= log(gdp_pc_s)
   )
 
-#Graph with ggplot
+#Graph of seasonal adjusted variables with ggplot
 
 seas_plot1 <- ggplot(df_seas, aes(x = date, y = df_seas[,2])) +
   geom_line() +
@@ -294,26 +301,101 @@ combined_plot_seas <- ggarrange(seas_plot1,
 
 combined_plot_seas
 
-##############Estacionariedad (Tony Stark)####################
+##############                                      ##############     
+
+##############    Estacionariedad (Tony Stark).    ####################
+
+##############                                      ##############   
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
-
-#Creando tablas por variable para guardar resultado de pp test
-
-variables <- df_seas[,8:13]
-save <- matrix(nrow=18, ncol=3)
-for (i in 1:ncol(variables)) {
+##Variables en log-niveles
+variables <- df_seas[,8:13] #Crea un dataframe con variables desestacionalizadas y en logaritmos
+save <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+for (i in 1:ncol(variables)) { #Es un loop para realizar el test PP a cada variable guardada en save
 col <- variables[,i]
 save[[i]] <- tidy(pp.test(col))
 }
+names(save) <- colnames(variables) 
+mati <- as.data.frame.list(save[[1]])
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en diferencias
+variables_diff <- apply(variables, 2, diff)
+save_diff <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+for (i in 1:ncol(variables_diff)) { #Es un loop para realizar el test PP a cada variable guardada en save
+  col <- variables_diff[,i]
+  save_diff[[i]] <- tidy(pp.test(col))
+}
+
+names(save_diff) <- colnames(variables) #Asigna un nombre a cada elemento de la lista de acuerdo al nombre de las variables 
+
+#Crear un dataframe vacio que sera la tabla de salidas para el analisis de raices unitarias
+u_root <- data.frame(matrix(NA,    
+                          nrow = 6,
+                          ncol = 6))
+
+#Comenzar llenado de la tabla de raices unitarias 
+#Variables en niveles 
+# GDP_PC: Nivel con tres especificaciones 
+u_root[1,1] <- as.data.frame.list(save[[1]])[1,3]
+u_root[1,2] <- as.data.frame.list(save[[1]])[2,3]
+u_root[1,3] <- as.data.frame.list(save[[1]])[3,3]
+# GOV_GDP: Nivel con tres especificaciones 
+u_root[2,1] <- as.data.frame.list(save[[2]])[1,3]
+u_root[2,2] <- as.data.frame.list(save[[2]])[2,3]
+u_root[2,3] <- as.data.frame.list(save[[2]])[3,3]
+# Consumo_GDP: Nivel con tres especificaciones 
+u_root[3,1] <- as.data.frame.list(save[[3]])[1,3]
+u_root[3,2] <- as.data.frame.list(save[[3]])[2,3]
+u_root[3,3] <- as.data.frame.list(save[[3]])[3,3]
+# inv_publica: Nivel con tres especificaciones 
+u_root[4,1] <- as.data.frame.list(save[[4]])[1,3]
+u_root[4,2] <- as.data.frame.list(save[[4]])[2,3]
+u_root[4,3] <- as.data.frame.list(save[[4]])[3,3]
+# inv_privada: Nivel con tres especificaciones 
+u_root[5,1] <- as.data.frame.list(save[[5]])[1,3]
+u_root[5,2] <- as.data.frame.list(save[[5]])[2,3]
+u_root[5,3] <- as.data.frame.list(save[[5]])[3,3]
+# apertura_comercial: Nivel con tres especificaciones 
+u_root[6,1] <- as.data.frame.list(save[[6]])[1,3]
+u_root[6,2] <- as.data.frame.list(save[[6]])[2,3]
+u_root[6,3] <- as.data.frame.list(save[[6]])[3,3]
+
+#Variables en diferencias 
+# GDP_PC: Nivel con tres especificaciones 
+u_root[1,4] <- as.data.frame.list(save_diff[[1]])[1,3]
+u_root[1,5] <- as.data.frame.list(save_diff[[1]])[2,3]
+u_root[1,6] <- as.data.frame.list(save_diff[[1]])[3,3]
+# GOV_GDP: Nivel con tres especificaciones 
+u_root[2,4] <- as.data.frame.list(save_diff[[2]])[1,3]
+u_root[2,5] <- as.data.frame.list(save_diff[[2]])[2,3]
+u_root[2,6] <- as.data.frame.list(save_diff[[2]])[3,3]
+# Consumo_GDP: Nivel con tres especificaciones 
+u_root[3,4] <- as.data.frame.list(save_diff[[3]])[1,3]
+u_root[3,5] <- as.data.frame.list(save_diff[[3]])[2,3]
+u_root[3,6] <- as.data.frame.list(save_diff[[3]])[3,3]
+# inv_publica: Nivel con tres especificaciones 
+u_root[4,4] <- as.data.frame.list(save_diff[[4]])[1,3]
+u_root[4,5] <- as.data.frame.list(save_diff[[4]])[2,3]
+u_root[4,6] <- as.data.frame.list(save_diff[[4]])[3,3]
+# inv_privada: Nivel con tres especificaciones 
+u_root[5,4] <- as.data.frame.list(save_diff[[5]])[1,3]
+u_root[5,5] <- as.data.frame.list(save_diff[[5]])[2,3]
+u_root[5,6] <- as.data.frame.list(save_diff[[5]])[3,3]
+# apertura_comercial: Nivel con tres especificaciones 
+u_root[6,4] <- as.data.frame.list(save_diff[[6]])[1,3]
+u_root[6,5] <- as.data.frame.list(save_diff[[6]])[2,3]
+u_root[6,6] <- as.data.frame.list(save_diff[[6]])[3,3]
+# Redondeando los valores en la tabla
+ u_root %>% 
+   mutate(across(where(is.numeric), round, digits=2))
+# Asignar nombres a las filas de acuerdo a nombre de las variables 
+ rownames(u_root) <- c("PIB per ́capita","Gasto de Gobierno Agregado","Gasto de Gobierno Corriente","Inversion fija Publica","Inversion Fija Privada","Apertura Comercial")
+ colnames(u_root) <- c("Ninguno","Intercepto","Intercepto y tendencia","Ninguno","Intercepto","Intercepto y tendencia")
+# Exportar codigo de raices unitarias a latex
+ print(xtable(u_root, type="latex"))
 
 
-#Incluye montar la tabla y exportarla a codigo latex
-
-
-#Criterio de seleccion de rezagos Gasto Agregado (Tony Stark)
+ #Criterio de seleccion de rezagos Gasto Agregado (Tony Stark)
 
 
 
@@ -332,9 +414,23 @@ save[[i]] <- tidy(pp.test(col))
 
 
 #Prueba de cointegracion de Johansen (Euler)
+df_modelo1 <- as.data.frame(c(df_seas[,2:3],df_seas[,6:7]))
+colnames(df_modelo1)<- c("gdp_pc_s", "gov_gdp_s", "priv_inv_gdp_s","tr_op_s")                        
 
-jotest=ca.jo(df_seas[,2:6], type="trace", K=2, ecdet="none", spec="longrun")
-summary(jotest)
+df_modelo2 <- as.data.frame(cbind.data.frame(df_seas[,2],df_seas[,5:7]))
+colnames(df_modelo2)<- c("gdp_pc_s", "pub_inv_gdp_s", "priv_inv_gdp_s","tr_op_s")     
+
+#Lag selection criteria
+
+lagselect <- VARselect(df_modelo1, lag.max=7, type = 'cons')
+lagselect2 <- VARselect(df_modelo2, lag.max=7, type = 'cons')
+lagselect$selection
+lagselect2$selection
+
+jotest1=ca.jo(df_modelo1, type="trace", K=2, ecdet="none", spec="longrun")
+summary(jotest1)
+jotest2=ca.jo(df_modelo2, type="trace", K=2, ecdet="none", spec="longrun")
+summary(jotest2)
 
 #Tabla
 
