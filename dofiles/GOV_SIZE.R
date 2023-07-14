@@ -31,6 +31,7 @@ install.packages("cointReg")
 install.packages("xtable")
 install.packages("aTSA")
 install.packages("broom")
+install.packages("dplyr")
 
 library(tidyverse)#manipulation de datos en general
 library(xtable)#para tablas de latex
@@ -47,6 +48,7 @@ library(ggpubr)
 library(patchwork) # para combinar graficos
 library(aTSA)
 library(broom)
+library(dplyr)
 
 #Import data from Drive (Euler)
 
@@ -287,21 +289,91 @@ combined_plot_seas
 ##############Estacionariedad (Tony Stark)####################
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
-
-#Creando tablas por variable para guardar resultado de pp test
-
-variables <- df_seas[,8:13]
-save <- matrix(nrow=18, ncol=3)
-for (i in 1:ncol(variables)) {
+##Variables en log-niveles
+variables <- df_seas[,8:13] #Crea un dataframe con variables desestacionalizadas y en logaritmos
+save <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+for (i in 1:ncol(variables)) { #Es un loop para realizar el test PP a cada variable guardada en save
 col <- variables[,i]
 save[[i]] <- tidy(pp.test(col))
 }
+names(save) <- colnames(variables) 
+mati <- as.data.frame.list(save[[1]])
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en diferencias
+variables_diff <- apply(variables, 2, diff)
+save_diff <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+for (i in 1:ncol(variables_diff)) { #Es un loop para realizar el test PP a cada variable guardada en save
+  col <- variables_diff[,i]
+  save_diff[[i]] <- tidy(pp.test(col))
+}
 
+names(save_diff) <- colnames(variables) #Asigna un nombre a cada elemento de la lista de acuerdo al nombre de las variables 
 
-#Incluye montar la tabla y exportarla a codigo latex
+#Crear un dataframe vacio que sera la tabla de salidas para el analisis de raices unitarias
+u_root <- data.frame(matrix(NA,    
+                          nrow = 6,
+                          ncol = 6))
 
+#Comenzar llenado de la tabla de raices unitarias 
+#Variables en niveles 
+# GDP_PC: Nivel con tres especificaciones 
+u_root[1,1] <- as.data.frame.list(save[[1]])[1,3]
+u_root[1,2] <- as.data.frame.list(save[[1]])[2,3]
+u_root[1,3] <- as.data.frame.list(save[[1]])[3,3]
+# GOV_GDP: Nivel con tres especificaciones 
+u_root[2,1] <- as.data.frame.list(save[[2]])[1,3]
+u_root[2,2] <- as.data.frame.list(save[[2]])[2,3]
+u_root[2,3] <- as.data.frame.list(save[[2]])[3,3]
+# Consumo_GDP: Nivel con tres especificaciones 
+u_root[3,1] <- as.data.frame.list(save[[3]])[1,3]
+u_root[3,2] <- as.data.frame.list(save[[3]])[2,3]
+u_root[3,3] <- as.data.frame.list(save[[3]])[3,3]
+# inv_publica: Nivel con tres especificaciones 
+u_root[4,1] <- as.data.frame.list(save[[4]])[1,3]
+u_root[4,2] <- as.data.frame.list(save[[4]])[2,3]
+u_root[4,3] <- as.data.frame.list(save[[4]])[3,3]
+# inv_privada: Nivel con tres especificaciones 
+u_root[5,1] <- as.data.frame.list(save[[5]])[1,3]
+u_root[5,2] <- as.data.frame.list(save[[5]])[2,3]
+u_root[5,3] <- as.data.frame.list(save[[5]])[3,3]
+# apertura_comercial: Nivel con tres especificaciones 
+u_root[6,1] <- as.data.frame.list(save[[6]])[1,3]
+u_root[6,2] <- as.data.frame.list(save[[6]])[2,3]
+u_root[6,3] <- as.data.frame.list(save[[6]])[3,3]
+
+#Variables en diferencias 
+# GDP_PC: Nivel con tres especificaciones 
+u_root[1,4] <- as.data.frame.list(save_diff[[1]])[1,3]
+u_root[1,5] <- as.data.frame.list(save_diff[[1]])[2,3]
+u_root[1,6] <- as.data.frame.list(save_diff[[1]])[3,3]
+# GOV_GDP: Nivel con tres especificaciones 
+u_root[2,4] <- as.data.frame.list(save_diff[[2]])[1,3]
+u_root[2,5] <- as.data.frame.list(save_diff[[2]])[2,3]
+u_root[2,6] <- as.data.frame.list(save_diff[[2]])[3,3]
+# Consumo_GDP: Nivel con tres especificaciones 
+u_root[3,4] <- as.data.frame.list(save_diff[[3]])[1,3]
+u_root[3,5] <- as.data.frame.list(save_diff[[3]])[2,3]
+u_root[3,6] <- as.data.frame.list(save_diff[[3]])[3,3]
+# inv_publica: Nivel con tres especificaciones 
+u_root[4,4] <- as.data.frame.list(save_diff[[4]])[1,3]
+u_root[4,5] <- as.data.frame.list(save_diff[[4]])[2,3]
+u_root[4,6] <- as.data.frame.list(save_diff[[4]])[3,3]
+# inv_privada: Nivel con tres especificaciones 
+u_root[5,4] <- as.data.frame.list(save_diff[[5]])[1,3]
+u_root[5,5] <- as.data.frame.list(save_diff[[5]])[2,3]
+u_root[5,6] <- as.data.frame.list(save_diff[[5]])[3,3]
+# apertura_comercial: Nivel con tres especificaciones 
+u_root[6,4] <- as.data.frame.list(save_diff[[6]])[1,3]
+u_root[6,5] <- as.data.frame.list(save_diff[[6]])[2,3]
+u_root[6,6] <- as.data.frame.list(save_diff[[6]])[3,3]
+# Redondeando los valores en la tabla
+ u_root %>% 
+   mutate(across(where(is.numeric), round, digits=2))
+# Asignar nombres a las filas de acuerdo a nombre de las variables 
+ rownames(u_root) <- c("PIB per ́capita","Gasto de Gobierno Agregado","Gasto de Gobierno Corriente","Inversion fija Publica","Inversion Fija Privada","Apertura Comercial")
+ colnames(u_root) <- c("Ninguno","Intercepto","Intercepto y tendencia","Ninguno","Intercepto","Intercepto y tendencia")
+# Exportar codigo de raices unitarias a latex
+ print(xtable(u_root, type="latex"))
 
 #Criterio de seleccion de rezagos Gasto Agregado (Tony Stark)
 
