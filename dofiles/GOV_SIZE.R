@@ -38,6 +38,7 @@ install.packages("xtable")
 install.packages("aTSA")
 install.packages("broom")
 install.packages("dplyr")
+install.packages("vars")
 install.packages('forecast')
 install.packages('vars')
 install.packages("stargazer")
@@ -62,6 +63,7 @@ library(aTSA)
 library(broom)
 library(dplyr)
 library(stargazer)
+library(vars)
 
 #Import data from Drive (Euler)
 
@@ -347,7 +349,6 @@ col <- variables[,i]
 save[[i]] <- tidy(pp.test(col))
 }
 names(save) <- colnames(variables) 
-mati <- as.data.frame.list(save[[1]])
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en diferencias
 variables_diff <- apply(variables, 2, diff)
@@ -416,23 +417,84 @@ u_root[5,6] <- as.data.frame.list(save_diff[[5]])[3,3]
 u_root[6,4] <- as.data.frame.list(save_diff[[6]])[1,3]
 u_root[6,5] <- as.data.frame.list(save_diff[[6]])[2,3]
 u_root[6,6] <- as.data.frame.list(save_diff[[6]])[3,3]
+series = c( "PIB per ́capita","Gasto de Gobierno Agregado","Gasto de Gobierno Corriente","Inversion fija Publica","Inversion Fija Privada","Apertura Comercial")
+u_root$series = series
+u_root <- u_root %>% relocate(series)
 # Redondeando los valores en la tabla
- u_root %>% 
+ u_root <- u_root %>% 
    mutate(across(where(is.numeric), round, digits=2))
-# Asignar nombres a las filas de acuerdo a nombre de las variables 
- rownames(u_root) <- c("PIB per ́capita","Gasto de Gobierno Agregado","Gasto de Gobierno Corriente","Inversion fija Publica","Inversion Fija Privada","Apertura Comercial")
- colnames(u_root) <- c("Ninguno","Intercepto","Intercepto y tendencia","Ninguno","Intercepto","Intercepto y tendencia")
 # Exportar codigo de raices unitarias a latex
- print(xtable(u_root, type="latex"))
 
+ addtorow <- list()
+ addtorow$pos <- list(0)
+ addtorow$command <- c(" \\toprule
+\\headrow & \\multicolumn{3}{c}{Variable en nivel} &
+            \\multicolumn{3}{c}{Variable en diferencias}\\\\
+  \\midrule
+\\headrow Serie trimestral &
+ \\multicolumn{1}{c}{N.} &
+  \\multicolumn{1}{c}{I.} &
+  \\multicolumn{1}{c}{I. y T.} &
+  \\multicolumn{1}{c}{N.} &
+  \\multicolumn{1}{c}{I.} &
+  \\multicolumn{1}{c}{I. y T.} \\\\
+  \\bottomrule")
+ print(xtable(u_root), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
- #Criterio de seleccion de rezagos Gasto Agregado (Tony Stark)
-
+#Criterio de seleccion de rezagos Gasto Agregado (Tony Stark)
+ var_gob <-  variables[,1:2]
+ lag_selection_gov <- VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
+                                                 season = NULL, exogen = NULL)
+ df_lag_selection_gov <- as.data.frame(VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
+           season = NULL, exogen = NULL)[[2]])
+ Criterio = c("AIC","HQ","SC","FPE")
+ df_lag_selection_gov$Criterio = Criterio
+ df_lag_selection_gov <-df_lag_selection_gov %>% relocate(Criterio)
+ # Redondeando los valores en la tabla
+ df_lag_selection_gov <- df_lag_selection_gov %>% 
+   mutate(across(where(is.numeric), round, digits=2))
+ 
+ addtorow <- list()
+ addtorow$pos <- list(0)
+ addtorow$command <- c(" \\toprule
+\\headrow & \\multicolumn{5}{c}{Criterio de seleccion de rezagos} \\\\
+  \\midrule
+\\headrow Criterio &
+ \\multicolumn{1}{c}{1} &
+  \\multicolumn{1}{c}{2} &
+  \\multicolumn{1}{c}{3} &
+  \\multicolumn{1}{c}{4} &
+  \\multicolumn{1}{c}{5} \\\\
+  \\bottomrule")
+ print(xtable(df_lag_selection_gov), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
+ 
 
 
 #Criterio de seleccion de rezagos Inversion Fija Publica (Tony Stark)
-
-
+ var_inv <- variables %>%  select(log_gdp_pc_s, log_pub_inv_gdp_s)
+ lag_selection_inv <- VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
+                                season = NULL, exogen = NULL)
+ df_lag_selection_inv <- as.data.frame(VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
+                                                 season = NULL, exogen = NULL)[[2]])
+ df_lag_selection_inv$Criterio = Criterio
+ df_lag_selection_inv <-df_lag_selection_inv %>% relocate(Criterio)
+ # Redondeando los valores en la tabla
+ df_lag_selection_inv <- df_lag_selection_inv %>% 
+   mutate(across(where(is.numeric), round, digits=2))
+ 
+ addtorow <- list()
+ addtorow$pos <- list(0)
+ addtorow$command <- c(" \\toprule
+\\headrow & \\multicolumn{5}{c}{Criterio de seleccion de rezagos} \\\\
+  \\midrule
+\\headrow Criterio &
+ \\multicolumn{1}{c}{1} &
+  \\multicolumn{1}{c}{2} &
+  \\multicolumn{1}{c}{3} &
+  \\multicolumn{1}{c}{4} &
+  \\multicolumn{1}{c}{5} \\\\
+  \\bottomrule")
+ print(xtable(df_lag_selection_inv), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 #Prueba de precedencia temporal Gasto Agregado  (Tony Stark)
 
