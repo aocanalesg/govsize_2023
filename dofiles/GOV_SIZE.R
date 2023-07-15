@@ -9,7 +9,10 @@ rm(list = ls())
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
 
 setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
+path <- getwd()
+
 #Packages to install/load 
+
 
 install.packages("googlesheets4")
 install.packages("timeSeries")
@@ -37,7 +40,9 @@ install.packages("broom")
 install.packages("dplyr")
 install.packages('forecast')
 install.packages('vars')
-
+install.packages("stargazer")
+install.packages("writexl")
+library(writexl)#para exportar el excel
 library(vars)
 library(forecast)#for lag selection VAR
 library(tidyverse)#manipulation de datos en general
@@ -56,6 +61,7 @@ library(patchwork) # para combinar graficos
 library(aTSA)
 library(broom)
 library(dplyr)
+library(stargazer)
 
 #Import data from Drive (Euler)
 
@@ -64,6 +70,13 @@ raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHg
            col_names = TRUE,
            range = "A1:H65"
            )
+
+raw_data2 <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
+                       sheet = "RAW_DATA2",
+                       col_names = TRUE,
+                       range = "A1:H65"
+)
+
 
 
 #Data cleaning (Euler)
@@ -138,6 +151,24 @@ tr_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   ggtitle("Población")+
   labs(x="",y="")
 tr_pop
+
+
+#validacion, DELETE LATER
+
+validacion_pop <- data_frame(raw_data$date, raw_data$pop, raw_data2$RAW_POP)
+
+validacion_pop <- validacion_pop %>%
+mutate(
+  diff = raw_data$pop-raw_data2$RAW_POP
+)
+
+
+validacion_pop <- ggplot(validacion_pop, aes(as.Date(raw_data$date))) +
+  geom_line(aes(x = as.Date(raw_data$date), y=raw_data$pop)) +
+  geom_line(aes(x = as.Date(raw_data$date), y=raw_data2$RAW_POP)) 
+ 
+validacion_pop
+
 #Creating variables as share of GDP per capita
 
 raw_data <- raw_data %>%
@@ -412,8 +443,12 @@ u_root[6,6] <- as.data.frame.list(save_diff[[6]])[3,3]
 
 
 
-
-#Prueba de cointegracion de Johansen (Euler)
+ #########                                                 #########
+ 
+ #########  Prueba de cointegracion de Johansen (Euler)
+ 
+ #########                                                 #########
+ 
 df_modelo1 <- as.data.frame(c(df_seas[,2:3],df_seas[,6:7]))
 colnames(df_modelo1)<- c("gdp_pc_s", "gov_gdp_s", "priv_inv_gdp_s","tr_op_s")                        
 
@@ -445,50 +480,81 @@ jotest_table <- rbind.data.frame(c("Variable", "Tipo de prueba"),
   )
 view(jotest_table)
 print(xtable(jotest_table, type="latex"))
-#tablas a Latex
 
 
-#Ecuacion de largo plazo Gasto Agregado (Tony Stark)
+#########                                                 #########
+
+#########  Ecuacion de largo plazo Gasto Agregado (Tony Stark)
+
+#########                                                 #########
 
 
 
 
-### Ecuacion de largo plazo Inversion Fija (Euler)
-
-##### Preparing data base for regression
-
-#inclusion of dummies
 
 
-df_seas <- data.frame(df_seas,df[,15:16])
+#########                                                 #########
+
+######### Ecuacion de largo plazo - Var. dep.: Inversion Fija (Euler) 
+
+#########                                               #########  
+
+#inclusion of dummies to the variables object
+
+df_modelo1 <- data.frame(df_modelo1, df[,17:18])
+
+df_modelo2 <- data.frame(df_modelo2, df[,17:18]) 
 
 
-#inclusion of quadratic
-df_seas <- df_seas %>%
+#creation of quadratic term for gov. expenditure variables
+df_modelo1 <- df_modelo2 %>%
   mutate(
-    log_pub_inv_gdp_s_2= log(pub_inv_gdp_s)*log(pub_inv_gdp_s),
+    gov_gdp_s_2= gov_gdp_s*gov_gdp_s
+  )
+
+
+df_modelo2 <- df_modelo2 %>%
+  mutate(
+    pub_inv_gdp_s_2= pub_inv_gdp_s*pub_inv_gdp_s
 )
     
 
 #inclusion of cubic
 
-df_seas <- df_seas %>%
+df_modelo2 <- df_modelo2 %>%
   mutate(
-    log_pub_inv_gdp_s_3=  log_pub_inv_gdp_s_2*log(pub_inv_gdp_s),
+    pub_inv_gdp_s_3=  pub_inv_gdp_s_2*pub_inv_gdp_s,
   )
+
+df_modelo1 <- df_modelo1 %>%
+  mutate(
+    gov_gdp_s_3=  gov_gdp_s_2*gov_gdp_s,
+  )
+
+# export the data for Eviews processing
+
+write_xlsx(df_modelo2, paste(path,"df_modelo2.xlsx", sep="/"))
 
 ######### Estimates
 
-####### lineal model
+####### linear model
 
 #####  MCO
-lin_2_mco <- lm(log(gdp_pc_s) ~ log(pub_inv_gdp_s) + log(priv_inv_gdp_s) + log(tr_op_s) + d_2008 + d_2018, df_seas)
+lin_2_mco <- lm(log(gdp_pc_s) ~ pub_inv_gdp_s + priv_inv_gdp_s + tr_op_s + d_2008 + d_2018, df_modelo2)
 summary(lin_2_mco)
+stargazer(lin_2_mco, type="text")
 
 #####  FMOLS
 
-lin_2_fmols <- cointReg(method = c("FM"), df_seas[,8], df_seas[,11:15])
+lin_2_fmols <- cointReg(method = c("FM"), df_modelo2[,1], df_modelo2[,2:7])
 print(lin_2_fmols)
+tidy(lin_2_fmols)
+
+res = sapply(c("FM", "D", "IM"), cointReg, x = df_modelo2[,1], y = df_modelo2[,2:7],)
+do.call(cbind, lapply(res, "[[", "theta"))
+
+test.fm = cointRegFM(x = df_modelo2[,1], y = df_modelo2[,2:7])
+      print(test.fm, digits = 4)
 
 #####  Canonical Cointegration Regression
 
