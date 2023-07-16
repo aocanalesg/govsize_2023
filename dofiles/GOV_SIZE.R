@@ -79,7 +79,11 @@ raw_data2 <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinH
                        range = "A1:H65"
 )
 
-
+bcn_data_junio_2023 <- read_sheet("https://docs.google.com/spreadsheets/d/11j04635-SOfd4rqdz2snU6SemmZaW5bb/edit?usp=sharing&ouid=116574696867256574492&rtpof=true&sd=true",
+                                  sheet = "Gasto",
+                                  col_names = TRUE,
+                                  range = "A35:CB59"
+)
 
 #Data cleaning (Euler)
 
@@ -150,11 +154,46 @@ tr_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")+ 
   theme_classic()+
+  theme(plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 14, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 11, face = "italic"),
+        plot.caption.position = "plot",
+        )+
   ggtitle("Población")+
-  labs(x="",y="")
+  labs(x="",
+       y="",
+    title = "Población total", 
+       subtitle = "Habitantes", 
+       caption = "Fuente: Elaboración y cálculos propios con base en datos de INIDE")
 tr_pop
 
+ggsave("population_con_titulo.png", width=10, height =7 , units= c("cm"), dpi=500)
 
+
+
+tr_pop_2 <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
+  geom_line() +
+  scale_x_date(date_breaks = "years" , date_labels = "%b %Y")+ 
+  theme_classic()+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 14, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 11, face = "italic"),
+        plot.caption.position = "plot",
+    axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Población")+
+  labs(x="",
+       y="")
+   #    title = "", 
+    #   subtitle = "", 
+     #  caption = "")
+tr_pop_2
+
+ggsave("population_sin_titulo.png", width=10, height =7 , units= c("cm"), dpi=500)
 #validacion, DELETE LATER
 
 validacion_pop <- data_frame(raw_data$date, raw_data$pop, raw_data2$RAW_POP)
@@ -283,45 +322,110 @@ df_seas <- df_seas %>%
 
 seas_plot1 <- ggplot(df_seas, aes(x = date, y = df_seas[,2])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Producto Interno Bruto Per Capita")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Producto Interno Bruto Per Capita")+
+  labs(x="",y="",title = "Producto Interno Bruto Per Capita", 
+       subtitle = "Cordobas constantes por habitante", )
 
 seas_plot2 <- ggplot(df_seas, aes(x = date, y = df_seas[,3])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Gasto de Gobierno agregado")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  labs(x="",y="",title = "Gasto de Goberno agregado", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot3 <- ggplot(df_seas, aes(x = date, y = df_seas[,4])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Gasto de Gobierno corriente")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Producto Interno Bruto Per Capita")+
+  labs(x="",y="",title = "Gasto de Goberno corriente", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot4 <- ggplot(df_seas, aes(x = date, y = df_seas[,5])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Inverion fija publica")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Producto Interno Bruto Per Capita")+
+  labs(x="",y="",title = "Inversión fija pública", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot5 <- ggplot(df_seas, aes(x = date, y = df_seas[,6])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Inversion fija privada")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Inversion Fija Privada")+
+  labs(x="",y="",title = "Inversión fija privada", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot6 <- ggplot(df_seas, aes(x = date, y = df_seas[,7])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Apertura comercial")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Apertura Comercial")+
+  labs(x="",y="",title = "Apertura comercial", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 combined_plot_seas <- ggarrange(seas_plot1,
                                 seas_plot2,
@@ -333,6 +437,9 @@ combined_plot_seas <- ggarrange(seas_plot1,
                            ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
 combined_plot_seas
+
+ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
+
 
 ##############                                      ##############     
 
