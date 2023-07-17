@@ -439,7 +439,7 @@ combined_plot_seas <- ggarrange(seas_plot1,
                            ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
 combined_plot_seas
-
+ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
 #########
 #-- Scatterplots 
 #########
@@ -457,10 +457,12 @@ seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
   #      plot.caption.position = "plot",
   #      axis.text.x = element_text(angle=90, hjust = 1)
   )+
-  #ggtitle("Apertura Comercial")+
   labs(x="",y="")
-  #     title = "Apertura comercial", 
-   #    subtitle = "Porcentaje respecto al PIB p.c.", )
+  #     title = "Titulo", 
+   #    subtitle = "Subtitulo", )
+seas_plot7
+ggsave("gdp_vs_aggregate_exp.png", width=24, height =14 , units= c("cm"), dpi=500)
+
 
 seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
   geom_point(aes (y=df_seas[,2]), shape=16)+
@@ -474,16 +476,13 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
         #      plot.caption.position = "plot",
         #      axis.text.x = element_text(angle=90, hjust = 1)
   )+
-  #ggtitle("Apertura Comercial")+
   labs(x="",y="")
+seas_plot8 
+ggsave("gdp_vs_public_inv.png", width=24, height =14 , units= c("cm"), dpi=500)
 
 
 
-ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
-
-
-
-stargazer(df_seas[,2:7])
+exploratory_analysis_tex <- stargazer(df_seas[,2:7])
 stargazer(df_seas[,2:7], type='text')
 
 ##############                                      ##############     
@@ -678,6 +677,7 @@ lagselect2$selection
 
 jotest1=ca.jo(df_modelo1, type="trace", K=2, ecdet="none", spec="longrun")
 summary(jotest1)
+
 jotest2=ca.jo(df_modelo2, type="trace", K=2, ecdet="none", spec="longrun")
 summary(jotest2)
 
@@ -694,6 +694,10 @@ jotest_table <- rbind.data.frame(c("Variable", "Tipo de prueba"),
   )
 view(jotest_table)
 print(xtable(jotest_table, type="latex"))
+
+
+
+
 
 
 #########                                                 #########
@@ -719,6 +723,11 @@ df_modelo1 <- data.frame(df_modelo1, df[,17:18])
 
 df_modelo2 <- data.frame(df_modelo2, df[,17:18]) 
 
+### Exporting data for Eviews 
+write_xlsx(raw_data, paste(path,"raw_data.xlsx", sep="/"))
+write_xlsx(df_seas, paste(path,"df_seas.xlsx", sep="/"))
+write_xlsx(df_modelo1, paste(path,"df_modelo1.xlsx", sep="/"))
+write_xlsx(df_modelo2, paste(path,"df_modelo2.xlsx", sep="/"))
 
 #creation of quadratic term for gov. expenditure variables
 df_modelo1 <- df_modelo2 %>%
