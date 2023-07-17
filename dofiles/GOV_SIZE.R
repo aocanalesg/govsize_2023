@@ -194,6 +194,8 @@ tr_pop_2 <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
 tr_pop_2
 
 ggsave("population_sin_titulo.png", width=10, height =7 , units= c("cm"), dpi=500)
+
+
 #validacion, DELETE LATER
 
 validacion_pop <- data_frame(raw_data$date, raw_data$pop, raw_data2$RAW_POP)
@@ -437,6 +439,45 @@ combined_plot_seas <- ggarrange(seas_plot1,
                            ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
 combined_plot_seas
+
+#########
+#-- Scatterplots 
+#########
+
+
+seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
+  geom_point(aes (y=df_seas[,2]), shape=16)+
+  geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()
+  #      plot.caption = element_text(hjust = 0),
+  #      plot.title.position = "plot",
+  #      plot.title = element_text(color = "black", size = 10, face = "bold"),
+  #      plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+  #      plot.caption.position = "plot",
+  #      axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Apertura Comercial")+
+  labs(x="",y="")
+  #     title = "Apertura comercial", 
+   #    subtitle = "Porcentaje respecto al PIB p.c.", )
+
+seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
+  geom_point(aes (y=df_seas[,2]), shape=16)+
+  geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()
+        #      plot.caption = element_text(hjust = 0),
+        #      plot.title.position = "plot",
+        #      plot.title = element_text(color = "black", size = 10, face = "bold"),
+        #      plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        #      plot.caption.position = "plot",
+        #      axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Apertura Comercial")+
+  labs(x="",y="")
+
+
 
 ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
 
