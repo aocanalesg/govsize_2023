@@ -8,7 +8,7 @@ rm(list = ls())
 #Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
 
-setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
+setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
 #Packages to install/load 
 
 install.packages("googlesheets4")
@@ -38,8 +38,12 @@ install.packages("dplyr")
 install.packages("vars")
 install.packages('forecast')
 install.packages('vars')
+install.packages('lmtest')
+install.packages('tseries')
+install.packages('broom')
 
-library(vars)
+library(lmtest) #Test de causalidad de granger 
+library(vars) #para selection de criterio de var 
 library(forecast)#for lag selection VAR
 library(tidyverse)#manipulation de datos en general
 library(xtable)#para tablas de latex
@@ -53,14 +57,15 @@ library(zoo)#funciones de series de tiempo
 library(seasonal)#Para desestacionalizar
 library(TSstudio)#PAra desestacionalizar
 library(ggpubr)
-library(patchwork) # para combinar graficos
 library(aTSA)
 library(broom)
 library(dplyr)
 library(vars)
+library(xtable)
+library(tseries)
+library(broom) #Para convertir los objetos htest (de los test estadisticos) en dataframe
 
 #Import data from Drive (Euler)
-
 raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
            sheet = "RAW_DATA",
            col_names = TRUE,
@@ -307,27 +312,44 @@ combined_plot_seas
 
 ##############    Estacionariedad (Tony Stark).    ####################
 
-##############                                      ##############   
+##############                                      ############## 
+
+### Test de Raiz Unitaria ADF para serie en niveles
+#Crea un dataframe con variables desestacionalizadas y en logaritmos
+variables <- df_seas[,8:13] #Genera una matriz con variables desestacionalizadas y en logaritmos
+variables_diff <- apply(variables, 2, diff)  #Genera una matriz con las variables en diferencias
+
+#save_adf <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+#for (i in 1:ncol(variables)) { #Es un loop para realizar el test PP a cada variable guardada en save
+ # col <- variables[,i]
+  #save_adf[[i]] <- tidy(ur.df(col,type = c("none","drift","trend")))
+#}
+names(save_adf) <- colnames(variables) 
+#adfTest(variables$log_gdp_pc_s, type = c("nc", "c", "ct"))
+# "nc" for a regression with no intercept (constant) nor time trend, and "c" for
+#a regression with an intercept (constant) but no time trend, "ct" for a regression
+#with an intercept (constant) and a time trend.
+
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
 ##Variables en log-niveles
-variables <- df_seas[,8:13] #Crea un dataframe con variables desestacionalizadas y en logaritmos
-save <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+
+save_pp <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
 for (i in 1:ncol(variables)) { #Es un loop para realizar el test PP a cada variable guardada en save
 col <- variables[,i]
-save[[i]] <- tidy(pp.test(col))
+save_pp[[i]] <- tidy(pp.test(col))
 }
-names(save) <- colnames(variables) 
+names(save_pp) <- colnames(variables) 
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en diferencias
-variables_diff <- apply(variables, 2, diff)
-save_diff <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+
+save_pp_diff <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
 for (i in 1:ncol(variables_diff)) { #Es un loop para realizar el test PP a cada variable guardada en save
   col <- variables_diff[,i]
-  save_diff[[i]] <- tidy(pp.test(col))
+  save_pp_diff[[i]] <- tidy(pp.test(col))
 }
 
-names(save_diff) <- colnames(variables) #Asigna un nombre a cada elemento de la lista de acuerdo al nombre de las variables 
+names(save_pp_diff) <- colnames(variables) #Asigna un nombre a cada elemento de la lista de acuerdo al nombre de las variables 
 
 #Crear un dataframe vacio que sera la tabla de salidas para el analisis de raices unitarias
 u_root <- data.frame(matrix(NA,    
@@ -414,7 +436,7 @@ u_root <- u_root %>% relocate(series)
  var_gob <-  variables[,1:2]
  lag_selection_gov <- VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
                                                  season = NULL, exogen = NULL)
- df_lag_selection_gov <- as.data.frame(VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
+ df_lag_selection_gov <- as.data.frame(VARselect(var_gob, lag.max = 7, type = c("const", "trend", "both", "none"),
            season = NULL, exogen = NULL)[[2]])
  Criterio = c("AIC","HQ","SC","FPE")
  df_lag_selection_gov$Criterio = Criterio
@@ -436,8 +458,6 @@ u_root <- u_root %>% relocate(series)
   \\multicolumn{1}{c}{5} \\\\
   \\bottomrule")
  print(xtable(df_lag_selection_gov), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
- 
-
 
 #Criterio de seleccion de rezagos Inversion Fija Publica (Tony Stark)
  var_inv <- variables %>%  select(log_gdp_pc_s, log_pub_inv_gdp_s)
@@ -466,13 +486,48 @@ u_root <- u_root %>% relocate(series)
  print(xtable(df_lag_selection_inv), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 #Prueba de precedencia temporal Gasto Agregado  (Tony Stark)
+ granger_gov_pib <- list()
+ granger_pib_gov <- list()
+ for (i in 1:4) { 
+granger_gov_pib[[i]] <- grangertest(variables[,2],variables[,1], order = i) #Gasto de Gobierno causa a PIB
+granger_pib_gov[[i]] <- grangertest(variables[,1],variables[,2], order = i) #PIB causa a Gasto de Gobierno
+ }
+#Prueba de precedencia temporal Inversion Fija Publica (Tony Stark)
+ 
+ granger_inv_pib <- list()
+ granger_pib_inv <- list()
+ for (i in 1:4) { 
+   granger_inv_pib[[i]] <- grangertest(variables[,4],variables[,1], order = i) #Gasto de Gobierno causa a PIB
+   granger_pib_inv[[i]] <- grangertest(variables[,1],variables[,4], order = i) #PIB causa a Gasto de Gobierno
+ }
 
+ #Generar cuadro de precedencia temporal de granger
 
-
-
-#Prueba de presedencia temporal Inversion Fija Publica (Tony Stark)
-
-
+prueba_granger <- data.frame(matrix(NA, nrow = 4, ncol = 5))
+prueba_granger[1,1] <- c("Gasto publico agregado no causa a PIB per capita")
+prueba_granger[2,1] <- c("PIB per capita no causa a Gasto publico agregado")
+prueba_granger[3,1] <- c("Inversion fija publica no causa a PIB per capita")
+prueba_granger[4,1] <- c("PIB per capita no causa a Inversion fija publica")
+###Llenado del cuadro de test de procedencia de Granger
+for (i in 1:4) { 
+prueba_granger[1,i+1] <- granger_gov_pib[[i]][2,4]
+prueba_granger[2,i+1] <- granger_pib_gov[[i]][2,4]
+prueba_granger[3,i+1] <- granger_inv_pib[[i]][2,4]
+prueba_granger[4,i+1] <- granger_pib_inv[[i]][2,4]
+}
+## Creacion de titulos y subtitulos para exportar cuadro a latex 
+addtorow <- list()
+addtorow$pos <- list(0)
+addtorow$command <- c(" \\toprule
+\\headrow & \\multicolumn{4}{c}{Numero de rezagos} \\\\
+  \\midrule
+\\headrow Hipotesis Nula &
+ \\multicolumn{1}{c}{1} &
+  \\multicolumn{1}{c}{2} &
+  \\multicolumn{1}{c}{3} &
+  \\multicolumn{1}{c}{4} \\\\
+  \\bottomrule")
+print(xtable(prueba_granger), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 
 #Prueba de cointegracion de Johansen (Euler)
@@ -495,7 +550,6 @@ jotest2=ca.jo(df_modelo2, type="trace", K=2, ecdet="none", spec="longrun")
 summary(jotest2)
 
 #Tabla
-
 
 jotest_table <- rbind.data.frame(c("Variable", "Tipo de prueba"),
                                  c("Variable", "Tipo de prueba"),
