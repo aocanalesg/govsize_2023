@@ -79,11 +79,11 @@ raw_data2 <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinH
                        range = "A1:H65"
 )
 
-bcn_data_junio_2023 <- read_sheet("https://docs.google.com/spreadsheets/d/11j04635-SOfd4rqdz2snU6SemmZaW5bb/edit?usp=sharing&ouid=116574696867256574492&rtpof=true&sd=true",
-                                  sheet = "Gasto",
-                                  col_names = TRUE,
-                                  range = "A35:CB59"
-)
+#bcn_data_junio_2023 <- read_sheet("https://docs.google.com/spreadsheets/d/11j04635-SOfd4rqdz2snU6SemmZaW5bb/edit?usp=sharing&ouid=116574696867256574492&rtpof=true&sd=true",
+#                                  sheet = "Gasto",
+#                                  col_names = TRUE,
+#                                  range = "A35:CB59"
+#)
 
 #Data cleaning (Euler)
 
@@ -440,6 +440,10 @@ combined_plot_seas
 
 ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
 
+
+
+stargazer(df_seas[,2:7])
+stargazer(df_seas[,2:7], type='text')
 
 ##############                                      ##############     
 
