@@ -8,8 +8,11 @@ rm(list = ls())
 #Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
 
-setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
+setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
+path <- getwd()
+
 #Packages to install/load 
+
 
 install.packages("googlesheets4")
 install.packages("timeSeries")
@@ -38,12 +41,10 @@ install.packages("dplyr")
 install.packages("vars")
 install.packages('forecast')
 install.packages('vars')
-install.packages('lmtest')
-install.packages('tseries')
-install.packages('broom')
-
-library(lmtest) #Test de causalidad de granger 
-library(vars) #para selection de criterio de var 
+install.packages("stargazer")
+install.packages("writexl")
+library(writexl)#para exportar el excel
+library(vars)
 library(forecast)#for lag selection VAR
 library(tidyverse)#manipulation de datos en general
 library(xtable)#para tablas de latex
@@ -57,21 +58,32 @@ library(zoo)#funciones de series de tiempo
 library(seasonal)#Para desestacionalizar
 library(TSstudio)#PAra desestacionalizar
 library(ggpubr)
+library(patchwork) # para combinar graficos
 library(aTSA)
 library(broom)
 library(dplyr)
+library(stargazer)
 library(vars)
-library(xtable)
-library(tseries)
-library(broom) #Para convertir los objetos htest (de los test estadisticos) en dataframe
 
 #Import data from Drive (Euler)
+
 raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
            sheet = "RAW_DATA",
            col_names = TRUE,
            range = "A1:H65"
            )
 
+raw_data2 <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
+                       sheet = "RAW_DATA2",
+                       col_names = TRUE,
+                       range = "A1:H65"
+)
+
+#bcn_data_junio_2023 <- read_sheet("https://docs.google.com/spreadsheets/d/11j04635-SOfd4rqdz2snU6SemmZaW5bb/edit?usp=sharing&ouid=116574696867256574492&rtpof=true&sd=true",
+#                                  sheet = "Gasto",
+#                                  col_names = TRUE,
+#                                  range = "A35:CB59"
+#)
 
 #Data cleaning (Euler)
 
@@ -142,9 +154,64 @@ tr_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")+ 
   theme_classic()+
+  theme(plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 14, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 11, face = "italic"),
+        plot.caption.position = "plot",
+        )+
   ggtitle("Población")+
-  labs(x="",y="")
+  labs(x="",
+       y="",
+    title = "Población total", 
+       subtitle = "Habitantes", 
+       caption = "Fuente: Elaboración y cálculos propios con base en datos de INIDE")
 tr_pop
+
+ggsave("population_con_titulo.png", width=10, height =7 , units= c("cm"), dpi=500)
+
+
+
+tr_pop_2 <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
+  geom_line() +
+  scale_x_date(date_breaks = "years" , date_labels = "%b %Y")+ 
+  theme_classic()+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 14, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 11, face = "italic"),
+        plot.caption.position = "plot",
+    axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Población")+
+  labs(x="",
+       y="")
+   #    title = "", 
+    #   subtitle = "", 
+     #  caption = "")
+tr_pop_2
+
+ggsave("population_sin_titulo.png", width=10, height =7 , units= c("cm"), dpi=500)
+
+
+#validacion, DELETE LATER
+
+validacion_pop <- data_frame(raw_data$date, raw_data$pop, raw_data2$RAW_POP)
+
+validacion_pop <- validacion_pop %>%
+mutate(
+  diff = raw_data$pop-raw_data2$RAW_POP
+)
+
+
+validacion_pop <- ggplot(validacion_pop, aes(as.Date(raw_data$date))) +
+  geom_line(aes(x = as.Date(raw_data$date), y=raw_data$pop)) +
+  geom_line(aes(x = as.Date(raw_data$date), y=raw_data2$RAW_POP)) 
+ 
+validacion_pop
+
 #Creating variables as share of GDP per capita
 
 raw_data <- raw_data %>%
@@ -257,45 +324,110 @@ df_seas <- df_seas %>%
 
 seas_plot1 <- ggplot(df_seas, aes(x = date, y = df_seas[,2])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Producto Interno Bruto Per Capita")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Producto Interno Bruto Per Capita")+
+  labs(x="",y="",title = "Producto Interno Bruto Per Capita", 
+       subtitle = "Cordobas constantes por habitante", )
 
 seas_plot2 <- ggplot(df_seas, aes(x = date, y = df_seas[,3])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Gasto de Gobierno agregado")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  labs(x="",y="",title = "Gasto de Goberno agregado", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot3 <- ggplot(df_seas, aes(x = date, y = df_seas[,4])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Gasto de Gobierno corriente")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Producto Interno Bruto Per Capita")+
+  labs(x="",y="",title = "Gasto de Goberno corriente", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot4 <- ggplot(df_seas, aes(x = date, y = df_seas[,5])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Inverion fija publica")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Producto Interno Bruto Per Capita")+
+  labs(x="",y="",title = "Inversión fija pública", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot5 <- ggplot(df_seas, aes(x = date, y = df_seas[,6])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Inversion fija privada")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Inversion Fija Privada")+
+  labs(x="",y="",title = "Inversión fija privada", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot6 <- ggplot(df_seas, aes(x = date, y = df_seas[,7])) +
   geom_line() +
-  scale_x_date(date_labels = "%b %Y")+
+  geom_smooth(method="lm", se=FALSE,  linetype = "dashed")+
+  scale_x_date(date_breaks = "years" , date_labels = "%Y")+
   theme_classic()+
-  ggtitle("Apertura comercial")+
-  labs(x="",y="")
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0),
+        plot.title.position = "plot",
+        plot.title = element_text(color = "black", size = 10, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.caption.position = "plot",
+        axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  #ggtitle("Apertura Comercial")+
+  labs(x="",y="",title = "Apertura comercial", 
+       subtitle = "Porcentaje respecto al PIB p.c.", )
 
 combined_plot_seas <- ggarrange(seas_plot1,
                                 seas_plot2,
@@ -307,49 +439,77 @@ combined_plot_seas <- ggarrange(seas_plot1,
                            ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
 combined_plot_seas
+ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
+#########
+#-- Scatterplots 
+#########
+
+
+seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
+  geom_point(aes (y=df_seas[,2]), shape=16)+
+  geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()
+  #      plot.caption = element_text(hjust = 0),
+  #      plot.title.position = "plot",
+  #      plot.title = element_text(color = "black", size = 10, face = "bold"),
+  #      plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+  #      plot.caption.position = "plot",
+  #      axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  labs(x="",y="")
+  #     title = "Titulo", 
+   #    subtitle = "Subtitulo", )
+seas_plot7
+ggsave("gdp_vs_aggregate_exp.png", width=24, height =14 , units= c("cm"), dpi=500)
+
+
+seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
+  geom_point(aes (y=df_seas[,2]), shape=16)+
+  geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()
+        #      plot.caption = element_text(hjust = 0),
+        #      plot.title.position = "plot",
+        #      plot.title = element_text(color = "black", size = 10, face = "bold"),
+        #      plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        #      plot.caption.position = "plot",
+        #      axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  labs(x="",y="")
+seas_plot8 
+ggsave("gdp_vs_public_inv.png", width=24, height =14 , units= c("cm"), dpi=500)
+
+
+
+exploratory_analysis_tex <- stargazer(df_seas[,2:7])
+stargazer(df_seas[,2:7], type='text')
 
 ##############                                      ##############     
 
 ##############    Estacionariedad (Tony Stark).    ####################
 
-##############                                      ############## 
-
-### Test de Raiz Unitaria ADF para serie en niveles
-#Crea un dataframe con variables desestacionalizadas y en logaritmos
-variables <- df_seas[,8:13] #Genera una matriz con variables desestacionalizadas y en logaritmos
-variables_diff <- apply(variables, 2, diff)  #Genera una matriz con las variables en diferencias
-
-#save_adf <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
-#for (i in 1:ncol(variables)) { #Es un loop para realizar el test PP a cada variable guardada en save
- # col <- variables[,i]
-  #save_adf[[i]] <- tidy(ur.df(col,type = c("none","drift","trend")))
-#}
-names(save_adf) <- colnames(variables) 
-#adfTest(variables$log_gdp_pc_s, type = c("nc", "c", "ct"))
-# "nc" for a regression with no intercept (constant) nor time trend, and "c" for
-#a regression with an intercept (constant) but no time trend, "ct" for a regression
-#with an intercept (constant) and a time trend.
-
+##############                                      ##############   
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
 ##Variables en log-niveles
-
-save_pp <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+variables <- df_seas[,8:13] #Crea un dataframe con variables desestacionalizadas y en logaritmos
+save <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
 for (i in 1:ncol(variables)) { #Es un loop para realizar el test PP a cada variable guardada en save
 col <- variables[,i]
-save_pp[[i]] <- tidy(pp.test(col))
+save[[i]] <- tidy(pp.test(col))
 }
-names(save_pp) <- colnames(variables) 
+names(save) <- colnames(variables) 
 
 ### Test de Raiz Unitaria Phillips-Perron para serie en diferencias
-
-save_pp_diff <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
+variables_diff <- apply(variables, 2, diff)
+save_diff <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
 for (i in 1:ncol(variables_diff)) { #Es un loop para realizar el test PP a cada variable guardada en save
   col <- variables_diff[,i]
-  save_pp_diff[[i]] <- tidy(pp.test(col))
+  save_diff[[i]] <- tidy(pp.test(col))
 }
 
-names(save_pp_diff) <- colnames(variables) #Asigna un nombre a cada elemento de la lista de acuerdo al nombre de las variables 
+names(save_diff) <- colnames(variables) #Asigna un nombre a cada elemento de la lista de acuerdo al nombre de las variables 
 
 #Crear un dataframe vacio que sera la tabla de salidas para el analisis de raices unitarias
 u_root <- data.frame(matrix(NA,    
@@ -436,7 +596,7 @@ u_root <- u_root %>% relocate(series)
  var_gob <-  variables[,1:2]
  lag_selection_gov <- VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
                                                  season = NULL, exogen = NULL)
- df_lag_selection_gov <- as.data.frame(VARselect(var_gob, lag.max = 7, type = c("const", "trend", "both", "none"),
+ df_lag_selection_gov <- as.data.frame(VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
            season = NULL, exogen = NULL)[[2]])
  Criterio = c("AIC","HQ","SC","FPE")
  df_lag_selection_gov$Criterio = Criterio
@@ -458,6 +618,8 @@ u_root <- u_root %>% relocate(series)
   \\multicolumn{1}{c}{5} \\\\
   \\bottomrule")
  print(xtable(df_lag_selection_gov), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
+ 
+
 
 #Criterio de seleccion de rezagos Inversion Fija Publica (Tony Stark)
  var_inv <- variables %>%  select(log_gdp_pc_s, log_pub_inv_gdp_s)
@@ -486,51 +648,20 @@ u_root <- u_root %>% relocate(series)
  print(xtable(df_lag_selection_inv), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 #Prueba de precedencia temporal Gasto Agregado  (Tony Stark)
- granger_gov_pib <- list()
- granger_pib_gov <- list()
- for (i in 1:4) { 
-granger_gov_pib[[i]] <- grangertest(variables[,2],variables[,1], order = i) #Gasto de Gobierno causa a PIB
-granger_pib_gov[[i]] <- grangertest(variables[,1],variables[,2], order = i) #PIB causa a Gasto de Gobierno
- }
-#Prueba de precedencia temporal Inversion Fija Publica (Tony Stark)
+
+
+
+
+#Prueba de presedencia temporal Inversion Fija Publica (Tony Stark)
+
+
+
+ #########                                                 #########
  
- granger_inv_pib <- list()
- granger_pib_inv <- list()
- for (i in 1:4) { 
-   granger_inv_pib[[i]] <- grangertest(variables[,4],variables[,1], order = i) #Gasto de Gobierno causa a PIB
-   granger_pib_inv[[i]] <- grangertest(variables[,1],variables[,4], order = i) #PIB causa a Gasto de Gobierno
- }
-
- #Generar cuadro de precedencia temporal de granger
-
-prueba_granger <- data.frame(matrix(NA, nrow = 4, ncol = 5))
-prueba_granger[1,1] <- c("Gasto publico agregado no causa a PIB per capita")
-prueba_granger[2,1] <- c("PIB per capita no causa a Gasto publico agregado")
-prueba_granger[3,1] <- c("Inversion fija publica no causa a PIB per capita")
-prueba_granger[4,1] <- c("PIB per capita no causa a Inversion fija publica")
-###Llenado del cuadro de test de procedencia de Granger
-for (i in 1:4) { 
-prueba_granger[1,i+1] <- granger_gov_pib[[i]][2,4]
-prueba_granger[2,i+1] <- granger_pib_gov[[i]][2,4]
-prueba_granger[3,i+1] <- granger_inv_pib[[i]][2,4]
-prueba_granger[4,i+1] <- granger_pib_inv[[i]][2,4]
-}
-## Creacion de titulos y subtitulos para exportar cuadro a latex 
-addtorow <- list()
-addtorow$pos <- list(0)
-addtorow$command <- c(" \\toprule
-\\headrow & \\multicolumn{4}{c}{Numero de rezagos} \\\\
-  \\midrule
-\\headrow Hipotesis Nula &
- \\multicolumn{1}{c}{1} &
-  \\multicolumn{1}{c}{2} &
-  \\multicolumn{1}{c}{3} &
-  \\multicolumn{1}{c}{4} \\\\
-  \\bottomrule")
-print(xtable(prueba_granger), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
-
-
-#Prueba de cointegracion de Johansen (Euler)
+ #########  Prueba de cointegracion de Johansen (Euler)
+ 
+ #########                                                 #########
+ 
 df_modelo1 <- as.data.frame(c(df_seas[,2:3],df_seas[,6:7]))
 colnames(df_modelo1)<- c("gdp_pc_s", "gov_gdp_s", "priv_inv_gdp_s","tr_op_s")                        
 
@@ -546,10 +677,12 @@ lagselect2$selection
 
 jotest1=ca.jo(df_modelo1, type="trace", K=2, ecdet="none", spec="longrun")
 summary(jotest1)
+
 jotest2=ca.jo(df_modelo2, type="trace", K=2, ecdet="none", spec="longrun")
 summary(jotest2)
 
 #Tabla
+
 
 jotest_table <- rbind.data.frame(c("Variable", "Tipo de prueba"),
                                  c("Variable", "Tipo de prueba"),
@@ -561,50 +694,90 @@ jotest_table <- rbind.data.frame(c("Variable", "Tipo de prueba"),
   )
 view(jotest_table)
 print(xtable(jotest_table, type="latex"))
-#tablas a Latex
-
-
-#Ecuacion de largo plazo Gasto Agregado (Tony Stark)
 
 
 
 
-### Ecuacion de largo plazo Inversion Fija (Euler)
-
-##### Preparing data base for regression
-
-#inclusion of dummies
 
 
-df_seas <- data.frame(df_seas,df[,15:16])
+#########                                                 #########
+
+#########  Ecuacion de largo plazo Gasto Agregado (Tony Stark)
+
+#########                                                 #########
 
 
-#inclusion of quadratic
-df_seas <- df_seas %>%
+
+
+
+
+#########                                                 #########
+
+######### Ecuacion de largo plazo - Var. dep.: Inversion Fija (Euler) 
+
+#########                                               #########  
+
+#inclusion of dummies to the variables object
+
+df_modelo1 <- data.frame(df_modelo1, df[,17:18])
+
+df_modelo2 <- data.frame(df_modelo2, df[,17:18]) 
+
+### Exporting data for Eviews 
+write_xlsx(raw_data, paste(path,"raw_data.xlsx", sep="/"))
+write_xlsx(df_seas, paste(path,"df_seas.xlsx", sep="/"))
+write_xlsx(df_modelo1, paste(path,"df_modelo1.xlsx", sep="/"))
+write_xlsx(df_modelo2, paste(path,"df_modelo2.xlsx", sep="/"))
+
+#creation of quadratic term for gov. expenditure variables
+df_modelo1 <- df_modelo2 %>%
   mutate(
-    log_pub_inv_gdp_s_2= log(pub_inv_gdp_s)*log(pub_inv_gdp_s),
+    gov_gdp_s_2= gov_gdp_s*gov_gdp_s
+  )
+
+
+df_modelo2 <- df_modelo2 %>%
+  mutate(
+    pub_inv_gdp_s_2= pub_inv_gdp_s*pub_inv_gdp_s
 )
     
 
 #inclusion of cubic
 
-df_seas <- df_seas %>%
+df_modelo2 <- df_modelo2 %>%
   mutate(
-    log_pub_inv_gdp_s_3=  log_pub_inv_gdp_s_2*log(pub_inv_gdp_s),
+    pub_inv_gdp_s_3=  pub_inv_gdp_s_2*pub_inv_gdp_s,
   )
+
+df_modelo1 <- df_modelo1 %>%
+  mutate(
+    gov_gdp_s_3=  gov_gdp_s_2*gov_gdp_s,
+  )
+
+# export the data for Eviews processing
+
+write_xlsx(df_modelo2, paste(path,"df_modelo2.xlsx", sep="/"))
 
 ######### Estimates
 
-####### lineal model
+####### linear model
 
 #####  MCO
-lin_2_mco <- lm(log(gdp_pc_s) ~ log(pub_inv_gdp_s) + log(priv_inv_gdp_s) + log(tr_op_s) + d_2008 + d_2018, df_seas)
+lin_2_mco <- lm(log(gdp_pc_s) ~ pub_inv_gdp_s + priv_inv_gdp_s + tr_op_s + d_2008 + d_2018, df_modelo2)
 summary(lin_2_mco)
+stargazer(lin_2_mco, type="text")
 
 #####  FMOLS
 
-lin_2_fmols <- cointReg(method = c("FM"), df_seas[,8], df_seas[,11:15])
+lin_2_fmols <- cointReg(method = c("FM"), df_modelo2[,1], df_modelo2[,2:7])
 print(lin_2_fmols)
+tidy(lin_2_fmols)
+
+res = sapply(c("FM", "D", "IM"), cointReg, x = df_modelo2[,1], y = df_modelo2[,2:7],)
+do.call(cbind, lapply(res, "[[", "theta"))
+
+test.fm = cointRegFM(x = df_modelo2[,1], y = df_modelo2[,2:7])
+      print(test.fm, digits = 4)
 
 #####  Canonical Cointegration Regression
 
