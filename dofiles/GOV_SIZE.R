@@ -44,7 +44,7 @@ install.packages('vars')
 install.packages("stargazer")
 install.packages("writexl")
 install.packages("fUnitRoots")
-
+library(ggplot2)
 library(fUnitRoots)
 library(writexl)#para exportar el excel
 library(vars)
@@ -219,7 +219,7 @@ validacion_pop
 
 raw_data <- raw_data %>%
   mutate(
-    gdp_pc = log(gdp/pop),
+    log_gdp_pc = log(gdp/pop),
     gov_gdp = (gov_con + pub_inv)/gdp,
     gov_con_gdp = gov_con/gdp,
     pub_inv_gdp= pub_inv/gdp,
@@ -231,7 +231,7 @@ raw_data <- raw_data %>%
 
 raw_data <- raw_data %>%
   mutate(
-    growth_gdp_pc = gdp_pc/lag(gdp_pc)-1
+    growth_gdp_pc = log_gdp_pc/lag(log_gdp_pc)-1
   )
 
 #create dummies 
@@ -257,27 +257,27 @@ df <- as.data.frame(raw_data)
 df$date<-as.Date(df$date,  "%m/%d/%y")
 
 
-raw_plot1 <- ggplot(df, aes(x = date, y = df$gdp_pc)) +
+raw_plot1 <- ggplot(df, aes(x = date, y = gdp_pc)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot2 <- ggplot(df, aes(x = date, y = df$gov_gdp)) +
+raw_plot2 <- ggplot(df, aes(x = date, y = gov_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot3 <- ggplot(df, aes(x = date, y = df$gov_con_gdp)) +
+raw_plot3 <- ggplot(df, aes(x = date, y = gov_con_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot4 <- ggplot(df, aes(x = date, y = df$pub_inv_gdp)) +
+raw_plot4 <- ggplot(df, aes(x = date, y = pub_inv_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot5 <- ggplot(df, aes(x = date, y = df$priv_inv_gdp)) +
+raw_plot5 <- ggplot(df, aes(x = date, y = priv_inv_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot6 <- ggplot(df, aes(x = date, y =  df$tr_op)) +
+raw_plot6 <- ggplot(df, aes(x = date, y = tr_op)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
