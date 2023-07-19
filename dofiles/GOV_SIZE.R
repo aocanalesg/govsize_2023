@@ -7,6 +7,7 @@ rm(list = ls())
 #Working directory
 #Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
+#Axel working directory WINDOWS: 'C:\Users\Axel Canales\Documents\GitHub\govsize_2023'
 
 setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
 path <- getwd()
