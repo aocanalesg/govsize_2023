@@ -8,7 +8,7 @@ rm(list = ls())
 #Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
 
-setwd('/Users/axelcanales/Documents/GitHub/govsize_2023')
+setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
 path <- getwd()
 
 #Packages to install/load 
@@ -43,6 +43,7 @@ install.packages('forecast')
 install.packages('vars')
 install.packages("stargazer")
 install.packages("writexl")
+
 library(writexl)#para exportar el excel
 library(vars)
 library(forecast)#for lag selection VAR
@@ -216,7 +217,7 @@ validacion_pop
 
 raw_data <- raw_data %>%
   mutate(
-    gdp_pc = gdp/pop,
+    gdp_pc = log(gdp/pop),
     gov_gdp = (gov_con + pub_inv)/gdp,
     gov_con_gdp = gov_con/gdp,
     pub_inv_gdp= pub_inv/gdp,
@@ -300,25 +301,6 @@ seasonal_adj <- final(seasonal_adj)
 
 df_seas <- as.data.frame(seasonal_adj)
 df_seas <- cbind(df$date, df_seas[,])
-
-df_seas <- df_seas %>% 
-  rename("date" = "df$date",
-         "gdp_pc_s"="gdp_pc",
-         "gov_gdp_s"="gov_gdp",
-         "gov_con_gdp_s"="gov_con_gdp",
-         "pub_inv_gdp_s"="pub_inv_gdp",
-         "priv_inv_gdp_s"="priv_inv_gdp",
-         "tr_op_s"="tr_op"
-         )
-
-df_seas$date<-as.Date(df_seas$date,  "%m/%d/%y")
-
-#Log tranasformation to GDP_pc
-
-df_seas <- df_seas %>% 
-  mutate(
-         log_gdp_pc_s= log(gdp_pc_s)
-  )
 
 #Graph of seasonal adjusted variables with ggplot
 
@@ -491,9 +473,12 @@ stargazer(df_seas[,2:7], type='text')
 
 ##############                                      ##############   
 
-### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
+### Test de Raiz Unitaria ADF para serie en niveles 
 ##Variables en log-niveles
 variables <- df_seas[,8:13] #Crea un dataframe con variables desestacionalizadas y en logaritmos
+
+### Test de Raiz Unitaria Phillips-Perron para serie en niveles 
+##Variables en log-niveles
 save <- list() #Genera una lista para guardar los resultados de los test de raiz unitaria
 for (i in 1:ncol(variables)) { #Es un loop para realizar el test PP a cada variable guardada en save
 col <- variables[,i]
@@ -647,14 +632,49 @@ u_root <- u_root %>% relocate(series)
   \\bottomrule")
  print(xtable(df_lag_selection_inv), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
-#Prueba de precedencia temporal Gasto Agregado  (Tony Stark)
 
-
-
-
-#Prueba de presedencia temporal Inversion Fija Publica (Tony Stark)
-
-
+ #Prueba de presedencia temporal De Gasto Gobierno Agregado (Tony Stark)
+ granger_gov_pib <- list()
+ granger_pib_gov <- list()
+ for (i in 1:4) { 
+   granger_gov_pib[[i]] <- grangertest(variables[,2],variables[,1], order = i) #Gasto de Gobierno causa a PIB
+   granger_pib_gov[[i]] <- grangertest(variables[,1],variables[,2], order = i) #PIB causa a Gasto de Gobierno
+ }
+ 
+ #Prueba de precedencia temporal Inversion Fija Publica (Tony Stark)
+ granger_inv_pib <- list()
+ granger_pib_inv <- list()
+ for (i in 1:4) { 
+   granger_inv_pib[[i]] <- grangertest(variables[,4],variables[,1], order = i) #Gasto de Gobierno causa a PIB
+   granger_pib_inv[[i]] <- grangertest(variables[,1],variables[,4], order = i) #PIB causa a Gasto de Gobierno
+ }
+ 
+ #Generar cuadro de precedencia temporal de granger
+ prueba_granger <- data.frame(matrix(NA, nrow = 4, ncol = 5))
+ prueba_granger[1,1] <- c("Gasto publico agregado no causa a PIB per capita")
+ prueba_granger[2,1] <- c("PIB per capita no causa a Gasto publico agregado")
+ prueba_granger[3,1] <- c("Inversion fija publica no causa a PIB per capita")
+ prueba_granger[4,1] <- c("PIB per capita no causa a Inversion fija publica")
+ ###Llenado del cuadro de test de procedencia de Granger
+ for (i in 1:4) { 
+   prueba_granger[1,i+1] <- granger_gov_pib[[i]][2,4]
+   prueba_granger[2,i+1] <- granger_pib_gov[[i]][2,4]
+   prueba_granger[3,i+1] <- granger_inv_pib[[i]][2,4]
+   prueba_granger[4,i+1] <- granger_pib_inv[[i]][2,4]
+ }
+ ## Creacion de titulos y subtitulos para exportar cuadro a latex 
+ addtorow <- list()
+ addtorow$pos <- list(0)
+ addtorow$command <- c(" \\toprule
+\\headrow & \\multicolumn{4}{c}{Numero de rezagos} \\\\
+  \\midrule
+\\headrow Hipotesis Nula &
+ \\multicolumn{1}{c}{1} &
+  \\multicolumn{1}{c}{2} &
+  \\multicolumn{1}{c}{3} &
+  \\multicolumn{1}{c}{4} \\\\
+  \\bottomrule")
+ print(xtable(prueba_granger), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
  #########                                                 #########
  
