@@ -700,17 +700,9 @@ df_modelo2 <- data.frame(df_modelo2, df[,17:18])
 
 ### Exporting data for Eviews 
 write_xlsx(raw_data, paste(path,"raw_data.xlsx", sep="/"))
-write.csv(raw_data, paste(path,"raw_data.csv", sep="/"))
-
 write_xlsx(df_seas, paste(path,"df_seas.xlsx", sep="/"))
-write.csv(df_seas, paste(path,"df_seas.csv", sep="/"))
-
 write_xlsx(df_modelo1, paste(path,"df_modelo1.xlsx", sep="/"))
-write.csv(df_modelo1, paste(path,"df_modelo1.csv", sep="/"))
-
 write_xlsx(df_modelo2, paste(path,"df_modelo2.xlsx", sep="/"))
-write.csv(df_modelo2, paste(path,"df_modelo2.csv", sep="/"))
-
 
 #creation of quadratic term for gov. expenditure variables
 df_modelo1 <- df_modelo2 %>%
