@@ -96,7 +96,7 @@ next
 'Modelos lineales con todas las metodologias en muestra completa
 'OLS:
 smpl @all
-equation eql1.ls log_gdp_pc_s c x1_sa x2_sa x3_sa d_2008 d_2018
+equation eql1.ls(cov=hac) log_gdp_pc_s c x1_sa x2_sa x3_sa d_2008 d_2018
 
 'FMOLS:
 smpl @all
@@ -108,19 +108,19 @@ equation eql3.cointreg(method=ccr) log_gdp_pc_s x1_sa x2_sa x3_sa @determ d_2008
 
 'Modelos lineales con todas las metodologias en muestra recortada
 
-smpl 2006Q1 2017Q4
-equation eql4.ls log_gdp_pc_s c x1_sa x2_sa x3_sa d_2008
+'smpl 2006Q1 2017Q4
+'equation eql4.ls log_gdp_pc_s c x1_sa x2_sa x3_sa d_2008
 
-smpl 2006Q1 2017Q4
-equation eql5.cointreg log_gdp_pc_s x1_sa  x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eql5.cointreg log_gdp_pc_s x1_sa  x2_sa x3_sa @determ d_2008 
 
-smpl 2006Q1 2017Q4
-equation eql6.cointreg(method=ccr) log_gdp_pc_s x1_sa  x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eql6.cointreg(method=ccr) log_gdp_pc_s x1_sa  x2_sa x3_sa @determ d_2008 
 
 'Modelos cuadráticos con todas las metodologias en muestra completa
 
 smpl @all
-equation eq1.ls log_gdp_pc_s c x1_sa (x1_sa)^2 x2_sa x3_sa d_2008 d_2018
+equation eq1.ls(cov=hac) log_gdp_pc_s c x1_sa (x1_sa)^2 x2_sa x3_sa d_2008 d_2018
 
 
 smpl @all
@@ -131,18 +131,18 @@ equation eq3.cointreg(method=ccr) log_gdp_pc_s x1_sa (x1_sa)^2 x2_sa x3_sa @dete
 
 'Modelos cuadráticos con todas las metodologias en muestra recortada
 
-smpl 2006Q1 2017Q4
-equation eq4.ls log_gdp_pc_s c x1_sa (x1_sa)^2 x2_sa x3_sa d_2008
+'smpl 2006Q1 2017Q4
+'equation eq4.ls log_gdp_pc_s c x1_sa (x1_sa)^2 x2_sa x3_sa d_2008
 
-smpl 2006Q1 2017Q4
-equation eq5.cointreg log_gdp_pc_s x1_sa (x1_sa)^2 x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eq5.cointreg log_gdp_pc_s x1_sa (x1_sa)^2 x2_sa x3_sa @determ d_2008 
 
-smpl 2006Q1 2017Q4
-equation eq6.cointreg(method=ccr) log_gdp_pc_s x1_sa (x1_sa)^2 x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eq6.cointreg(method=ccr) log_gdp_pc_s x1_sa (x1_sa)^2 x2_sa x3_sa @determ d_2008 
 
 'Modelos cúbicos con todas las metodologias en muestra completa
 smpl @all
-equation eq7.ls log_gdp_pc_s c x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa d_2008 d_2018
+equation eq7.ls(cov=hac) log_gdp_pc_s c x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa d_2008 d_2018
 
 smpl @all
 equation eq8.cointreg log_gdp_pc_s x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008 d_2018
@@ -152,14 +152,14 @@ equation eq9.cointreg(method=ccr) log_gdp_pc_s  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa 
 
 'Modelos cúbicos con todas las metodologias en muestra recortada
 
-smpl 2006Q1 2017Q4
-equation eq10.ls log_gdp_pc_s c x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa d_2008
+'smpl 2006Q1 2017Q4
+'equation eq10.ls log_gdp_pc_s c x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa d_2008
 
-smpl 2006Q1 2017Q4
-equation eq11.cointreg log_gdp_pc_s  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008
+'smpl 2006Q1 2017Q4
+'equation eq11.cointreg log_gdp_pc_s  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008
 
-smpl 2006Q1 2017Q4
-equation eq12.cointreg(method=ccr) log_gdp_pc_s  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eq12.cointreg(method=ccr) log_gdp_pc_s  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa x3_sa @determ d_2008 
 
 '------------------------------------------------------------------------------------------------------------------------------
 'Variable independiente del gobierno: Inversion fija pública
@@ -168,72 +168,72 @@ equation eq12.cointreg(method=ccr) log_gdp_pc_s  x1_sa (x1_sa)^2 (x1_sa)^3 x2_sa
 'Modelos lineales  con todas las metodologias en muestra completa
 
 smpl @all
-equation eql19.ls log_gdp_pc_s c PUB_INV_GDP_S   x2_sa x3_sa d_2008 d_2018
+equation eq_lin_inv_1.ls(cov=hac) log_gdp_pc_s c  x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_S 
 
 
 smpl @all
-equation eql20.cointreg log_gdp_pc_s PUB_INV_GDP_S   x2_sa x3_sa @determ d_2008 d_2018
+equation eq_lin_inv_2.cointreg log_gdp_pc_s x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_S
 
 smpl @all
-equation eql21.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S  x2_sa x3_sa @determ d_2008 d_2018
+equation eq_lin_inv_3.cointreg(method=ccr) log_gdp_pc_s x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_S
 
 'Variable independiente del gobierno: Inversion fija pública
 
 'Modelos lineales  con todas las metodologias en muestra recortada
 
-smpl 2006Q1 2017Q4
-equation eql22.ls log_gdp_pc_s c PUB_INV_GDP_S   x2_sa x3_sa d_2008
+'smpl 2006Q1 2017Q4
+'equation eql22.ls log_gdp_pc_s c PUB_INV_GDP_S   x2_sa x3_sa d_2008
 
-smpl 2006Q1 2017Q4
-equation eql23.cointreg log_gdp_pc_s PUB_INV_GDP_S   x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eql23.cointreg log_gdp_pc_s PUB_INV_GDP_S   x2_sa x3_sa @determ d_2008 
 
-smpl 2006Q1 2017Q4
-equation eql24.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S   x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eql24.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S   x2_sa x3_sa @determ d_2008 
 
 
 'Modelos cuadráticos con todas las metodologias en muestra completa
 
 smpl @all
-equation eq19.ls log_gdp_pc_s c PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa d_2008 d_2018
+equation eq_quad_inv_1.ls(cov=hac) log_gdp_pc_s c x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_S  (PUB_INV_GDP_S )^2
 
 smpl @all
-equation eq20.cointreg log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa @determ d_2008 d_2018
+equation eq_quad_inv_2.cointreg log_gdp_pc_s x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_S  (PUB_INV_GDP_S )^2
 
 smpl @all
-equation eq21.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa @determ d_2008 d_2018
+equation eq_quad_inv_3.cointreg(method=ccr) log_gdp_pc_s x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_S  (PUB_INV_GDP_S )^2
 
 'Modelos cuadráticos con todas las metodologias en muestra recortada
 
-smpl 2006Q1 2017Q4
-equation eq22.ls log_gdp_pc_s c PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa d_2008
+'smpl 2006Q1 2017Q4
+'equation eq22.ls log_gdp_pc_s c PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa d_2008
 
-smpl 2006Q1 2017Q4
-equation eq23.cointreg log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eq23.cointreg log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa @determ d_2008 
 
-smpl 2006Q1 2017Q4
-equation eq24.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eq24.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 x2_sa x3_sa @determ d_2008 
 
 'Modelos cúbicos con todas las metodologias en muestra completa
 
 smpl @all
-equation eq25.ls log_gdp_pc_s c PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa d_2008 d_2018
+equation eq_cub_inv_1.ls(cov=hac) log_gdp_pc_s c x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3
 
 smpl @all
-equation eq26.cointreg log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa @determ d_2008 d_2018
+equation eq_cub_inv_2.cointreg log_gdp_pc_s  x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3
 
 smpl @all
-equation eq27.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa @determ d_2008 d_2018
+equation eq_cub_inv_3.cointreg(method=ccr) log_gdp_pc_s  x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3
 
 'Modelos cúbicos con todas las metodologias en muestra recortada
 
-smpl 2006Q1 2017Q4
-equation eq28.ls log_gdp_pc_s c PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa d_2008
+'smpl 2006Q1 2017Q4
+'equation eq28.ls log_gdp_pc_s c PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa d_2008
 
-smpl 2006Q1 2017Q4
-equation eq29.cointreg log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa @determ d_2008
+'smpl 2006Q1 2017Q4
+'equation eq29.cointreg log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa @determ d_2008
 
-smpl 2006Q1 2017Q4
-equation eq30.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa @determ d_2008 
+'smpl 2006Q1 2017Q4
+'equation eq30.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^2 (PUB_INV_GDP_S )^3 x2_sa x3_sa @determ d_2008 
 
 
 '--------------------------------------------------------------------------------------------------------
@@ -306,6 +306,17 @@ equation eq30.cointreg(method=ccr) log_gdp_pc_s PUB_INV_GDP_S  (PUB_INV_GDP_S )^
 'smpl 2006Q1 2017Q4
 'equation eq47.cointreg(method=ccr) log_gdp_pc_s rgob_sa (rgob_sa)^2 (rgob_sa)^3 x2_sa x3_sa @determ d_2008 
 
+'jb test
+
+
+
+'bgLM
+
+
+
+'bpg
+
+
 
 '=============================
 'Bootstrap
@@ -351,7 +362,76 @@ cuadraticos_inversion({!x},1) = reg_inversion{!x}.@coef(2)
 next
 
 'Exportando coeficientes
+
+'Modelos OLS
+'lineales
+for !x=1 to 6
+table(17, 9) tabla_modelos
+tabla_modelos(2*{!x}-1,1) = eq_lin_inv_1.@coef({!x})
+tabla_modelos(2*{!x},1) = eq_lin_inv_1.@pval({!x})
+next
+'cuadraticos
+for !x=1 to 7
+tabla_modelos(2*{!x}-1,2) = eq_quad_inv_1.@coef({!x})
+tabla_modelos(2*{!x},2) = eq_quad_inv_1.@pval({!x})
+next
+'cubicos
+for !x=1 to 8
+tabla_modelos(2*{!x}-1,3) = eq_cub_inv_1.@coef({!x})
+tabla_modelos(2*{!x},3) = eq_cub_inv_1.@pval({!x})
+next
+tabla_modelos(17,1) = eq_lin_inv_1.@r2
+tabla_modelos(17,2) = eq_quad_inv_1.@r2
+tabla_modelos(17,3) = eq_cub_inv_1.@r2
+
+
+
+'Modelos FMOLS
+for !x=1 to 6
+tabla_modelos(2*{!x}-1,4) = eq_lin_inv_2.@coef({!x})
+tabla_modelos(2*{!x},4) = eq_lin_inv_2.@pval({!x})
+next
+'cuadraticos
+for !x=1 to 7
+tabla_modelos(2*{!x}-1,5) = eq_quad_inv_2.@coef({!x})
+tabla_modelos(2*{!x},5) = eq_quad_inv_2.@pval({!x})
+next
+'cubicos
+for !x=1 to 8
+tabla_modelos(2*{!x}-1,6) = eq_cub_inv_2.@coef({!x})
+tabla_modelos(2*{!x},6) = eq_cub_inv_2.@pval({!x})
+next
+tabla_modelos(17,4) = eq_lin_inv_2.@r2
+tabla_modelos(17,5) = eq_quad_inv_2.@r2
+tabla_modelos(17,6) = eq_cub_inv_2.@r2
+
+
+'Modelos CCR
+for !x=1 to 6
+tabla_modelos(2*{!x}-1,7) = eq_lin_inv_3.@coef({!x})
+tabla_modelos(2*{!x},7) = eq_lin_inv_3.@pval({!x})
+next
+'cuadraticos
+for !x=1 to 7
+tabla_modelos(2*{!x}-1,8) = eq_quad_inv_3.@coef({!x})
+tabla_modelos(2*{!x},8) = eq_quad_inv_3.@pval({!x})
+next
+'cubicos
+for !x=1 to 8
+tabla_modelos(2*{!x}-1,9) = eq_cub_inv_3.@coef({!x})
+tabla_modelos(2*{!x},9) = eq_cub_inv_3.@pval({!x})
+next
+tabla_modelos(17,7) = eq_lin_inv_3.@r2
+tabla_modelos(17,8) = eq_quad_inv_3.@r2
+tabla_modelos(17,9) = eq_cub_inv_3.@r2
+
+'bootstrap
 lineales_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
 cuadraticos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_agregado.csv"
+lineales_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_inversion.csv"
+cuadraticos_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_inversion.csv"
 
 
+'colplace(coefs, eq.@coefs, !i)
+'colplace(stderrs, eq.@stderrs, !i) 'std errs
+'colpace(tstats, e1.@tstats, !i) 'test-stat
