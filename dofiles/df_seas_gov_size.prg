@@ -306,8 +306,6 @@ equation eq_cub_inv_3.cointreg(method=ccr) log_gdp_pc_s  x2_sa x3_sa @determ d_2
 'smpl 2006Q1 2017Q4
 'equation eq47.cointreg(method=ccr) log_gdp_pc_s rgob_sa (rgob_sa)^2 (rgob_sa)^3 x2_sa x3_sa @determ d_2008 
 
-'jb test
-
 
 
 'bgLM
@@ -361,7 +359,7 @@ lineales_inversion({!x},1) = reg_inversion{!x}.@coef(1)
 cuadraticos_inversion({!x},1) = reg_inversion{!x}.@coef(2)
 next
 
-'Exportando coeficientes
+'Exportando tabla
 
 'Modelos OLS
 'lineales
@@ -424,6 +422,47 @@ next
 tabla_modelos(17,7) = eq_lin_inv_3.@r2
 tabla_modelos(17,8) = eq_quad_inv_3.@r2
 tabla_modelos(17,9) = eq_cub_inv_3.@r2
+
+
+'jb test
+for !x=1 to 3
+eq_lin_inv_{!x}.makeresids resid_eq_lin_inv_{!x}
+freeze(jb_eq_lin_inv_{!x}) resid_eq_lin_inv_{!x}.stats
+next
+for !x=1 to 3
+eq_quad_inv_{!x}.makeresids resid_eq_quad_inv_{!x}
+freeze(jb_eq_quad_inv_{!x}) resid_eq_quad_inv_{!x}.stats
+next
+for !x=1 to 3
+eq_cub_inv_{!x}.makeresids resid_eq_cub_inv_{!x}
+freeze(jb_eq_cub_inv_{!x}) resid_eq_cub_inv_{!x}.stats
+next
+tabla_modelos(18,1) = @val(jb_eq_lin_inv_1(14,2))
+tabla_modelos(18,2) = @val(jb_eq_quad_inv_1(14,2))
+tabla_modelos(18,3) = @val(jb_eq_cub_inv_1(14,2))
+tabla_modelos(18,4) = @val(jb_eq_lin_inv_2(14,2))
+tabla_modelos(18,5) = @val(jb_eq_quad_inv_2(14,2))
+tabla_modelos(18,6) = @val(jb_eq_cub_inv_2(14,2))
+tabla_modelos(18,7) = @val(jb_eq_lin_inv_3(14,2))
+tabla_modelos(18,8) = @val(jb_eq_quad_inv_3(14,2))
+tabla_modelos(18,9) = @val(jb_eq_cub_inv_3(14,2))
+
+'auto LM test
+
+freeze(auto_eq_lin_inv_1) eq_lin_inv_1.auto
+freeze(auto_eq_quad_inv_1) eq_quad_inv_1.auto
+freeze(auto_eq_cub_inv_1) eq_cub_inv_1.auto
+tabla_modelos(19,1) = @val(auto_eq_lin_inv_1(3,2))
+tabla_modelos(19,2) = @val(auto_eq_quad_inv_1(3,2))
+tabla_modelos(19,3) = @val(auto_eq_cub_inv_1(3,2))
+
+'heteroskedasticity BPG test
+freeze(bpg_eq_lin_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 pub_inv_gdp_s
+freeze(bpg_eq_quad_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 pub_inv_gdp_s (pub_inv_gdp_s)^2
+freeze(bpg_eq_cub_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 pub_inv_gdp_s (pub_inv_gdp_s)^3
+tabla_modelos(20,1) = @val(bpg_eq_lin_inv_1(3,2))
+tabla_modelos(20,2) = @val(bpg_eq_quad_inv_1(3,2))
+tabla_modelos(20,3) = @val(bpg_eq_cub_inv_1(3,2))
 
 'bootstrap
 lineales_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
