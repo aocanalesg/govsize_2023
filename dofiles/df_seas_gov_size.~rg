@@ -359,8 +359,9 @@ lineales_inversion({!x},1) = reg_inversion{!x}.@coef(1)
 cuadraticos_inversion({!x},1) = reg_inversion{!x}.@coef(2)
 next
 
+'=============================
 'Exportando tabla
-
+'=============================
 'Modelos OLS
 'lineales
 for !x=1 to 6
@@ -464,6 +465,9 @@ tabla_modelos(20,1) = @val(bpg_eq_lin_inv_1(3,2))
 tabla_modelos(20,2) = @val(bpg_eq_quad_inv_1(3,2))
 tabla_modelos(20,3) = @val(bpg_eq_cub_inv_1(3,2))
 
+'export
+tabla_modelos.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_inv.csv"
+
 'bootstrap
 lineales_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
 cuadraticos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_agregado.csv"
@@ -471,6 +475,3 @@ lineales_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2
 cuadraticos_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_inversion.csv"
 
 
-'colplace(coefs, eq.@coefs, !i)
-'colplace(stderrs, eq.@stderrs, !i) 'std errs
-'colpace(tstats, e1.@tstats, !i) 'test-stat
