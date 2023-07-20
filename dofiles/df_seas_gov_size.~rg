@@ -359,7 +359,7 @@ lineales_inversion({!x},1) = reg_inversion{!x}.@coef(1)
 cuadraticos_inversion({!x},1) = reg_inversion{!x}.@coef(2)
 next
 
-'Exportando coeficientes
+'Exportando tabla
 
 'Modelos OLS
 'lineales
@@ -449,10 +449,20 @@ tabla_modelos(18,9) = @val(jb_eq_cub_inv_3(14,2))
 
 'auto LM test
 
-freeze(auto_eq_lin_inv_1) eq_lin_inv_.auto
-freeze(auto_eq_quad_inv_1) eq_lin_inv_{!x}.auto
-freeze(auto_eq_cub_inv_1) eq_lin_inv_{!x}.auto
+freeze(auto_eq_lin_inv_1) eq_lin_inv_1.auto
+freeze(auto_eq_quad_inv_1) eq_quad_inv_1.auto
+freeze(auto_eq_cub_inv_1) eq_cub_inv_1.auto
+tabla_modelos(19,1) = @val(auto_eq_lin_inv_1(3,2))
+tabla_modelos(19,2) = @val(auto_eq_quad_inv_1(3,2))
+tabla_modelos(19,3) = @val(auto_eq_cub_inv_1(3,2))
 
+'heteroskedasticity BPG test
+freeze(bpg_eq_lin_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 pub_inv_gdp_s
+freeze(bpg_eq_quad_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 pub_inv_gdp_s (pub_inv_gdp_s)^2
+freeze(bpg_eq_cub_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 pub_inv_gdp_s (pub_inv_gdp_s)^3
+tabla_modelos(20,1) = @val(bpg_eq_lin_inv_1(3,2))
+tabla_modelos(20,2) = @val(bpg_eq_quad_inv_1(3,2))
+tabla_modelos(20,3) = @val(bpg_eq_cub_inv_1(3,2))
 
 'bootstrap
 lineales_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
