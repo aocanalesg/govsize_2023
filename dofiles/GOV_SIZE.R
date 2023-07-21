@@ -742,55 +742,57 @@ df_modelo1 <- df_modelo1 %>%
 
 write_xlsx(df_modelo2, paste(path,"df_modelo2.xlsx", sep="/"))
 
-######### Estimates
+######### Estimates of Long Run equations
 
-####### linear model
+#All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
+models_pub_inv <- data.frame(matrix(NA, nrow = 20, ncol = 10))
 
-#####  MCO
-lin_2_mco <- lm(log(gdp_pc_s) ~ pub_inv_gdp_s + priv_inv_gdp_s + tr_op_s + d_2008 + d_2018, df_modelo2)
-summary(lin_2_mco)
-stargazer(lin_2_mco, type="text")
+coef_pval_pub_inv <- read.csv(paste(getwd(), "tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
+coef_pval_pub_inv <- coef_pval_pub_inv %>% 
+  
+mutate(across(where(is.numeric), round, digits=2))#rounding
 
-#####  FMOLS
+col<-c(
+       "$c$",
+       "",
+       "$INV$",
+       "",
+       "$AC$",
+       "",
+       "$D_{2008}",
+       "",
+       "D_{2018}",
+       "",
+       "$GOB$",
+       "",
+       "$GOB^2",
+       "",
+       "$GOB^3",
+       "",
+       "$R^2$ ajustado",
+       "Estadístico JB",
+       "Prueba BGLM",
+       "Prueba BPG")
+models_pub_inv$col <- col
+models_pub_inv <- models_pub_inv %>% relocate(col)
+models_pub_inv <- cbind(col, coef_pval_pub_inv)
 
-lin_2_fmols <- cointReg(method = c("FM"), df_modelo2[,1], df_modelo2[,2:7])
-print(lin_2_fmols)
-tidy(lin_2_fmols)
-
-res = sapply(c("FM", "D", "IM"), cointReg, x = df_modelo2[,1], y = df_modelo2[,2:7],)
-do.call(cbind, lapply(res, "[[", "theta"))
-
-test.fm = cointRegFM(x = df_modelo2[,1], y = df_modelo2[,2:7])
-      print(test.fm, digits = 4)
-
-#####  Canonical Cointegration Regression
-
-#Pausa
-
-####### Quadratic model
-
-#####  MCO
-
-quad_2_mco <- lm(log(gdp_pc_s) ~ log(pub_inv_gdp_s) + log(priv_inv_gdp_s) + log_pub_inv_gdp_s_2 + log(tr_op_s) + d_2008 + d_2018, df_seas)
-summary(quad_2_mco)
-
-
-
-#####  FMOLS
-
-quad_2_fmols <- cointReg(method = c("FM"), df_seas[,8], df_seas[,11:16])
-print(quad_2_fmols)
-
-#####  Canonical Cointegration Regression
-
-#Estimacion del tamano optiomo (Euler)
-
+#generating latex code
+addtorow_models_pub_inv <- list()
+addtorow_models_pub_inv $pos <- list(0)
+addtorow_models_pub_inv $command <- c("\\hline
+\\multicolumn{13}{c}{Variable dependiente: Logaritmo del PIB per cápita}                                                                                                                                                                                                                                        \\ \\hline
+                                                       &      & \\multicolumn{3}{c}{OLS}                      &                          & \\multicolumn{3}{c}{FMOLS}                         &                                                 & \\multicolumn{3}{c}{CCR}                        \\ \\cline{3-5} \\cline{7-9} \\cline{11-13} 
+\\multirow{-2}{*}{Variables}                            &      & Lineal      & Cuadrática     & Cúbica        & \\multicolumn{1}{c}{}     & Lineal          & Cuadrática     & Cúbica         & \\multicolumn{1}{c}{}                            & Lineal       & Cuadrática     & Cúbica         \\ \\hline\\hline
+")
+print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
 
 
 
 #Bootstrap (Together but Tony Stark leading)
 
 
+#The bootstrap exercise was performed in Eviews in the program is "DF_SEAS_GOV_SIZE.prg"
 
 
 
