@@ -779,14 +779,15 @@ models_pub_inv <- cbind(col, coef_pval_pub_inv)
 
 #generating latex code
 addtorow_models_pub_inv <- list()
-addtorow_models_pub_inv $pos <- list(0)
-addtorow_models_pub_inv $command <- c("\\hline
-\\multicolumn{13}{c}{Variable dependiente: Logaritmo del PIB per cápita}                                                                                                                                                                                                                                        \\ \\hline
-                                                       &      & \\multicolumn{3}{c}{OLS}                      &                          & \\multicolumn{3}{c}{FMOLS}                         &                                                 & \\multicolumn{3}{c}{CCR}                        \\ \\cline{3-5} \\cline{7-9} \\cline{11-13} 
-\\multirow{-2}{*}{Variables}                            &      & Lineal      & Cuadrática     & Cúbica        & \\multicolumn{1}{c}{}     & Lineal          & Cuadrática     & Cúbica         & \\multicolumn{1}{c}{}                            & Lineal       & Cuadrática     & Cúbica         \\ \\hline\\hline
+addtorow_models_pub_inv$pos <- list(0)
+addtorow_models_pub_inv$command <- c("\\hline
+\\multicolumn{13}{c}{Variable dependiente: Logaritmo del PIB per cápita}                                                                                                                                                                                                                                        \\\ \\hline
+                                                       &      & \\multicolumn{3}{c}{OLS}                      &                          & \\multicolumn{3}{c}{FMOLS}                         &                                                 & \\multicolumn{3}{c}{CCR}                        \\\ \\cline{3-5} \\cline{7-9} \\cline{11-13} 
+\\multirow{-2}{*}{Variables}                            &      & Lineal      & Cuadrática     & Cúbica        & \\multicolumn{1}{c}{}     & Lineal          & Cuadrática     & Cúbica         & \\multicolumn{1}{c}{}                            & Lineal       & Cuadrática     & Cúbica         \\\ \\hline\\hline
 ")
 print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
 
+print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
 
 #Bootstrap (Together but Tony Stark leading)
