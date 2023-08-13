@@ -474,4 +474,3 @@ cuadraticos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize
 lineales_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_inversion.csv"
 cuadraticos_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_inversion.csv"
 
-
