@@ -5,7 +5,7 @@ wfcreate(wf=eviews_gov_size) q 2006.1 2022.4
 import "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\df_seas.csv" ftype=ascii rectype=crlf skip=0 fieldtype=delimited delim=comma colhead=1 eoltype=pad badfield=NA @freq Q @id @date(date) @destid @date @smpl @all
 
 'dummy variables
-series d_2008 = @recode(@date<@dateval("2008q3") or @date>@dateval("2009q1"),1,0)
+series d_2008 = @recode(@date<@dateval("2008q3") or @date>@dateval("2009q1"),0,1)
 
 series d_2018= @recode(@date>@dateval("2018q2"),1,0)
 
@@ -84,6 +84,12 @@ freeze(pptable_dif_{!i}_ct) x{!i}_sa.uroot(exog=trend, dif=1, pp)
 freeze(pptable_dif_{!i}_nc) x{!i}_sa.uroot(exog=none, dif=1, pp)
 
 next
+
+
+'johansen test
+
+
+
 
 '===========================
 'Long Rung models
@@ -436,6 +442,43 @@ tabla_modelos(20,3) = @val(bpg_eq_cub_inv_1(3,2))
 
 'export
 tabla_modelos.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_inv.csv"
+
+'Johansen
+'Gasto agregado
+group g1
+g1.add log_gdp_pc_s x1_sa x2_sa x3_sa
+g1.coint(s,4)
+freeze(johansen_test_ag) g1.coint(s, 1 4) 
+
+'Inversion Fija Publica 
+group g2
+g2.add log_gdp_pc_s PUB_INV_GDP_S x2_sa x3_sa
+g2.coint(s,4)
+freeze(johansen_test_inv) g1.coint(s, 1 4) 
+
+table(4,5) tabla_johansen
+tabla_johansen(1,1)=@val(johansen_test_ag(12,2))
+tabla_johansen(1,2)=@val(johansen_test_ag(12,3))
+tabla_johansen(1,3)=@val(johansen_test_ag(12,4))
+tabla_johansen(1,4)=@val(johansen_test_ag(12,5))
+tabla_johansen(1,5)=@val(johansen_test_ag(12,6))
+tabla_johansen(2,1)=@val(johansen_test_ag(13,2))
+tabla_johansen(2,2)=@val(johansen_test_ag(13,3))
+tabla_johansen(2,3)=@val(johansen_test_ag(13,4))
+tabla_johansen(2,4)=@val(johansen_test_ag(13,5))
+tabla_johansen(2,5)=@val(johansen_test_ag(13,6))
+tabla_johansen(3,1)=@val(johansen_test_inv(12,2))
+tabla_johansen(3,2)=@val(johansen_test_inv(12,3))
+tabla_johansen(3,3)=@val(johansen_test_inv(12,4))
+tabla_johansen(3,4)=@val(johansen_test_inv(12,5))
+tabla_johansen(3,5)=@val(johansen_test_inv(12,6))
+tabla_johansen(4,1)=@val(johansen_test_inv(13,2))
+tabla_johansen(4,2)=@val(johansen_test_inv(13,3))
+tabla_johansen(4,3)=@val(johansen_test_inv(13,4))
+tabla_johansen(4,4)=@val(johansen_test_inv(13,5))
+tabla_johansen(4,5)=@val(johansen_test_inv(13,6))
+tabla_johansen.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_johansen.csv"
+
 
 'bootstrap
 lineales_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
