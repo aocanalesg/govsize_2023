@@ -9,7 +9,7 @@ rm(list = ls())
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
 #Axel working directory WINDOWS: 'C:\Users\Axel Canales\Documents\GitHub\govsize_2023'
 
-setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
+setwd('C:\Users\Axel Canales\Documents\GitHub\govsize_2023')
 path <- getwd()
 
 #Packages to install/load 
@@ -72,9 +72,9 @@ library(vars)
 #Import data from Drive (Euler)
 
 raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
-           sheet = "RAW_DATA",
+           sheet = "RAW_DATA3",
            col_names = TRUE,
-           range = "A1:H65"
+           range = "A1:H69"
            )
 
 raw_data2 <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
@@ -137,7 +137,7 @@ raw_data <- raw_data %>%
     growth_pop = ifelse(date >= "2012-10-01" & date<= "2021-04-01"  , pop/lag(pop)-1,0)
   )
 
-for (x in 62:64) {
+for (x in 50:68) {
  raw_data[x,9] = (raw_data[x-1,9] +raw_data[x-2,9] +raw_data[x-3,9] +raw_data[x-4,9])/4
 }
 
@@ -149,7 +149,7 @@ for (x in 26:1) {
   raw_data[x, 8] = raw_data[x+1, 8]/(1+raw_data[x+1,9])
 }
 
-for (x in 62:64) {
+for (x in 50:68) {
   raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,9])
 }
 ##Graph of re-scaled population
@@ -644,6 +644,9 @@ colnames(df_modelo1)<- c("gdp_pc_s", "gov_gdp_s", "priv_inv_gdp_s","tr_op_s")
 df_modelo2 <- as.data.frame(cbind.data.frame(df_seas[,2],df_seas[,5:7]))
 colnames(df_modelo2)<- c("gdp_pc_s", "pub_inv_gdp_s", "priv_inv_gdp_s","tr_op_s")     
 
+colnames(df_seas)<- c("date", "log_gdp_pc_s", "gov_gdp_s", "gov_con_gdp_s","pub_inv_gdp_s", "priv_inv_gdp_s","tr_op_s", "growth_gdp")     
+
+
 #Lag selection criteria
 
 lagselect <- VARselect(df_modelo1, lag.max=7, type = 'cons')
@@ -700,6 +703,7 @@ df_modelo1 <- data.frame(df_modelo1, df[,17:18])
 df_modelo2 <- data.frame(df_modelo2, df[,17:18]) 
 
 ### Exporting data for Eviews 
+path<-getwd()
 write_xlsx(raw_data, paste(path,"raw_data.xlsx", sep="/"))
 write.csv(raw_data, paste(path,"raw_data.csv", sep="/"))
 
