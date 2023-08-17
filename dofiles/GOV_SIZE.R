@@ -7,8 +7,9 @@ rm(list = ls())
 #Working directory
 #Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
+#Axel working directory WINDOWS: 'C:\Users\Axel Canales\Documents\GitHub\govsize_2023'
 
-setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
+setwd('C:\Users\Axel Canales\Documents\GitHub\govsize_2023')
 path <- getwd()
 
 #Packages to install/load 
@@ -44,7 +45,7 @@ install.packages('vars')
 install.packages("stargazer")
 install.packages("writexl")
 install.packages("fUnitRoots")
-
+library(ggplot2)
 library(fUnitRoots)
 library(writexl)#para exportar el excel
 library(vars)
@@ -71,9 +72,9 @@ library(vars)
 #Import data from Drive (Euler)
 
 raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
-           sheet = "RAW_DATA",
+           sheet = "RAW_DATA3",
            col_names = TRUE,
-           range = "A1:H65"
+           range = "A1:H69"
            )
 
 raw_data2 <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
@@ -136,7 +137,7 @@ raw_data <- raw_data %>%
     growth_pop = ifelse(date >= "2012-10-01" & date<= "2021-04-01"  , pop/lag(pop)-1,0)
   )
 
-for (x in 62:64) {
+for (x in 50:68) {
  raw_data[x,9] = (raw_data[x-1,9] +raw_data[x-2,9] +raw_data[x-3,9] +raw_data[x-4,9])/4
 }
 
@@ -148,7 +149,7 @@ for (x in 26:1) {
   raw_data[x, 8] = raw_data[x+1, 8]/(1+raw_data[x+1,9])
 }
 
-for (x in 62:64) {
+for (x in 50:68) {
   raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,9])
 }
 ##Graph of re-scaled population
@@ -219,7 +220,7 @@ validacion_pop
 
 raw_data <- raw_data %>%
   mutate(
-    gdp_pc = log(gdp/pop),
+    log_gdp_pc = log(gdp/pop),
     gov_gdp = (gov_con + pub_inv)/gdp,
     gov_con_gdp = gov_con/gdp,
     pub_inv_gdp= pub_inv/gdp,
@@ -231,7 +232,7 @@ raw_data <- raw_data %>%
 
 raw_data <- raw_data %>%
   mutate(
-    growth_gdp_pc = gdp_pc/lag(gdp_pc)-1
+    growth_gdp_pc = log_gdp_pc/lag(log_gdp_pc)-1
   )
 
 #create dummies 
@@ -257,27 +258,27 @@ df <- as.data.frame(raw_data)
 df$date<-as.Date(df$date,  "%m/%d/%y")
 
 
-raw_plot1 <- ggplot(df, aes(x = date, y = df$gdp_pc)) +
+raw_plot1 <- ggplot(df, aes(x = date, y = gdp_pc)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot2 <- ggplot(df, aes(x = date, y = df$gov_gdp)) +
+raw_plot2 <- ggplot(df, aes(x = date, y = gov_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot3 <- ggplot(df, aes(x = date, y = df$gov_con_gdp)) +
+raw_plot3 <- ggplot(df, aes(x = date, y = gov_con_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot4 <- ggplot(df, aes(x = date, y = df$pub_inv_gdp)) +
+raw_plot4 <- ggplot(df, aes(x = date, y = pub_inv_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot5 <- ggplot(df, aes(x = date, y = df$priv_inv_gdp)) +
+raw_plot5 <- ggplot(df, aes(x = date, y = priv_inv_gdp)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
-raw_plot6 <- ggplot(df, aes(x = date, y =  df$tr_op)) +
+raw_plot6 <- ggplot(df, aes(x = date, y = tr_op)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
@@ -643,6 +644,9 @@ colnames(df_modelo1)<- c("gdp_pc_s", "gov_gdp_s", "priv_inv_gdp_s","tr_op_s")
 df_modelo2 <- as.data.frame(cbind.data.frame(df_seas[,2],df_seas[,5:7]))
 colnames(df_modelo2)<- c("gdp_pc_s", "pub_inv_gdp_s", "priv_inv_gdp_s","tr_op_s")     
 
+colnames(df_seas)<- c("date", "log_gdp_pc_s", "gov_gdp_s", "gov_con_gdp_s","pub_inv_gdp_s", "priv_inv_gdp_s","tr_op_s", "growth_gdp")     
+
+
 #Lag selection criteria
 
 lagselect <- VARselect(df_modelo1, lag.max=7, type = 'cons')
@@ -699,10 +703,19 @@ df_modelo1 <- data.frame(df_modelo1, df[,17:18])
 df_modelo2 <- data.frame(df_modelo2, df[,17:18]) 
 
 ### Exporting data for Eviews 
+path<-getwd()
 write_xlsx(raw_data, paste(path,"raw_data.xlsx", sep="/"))
+write.csv(raw_data, paste(path,"raw_data.csv", sep="/"))
+
 write_xlsx(df_seas, paste(path,"df_seas.xlsx", sep="/"))
+write.csv(df_seas, paste(path,"df_seas.csv", sep="/"))
+
 write_xlsx(df_modelo1, paste(path,"df_modelo1.xlsx", sep="/"))
+write.csv(df_modelo1, paste(path,"df_modelo1.csv", sep="/"))
+
 write_xlsx(df_modelo2, paste(path,"df_modelo2.xlsx", sep="/"))
+write.csv(df_modelo2, paste(path,"df_modelo2.csv", sep="/"))
+
 
 #creation of quadratic term for gov. expenditure variables
 df_modelo1 <- df_modelo2 %>%
@@ -733,55 +746,58 @@ df_modelo1 <- df_modelo1 %>%
 
 write_xlsx(df_modelo2, paste(path,"df_modelo2.xlsx", sep="/"))
 
-######### Estimates
+######### Estimates of Long Run equations
 
-####### linear model
+#All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
+models_pub_inv <- data.frame(matrix(NA, nrow = 20, ncol = 10))
 
-#####  MCO
-lin_2_mco <- lm(log(gdp_pc_s) ~ pub_inv_gdp_s + priv_inv_gdp_s + tr_op_s + d_2008 + d_2018, df_modelo2)
-summary(lin_2_mco)
-stargazer(lin_2_mco, type="text")
+coef_pval_pub_inv <- read.csv(paste(getwd(), "tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
+coef_pval_pub_inv <- coef_pval_pub_inv %>% 
+  
+mutate(across(where(is.numeric), round, digits=2))#rounding
 
-#####  FMOLS
+col<-c(
+       "$c$",
+       "",
+       "$INV$",
+       "",
+       "$AC$",
+       "",
+       "$D_{2008}",
+       "",
+       "D_{2018}",
+       "",
+       "$GOB$",
+       "",
+       "$GOB^2",
+       "",
+       "$GOB^3",
+       "",
+       "$R^2$ ajustado",
+       "Estadístico JB",
+       "Prueba BGLM",
+       "Prueba BPG")
+models_pub_inv$col <- col
+models_pub_inv <- models_pub_inv %>% relocate(col)
+models_pub_inv <- cbind(col, coef_pval_pub_inv)
 
-lin_2_fmols <- cointReg(method = c("FM"), df_modelo2[,1], df_modelo2[,2:7])
-print(lin_2_fmols)
-tidy(lin_2_fmols)
+#generating latex code
+addtorow_models_pub_inv <- list()
+addtorow_models_pub_inv$pos <- list(0)
+addtorow_models_pub_inv$command <- c("\\hline
+\\multicolumn{13}{c}{Variable dependiente: Logaritmo del PIB per cápita}                                                                                                                                                                                                                                        \\\ \\hline
+                                                       &      & \\multicolumn{3}{c}{OLS}                      &                          & \\multicolumn{3}{c}{FMOLS}                         &                                                 & \\multicolumn{3}{c}{CCR}                        \\\ \\cline{3-5} \\cline{7-9} \\cline{11-13} 
+\\multirow{-2}{*}{Variables}                            &      & Lineal      & Cuadrática     & Cúbica        & \\multicolumn{1}{c}{}     & Lineal          & Cuadrática     & Cúbica         & \\multicolumn{1}{c}{}                            & Lineal       & Cuadrática     & Cúbica         \\\ \\hline\\hline
+")
+print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
 
-res = sapply(c("FM", "D", "IM"), cointReg, x = df_modelo2[,1], y = df_modelo2[,2:7],)
-do.call(cbind, lapply(res, "[[", "theta"))
-
-test.fm = cointRegFM(x = df_modelo2[,1], y = df_modelo2[,2:7])
-      print(test.fm, digits = 4)
-
-#####  Canonical Cointegration Regression
-
-#Pausa
-
-####### Quadratic model
-
-#####  MCO
-
-quad_2_mco <- lm(log(gdp_pc_s) ~ log(pub_inv_gdp_s) + log(priv_inv_gdp_s) + log_pub_inv_gdp_s_2 + log(tr_op_s) + d_2008 + d_2018, df_seas)
-summary(quad_2_mco)
-
-
-
-#####  FMOLS
-
-quad_2_fmols <- cointReg(method = c("FM"), df_seas[,8], df_seas[,11:16])
-print(quad_2_fmols)
-
-#####  Canonical Cointegration Regression
-
-#Estimacion del tamano optiomo (Euler)
-
-
+print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
 
 #Bootstrap (Together but Tony Stark leading)
 
 
+#The bootstrap exercise was performed in Eviews in the program is "DF_SEAS_GOV_SIZE.prg"
 
 
 
