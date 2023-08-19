@@ -9,7 +9,7 @@ rm(list = ls())
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
 #Axel working directory WINDOWS: 'C:\Users\Axel Canales\Documents\GitHub\govsize_2023'
 
-setwd('C:/Users/Axel Canales/Documents/GitHub/govsize_2023')
+setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
 path <- getwd()
 
 #Packages to install/load 
@@ -47,7 +47,6 @@ install.packages("writexl")
 install.packages("fUnitRoots")
 
 library(patchwork)#para combinar graficos en una imagen
-
 library(ggplot2)
 library(fUnitRoots)
 library(writexl)#para exportar el excel
@@ -60,7 +59,6 @@ library(urca)#para test de Johansen
 library(dplyr)#manipulacion de datos en general
 library(googlesheets4)#para importar de G. Drive
 library(TSstudio)
-
 library(zoo)#funciones de series de tiempo
 library(seasonal)#Para desestacionalizar
 library(TSstudio)#PAra desestacionalizar
@@ -76,7 +74,7 @@ library(vars)
 raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
            sheet = "RAW_DATA3",
            col_names = TRUE,
-           range = "A1:H69"
+           range = "A1:I69"
            )
 
 
@@ -92,12 +90,12 @@ raw_data <- raw_data %>%
     "priv_inv" = "RAW_PRIV_INV",
     "x" = "RAW_X",
     "m" = "RAW_M",
-    "pop" = "RAW_POP"
+    "pop" = "RAW_POP",
+    "gdp_nom" = "RAW_GDP_NOM"
   )
 
 #Declare vector of names 
-var_names_bcn <- c("date", "gdp", "gov_con", "pub_inv", "priv_inv", "x", "m", "pop")
-
+var_names_bcn <- c("date", "gdp", "gov_con", "pub_inv", "priv_inv", "x", "m", "pop","gdp_nom")
 
 #Rescale variables from BCN to millions of cords
 raw_data <- raw_data %>%
@@ -107,7 +105,8 @@ raw_data <- raw_data %>%
     pub_inv= pub_inv*10^6,
     priv_inv=priv_inv*10^6,
     x=x*10^6,
-    m=m*10^6
+    m=m*10^6, 
+    gdp_nom=gdp_nom*10^6
          )
 
 ### Grafica de la serie poblacion
@@ -128,19 +127,19 @@ raw_data <- raw_data %>%
   )
 
 for (x in 50:68) {
- raw_data[x,9] = (raw_data[x-1,9] +raw_data[x-2,9] +raw_data[x-3,9] +raw_data[x-4,9])/4
+ raw_data[x,10] = (raw_data[x-1,10] +raw_data[x-2,10] +raw_data[x-3,10] +raw_data[x-4,10])/4
 }
 
 for (x in 28:1) {
-  raw_data[x,9] = (raw_data[x+1,9] +raw_data[x+2,9] +raw_data[x+3,9] +raw_data[x+4,9])/4
+  raw_data[x,10] = (raw_data[x+1,10] +raw_data[x+2,10] +raw_data[x+3,10] +raw_data[x+4,10])/4
 }
 
 for (x in 26:1) { 
-  raw_data[x, 8] = raw_data[x+1, 8]/(1+raw_data[x+1,9])
+  raw_data[x, 8] = raw_data[x+1, 8]/(1+raw_data[x+1,10])
 }
 
 for (x in 50:68) {
-  raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,9])
+  raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,10])
 }
 ##Graph of re-scaled population (with title)
 
@@ -197,11 +196,11 @@ ggsave("population_sin_titulo.png", width=10, height =7 , units= c("cm"), dpi=50
 raw_data <- raw_data %>%
   mutate(
     log_gdp_pc = log(gdp/pop),
-    gov_gdp = (gov_con + pub_inv)/gdp,
-    gov_con_gdp = gov_con/gdp,
-    pub_inv_gdp= pub_inv/gdp,
-    priv_inv_gdp = priv_inv/gdp,
-    tr_op = (x+m)/gdp,
+    gov_gdp = (gov_con + pub_inv)/gdp_nom,
+    gov_con_gdp = gov_con/gdp_nom,
+    pub_inv_gdp= pub_inv/gdp_nom,
+    priv_inv_gdp = priv_inv/gdp_nom,
+    tr_op = (x+m)/gdp_nom,
   )
 
 #create growth gdp per capita
@@ -224,7 +223,7 @@ raw_data <- raw_data %>%
 
 
 #Time series set
-ts_vars <- ts(data = raw_data[,10:ncol(raw_data)],
+ts_vars <- ts(data = raw_data[,11:ncol(raw_data)],
              start = c(2006,1),
              frequency = 4
 )
@@ -503,7 +502,7 @@ u_root <- u_root %>% relocate(series)
   \\multicolumn{1}{c}{N.} &
   \\multicolumn{1}{c}{I.} &
   \\multicolumn{1}{c}{I. y T.}&
- \\multicolumn{1}{c}{N.} &
+  \\multicolumn{1}{c}{N.} &
   \\multicolumn{1}{c}{I.} &
   \\multicolumn{1}{c}{I. y T.} &
   \\multicolumn{1}{c}{N.} &
@@ -611,51 +610,16 @@ u_root <- u_root %>% relocate(series)
   \\bottomrule")
  print(xtable(prueba_granger), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
- 
 
 
-
-
-#########                                                 #########
-
-#########  Ecuacion de largo plazo Gasto Agregado (Tony Stark)
-
-#########                                                 #########
-
-
-
-
-
-
-#########                                                 #########
-
-######### Ecuacion de largo plazo - Var. dep.: Inversion Fija (Euler) 
-
-#########                                               #########  
-
-#inclusion of dummies to the variables object
-
-df_modelo1 <- as.data.frame(c(df_seas[,2:3],df_seas[,6:7]))
-colnames(df_modelo1)<- c("gdp_pc_s", "gov_gdp_s", "priv_inv_gdp_s","tr_op_s")                        
-
-df_modelo2 <- as.data.frame(cbind.data.frame(df_seas[,2],df_seas[,5:7]))
-colnames(df_modelo2)<- c("gdp_pc_s", "pub_inv_gdp_s", "priv_inv_gdp_s","tr_op_s")     
-
-
-
-
-df_modelo1 <- data.frame(df_modelo1, df[,17:18])
-
-df_modelo2 <- data.frame(df_modelo2, df[,17:18]) 
-
-### Exporting data for Eviews 
+############### Exporting data for Eviews ###########
 path<-getwd()
 
 #exporting the raw data
 write_xlsx(raw_data, paste(path,"raw_data.xlsx", sep="/"))
 write.csv(raw_data, paste(path,"raw_data.csv", sep="/"))
 
-#exporting the seasonal adjusted datra¿¿a
+#exporting the seasonal adjusted data
 write_xlsx(df_seas, paste(path,"df_seas.xlsx", sep="/"))
 write.csv(df_seas, paste(path,"df_seas.csv", sep="/"))
 
@@ -708,7 +672,7 @@ print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.row
 #All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
 models_pub_inv <- data.frame(matrix(NA, nrow = 20, ncol = 10))
 
-coef_pval_pub_inv <- read.csv(paste(getwd(), "tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
+coef_pval_pub_inv <- read.csv(paste(getwd(), "dofiles/tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
 coef_pval_pub_inv <- coef_pval_pub_inv %>% 
   
 mutate(across(where(is.numeric), round, digits=2))#rounding
@@ -720,15 +684,15 @@ col<-c(
        "",
        "$AC$",
        "",
-       "$D_{2008}",
+       "$D_{2008}$",
        "",
-       "D_{2018}",
+       "$D_{2018}$",
        "",
        "$GOB$",
        "",
-       "$GOB^2",
+       "$GOB^2$",
        "",
-       "$GOB^3",
+       "$GOB^3$",
        "",
        "$R^2$ ajustado",
        "Estadístico JB",
@@ -746,7 +710,7 @@ addtorow_models_pub_inv$command <- c("\\hline
                                                        &      & \\multicolumn{3}{c}{OLS}                      &                          & \\multicolumn{3}{c}{FMOLS}                         &                                                 & \\multicolumn{3}{c}{CCR}                        \\\ \\cline{3-5} \\cline{7-9} \\cline{11-13} 
 \\multirow{-2}{*}{Variables}                            &      & Lineal      & Cuadrática     & Cúbica        & \\multicolumn{1}{c}{}     & Lineal          & Cuadrática     & Cúbica         & \\multicolumn{1}{c}{}                            & Lineal       & Cuadrática     & Cúbica         \\\ \\hline\\hline
 ")
-print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
+#print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
 
 print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
