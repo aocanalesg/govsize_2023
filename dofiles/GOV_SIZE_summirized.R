@@ -7,9 +7,9 @@ rm(list = ls())
 #Working directory
 #Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
-#Axel working directory WINDOWS: 'C:\Users\Axel Canales\Documents\GitHub\govsize_2023'
+#Axel working directory WINDOWS: 'C:/Users/Axel Canales/Documents/GitHub/govsize_2023'
 
-setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
+setwd('C:/Users/Axel Canales/Documents/GitHub/govsize_2023')
 path <- getwd()
 
 #Packages to install/load 
@@ -62,7 +62,7 @@ library(TSstudio)
 library(zoo)#funciones de series de tiempo
 library(seasonal)#Para desestacionalizar
 library(TSstudio)#PAra desestacionalizar
-#library(ggpubr)
+library(ggpubr)
 library(aTSA) #pptest
 library(broom)
 library(dplyr)
@@ -109,7 +109,7 @@ raw_data <- raw_data %>%
     gdp_nom=gdp_nom*10^6
          )
 
-### Grafica de la serie poblacion
+### Replicacion de la grafica de la serie poblacion
 raw_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
@@ -412,7 +412,8 @@ seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
   geom_point(aes (y=df_seas[,2]), shape=16)+
   geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
   theme_bw()+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0)
   #      plot.caption = element_text(hjust = 0),
   #      plot.title.position = "plot",
   #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -420,9 +421,9 @@ seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
   #      plot.caption.position = "plot",
   #      axis.text.x = element_text(angle=90, hjust = 1)
   )+
-  labs(x="",y="")
-  #     title = "Titulo", 
-   #    subtitle = "Subtitulo", )
+  labs(y="Logaritmo del PIB per cápita",
+       x="Gasto de Gobierno agregado (porcentaje del PIB)",
+       caption = "Fuente: Elaboración propia")
 seas_plot7
 ggsave("gdp_vs_aggregate_exp.png", width=24, height =14 , units= c("cm"), dpi=500)
 
@@ -431,7 +432,8 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
   geom_point(aes (y=df_seas[,2]), shape=16)+
   geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
   theme_bw()+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(hjust = 0)
         #      plot.caption = element_text(hjust = 0),
         #      plot.title.position = "plot",
         #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -439,14 +441,35 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
         #      plot.caption.position = "plot",
         #      axis.text.x = element_text(angle=90, hjust = 1)
   )+
-  labs(x="",y="")
+  labs(y="Logaritmo del PIB per cápita",
+       x="Gasto de Gobierno agregado (porcentaje del PIB)",
+       caption = "Fuente: Elaboración propia")
 seas_plot8 
 ggsave("gdp_vs_public_inv.png", width=24, height =14 , units= c("cm"), dpi=500)
 
+#Replicacion tabla estadisticos descriptivos
 
+exploratory_analysis<-df_seas[,2:7]
+exploratory_analysis<-exploratory_analysis %>%
+  mutate(
+    log_gdp_pc = exp(log_gdp_pc),
+   gov_gdp = gov_gdp*100,
+    gov_con_gdp =  gov_con_gdp*100,
+    pub_inv_gdp= pub_inv_gdp*100,
+   priv_inv_gdp= priv_inv_gdp*100,
+    tr_op = tr_op
+  )
 
-exploratory_analysis_tex <- stargazer(df_seas[,2:7])
-stargazer(df_seas[,2:7], type='text')
+colnames(exploratory_analysis)<-c("PIB per capita",
+                                  "Gasto de Gobierno agregado",
+                                  "Gasto de Gobierno corriente",
+                                  "Inversión fija pública",
+                                  "Inversión fija privada",
+                                  "Apertura comercial"
+)
+
+exploratory_analysis_tex <- stargazer(exploratory_analysis, type='latex', digits=2)
+stargazer(exploratory_analysis, type='text', digits=2)
 
 ##############                                      ##############     
 
@@ -714,16 +737,119 @@ addtorow_models_pub_inv$command <- c("\\hline
 
 print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
+########################
 
-#Bootstrap (Together but Tony Stark leading)
+#Bootstrap 
 
+#######################
 
 #The bootstrap exercise was performed in Eviews in the program is "DF_SEAS_GOV_SIZE.prg"
 
 
+bootstrao_lin_ag <- read.csv(paste(getwd(), "dofiles/lineales_agregado.csv", sep="/"),header=FALSE)
+bootstrao_cuad_ag<- read.csv(paste(getwd(), "dofiles/cuadraticos_agregado.csv", sep="/"),header=FALSE)
+bootstrao_lin_inv<-read.csv(paste(getwd(), "dofiles/lineales_inversion.csv", sep="/"),header=FALSE)
+bootstrao_cuad_inv<-read.csv(paste(getwd(), "dofiles/cuadraticos_inversion.csv", sep="/"),header=FALSE)
+
+bootstrap<-as.data.frame(cbind(bootstrao_lin_ag,bootstrao_cuad_ag,bootstrao_lin_inv,bootstrao_cuad_inv ))
+colnames(bootstrap)<-c("lin_ag", "cuad_ag", "lin_inv", "cuad_inv")
+
+bootstrap <- bootstrap %>%
+  mutate(
+    ag_op = -lin_ag/(2*cuad_ag),
+    inv_op = -lin_inv/(2*cuad_inv),
+    
+  )
+
+mean_ag_op <- mean(bootstrap$ag_op)
+mean_inv_op <- mean(bootstrap$inv_op)
+
+se_ag_op <- sd(bootstrap$ag_op)/sqrt(length(bootstrap$ag_op))
+se_inv_op <- sd(bootstrap$inv_op)/sqrt(length(bootstrap$inv_op))
+
+critical_95<-qnorm(p=0.05, mean=0, sd=1, lower.tail = FALSE)
+
+df <-length(bootstrap$inv_op)-1
+
+critical_t_95 <- -qt(p=0.05,df)
+
+liminf_ag<-mean_ag_op-critical_95*se_ag_op
+limsup_ag<-mean_ag_op+critical_95*se_ag_op
+
+liminf_inv<-mean_inv_op-critical_95*se_inv_op
+limsup_inv<-mean_inv_op+critical_95*se_inv_op
+
+t_liminf_ag<-mean_ag_op-critical_t_95*se_ag_op
+t_limsup_ag<-mean_ag_op+critical_t_95*se_ag_op
+
+t_liminf_inv<-mean_inv_op-critical_t_95*se_inv_op
+t_limsup_inv<-mean_inv_op+critical_t_95*se_inv_op
+
+
+#Replication Table Bootstrap
+
+tabla_10<-c(
+  "Gasto Público Agregado",
+  "Inversión Fija Pública"
+)
+
+tabla_10 <- data.frame(tabla_10)
+
+tabla_10$opt_mean <- c(
+ paste( round(100*mean_ag_op,2),"%"),
+ paste( round(100*mean_inv_op,2),"%")
+  
+)
+
+tabla_10$lim_inf <- c(
+  paste(round(100*t_liminf_ag,2),"%"),
+  paste(round(100*t_liminf_inv,2),"%")
+)
+
+tabla_10$lim_sup<- c(
+  paste(round(100*t_limsup_ag,2),"%"),
+  paste(round(100*t_limsup_inv,2),"%")
+)
+
+
+#generating latex code
+
+addtorow <- list()
+addtorow$pos <- list(0)
+addtorow$command <- c(" \\toprule
+\\headrow  \\multicolumn{1}{c}{Variable} &
+            \\multicolumn{1}{c}{Nivel óptimo de gasto (% del PIB)}&
+            \\multicolumn{2}{c}{Intervalo de confianza}\\\\
+  \\midrule
+\\headrow  \\multicolumn{1}{c}{} &
+            \\multicolumn{1}{c}{} &
+            \\multicolumn{1}{c}{Límite inferior} &
+            \\multicolumn{1}{c}{Límite superior}\\\\
+  \\bottomrule")
+print(xtable(tabla_10), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 
 
 
+
+
+
+
+addtorow_tabla_10 <- list()
+addtorow_tabla_10$pos <- list(0)
+addtorow__tabla_10$command <- c("
+                                \\begin{tabular}{p{6cm} p{4cm} p{4cm}}
+                                \\hline
+                                \\multicolumn{1}{c}{\\multirow{}{}{Variable}} & \\multicolumn{2}{p{6cm}}{\\hspace{2.2cm}Intervalo de confianza} \\\\ \\cline{2-3} 
+                                
+                                \\multicolumn{1}{c}{}                          & \\hspace{0.8cm}Límite Inferior      & \\hspace{0.8cm}Límite Superior     \\\\ \\hline
+                                ")
+print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
+
+
+
+
+
+print(xtable(tabla_10), add.to.row = addtorow_tabla_10, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
 
