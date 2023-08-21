@@ -1,8 +1,13 @@
 'Opens a workfile
 wfcreate(wf=eviews_gov_size) q 2006.1 2022.4
 
+'Working directories
+'Gauss working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
+'Euler working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
+'Euler working directory WINDOWS: 'C:/Users/Axel Canales/Documents/GitHub/govsize_2023'
+
 'Read data from csv created in Rstudio
-import "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\raw_data.csv" ftype=ascii rectype=crlf skip=0 fieldtype=delimited delim=comma colhead=1 eoltype=pad badfield=NA @freq Q @id @date(date) @destid @date @smpl @all
+import "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\raw_data.csv" ftype=ascii rectype=crlf skip=0 fieldtype=delimited delim=comma colhead=1 eoltype=pad badfield=NA @freq Q @id @date(date) @destid @date @smpl @all
 
 'dummy variables
 series d_2008 = @recode(@date<@dateval("2008q3") or @date>@dateval("2009q1"),0,1)
@@ -345,7 +350,7 @@ tabla_modelos_agregado(20,2) = @val(bpg_eq_quad_ag_1(3,2))
 tabla_modelos_agregado(20,3) = @val(bpg_eq_cub_ag_1(3,2))
 
 'export
-tabla_modelos_agregado.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_agregado.csv"
+tabla_modelos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_agregado.csv"
 
 
 
@@ -457,7 +462,7 @@ tabla_modelos(20,2) = @val(bpg_eq_quad_inv_1(3,2))
 tabla_modelos(20,3) = @val(bpg_eq_cub_inv_1(3,2))
 
 'export
-tabla_modelos.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_inv.csv"
+tabla_modelos.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_inv.csv"
 
 'Johansen
 'Gasto agregado
@@ -493,13 +498,13 @@ tabla_johansen(4,2)=@val(johansen_test_inv(13,3))
 tabla_johansen(4,3)=@val(johansen_test_inv(13,4))
 tabla_johansen(4,4)=@val(johansen_test_inv(13,5))
 tabla_johansen(4,5)=@val(johansen_test_inv(13,6))
-tabla_johansen.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\tabla_johansen.csv"
+tabla_johansen.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_johansen.csv"
 
 
 'bootstrap
-lineales_agregado.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
-cuadraticos_agregado.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\cuadraticos_agregado.csv"
-lineales_inversion.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\lineales_inversion.csv"
-cuadraticos_inversion.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\cuadraticos_inversion.csv"
+lineales_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
+cuadraticos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_agregado.csv"
+lineales_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_inversion.csv"
+cuadraticos_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_inversion.csv"
 
 
