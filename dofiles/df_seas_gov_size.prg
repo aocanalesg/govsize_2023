@@ -7,7 +7,7 @@ wfcreate(wf=eviews_gov_size) q 2006.1 2022.4
 'Euler working directory WINDOWS: 'C:/Users/Axel Canales/Documents/GitHub/govsize_2023'
 
 'Read data from csv created in Rstudio
-import "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\raw_data.csv" ftype=ascii rectype=crlf skip=0 fieldtype=delimited delim=comma colhead=1 eoltype=pad badfield=NA @freq Q @id @date(date) @destid @date @smpl @all
+import "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\raw_data.csv" ftype=ascii rectype=crlf skip=0 fieldtype=delimited delim=comma colhead=1 eoltype=pad badfield=NA @freq Q @id @date(date) @destid @date @smpl @all
 
 'dummy variables
 series d_2008 = @recode(@date<@dateval("2008q3") or @date>@dateval("2009q1"),0,1)
@@ -507,4 +507,15 @@ cuadraticos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize
 lineales_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_inversion.csv"
 cuadraticos_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_inversion.csv"
 
+
+'Cuadro 8 Estimacion de tamano optimo del gobierno
+table(3, 7) tamano_optimo
+tamano_optimo(1,4) = -100*eq_quad_ag_1.@coef(6)/(2*eq_quad_ag_1.@coef(7))
+tamano_optimo(2,4) = -100*eq_quad_ag_2.@coef(1)/(2*eq_quad_ag_2.@coef(2))
+tamano_optimo(3,4) = -100*eq_quad_ag_3.@coef(6)/(2*eq_quad_ag_3.@coef(7))
+tamano_optimo(1,5) = -100*eq_quad_inv_1.@coef(6)/(2*eq_quad_inv_1.@coef(7))
+tamano_optimo(2,5) = -100*eq_quad_inv_2.@coef(6)/(2*eq_quad_inv_2.@coef(7))
+tamano_optimo(3,5) = -100*eq_quad_inv_3.@coef(6)/(2*eq_quad_inv_3.@coef(7))
+tamano_optimo(2,6) =  100*@mean( x1)
+tamano_optimo(2,7) = 100*@mean( PUB_INV_GDP)
 
