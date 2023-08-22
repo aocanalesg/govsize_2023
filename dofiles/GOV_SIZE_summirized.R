@@ -335,7 +335,7 @@ seas_plot3 <- ggplot(df_seas, aes(x = date, y = df_seas[,4])) +
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
   #ggtitle("Producto Interno Bruto Per Capita")+
-  labs(x="",y="",title = "Consumo de Gobierno", 
+  labs(x="",y="",title = "Gasto de Gobierno corriente", 
        subtitle = "Porcentaje respecto al PIB p.c.", )
 
 seas_plot4 <- ggplot(df_seas, aes(x = date, y = df_seas[,5])) +
@@ -683,13 +683,15 @@ johansen_results <-johansen_results %>% relocate(col1)
 
 #Latex code
 addtorow_johansen <- list()
-addtorow_models_pub_inv$pos <- list(0)
-addtorow_models_pub_inv$command <- c("\\hline
-\\multicolumn{13}{c}{Variable dependiente: Logaritmo del PIB per cápita}                                                                                                                                                                                                                                        \\\ \\hline
-                                                       &      & \\multicolumn{3}{c}{OLS}                      &                          & \\multicolumn{3}{c}{FMOLS}                         &                                                 & \\multicolumn{3}{c}{CCR}                        \\\ \\cline{3-5} \\cline{7-9} \\cline{11-13} 
-\\multirow{-2}{*}{Variables}                            &      & Lineal      & Cuadrática     & Cúbica        & \\multicolumn{1}{c}{}     & Lineal          & Cuadrática     & Cúbica         & \\multicolumn{1}{c}{}                            & Lineal       & Cuadrática     & Cúbica         \\\ \\hline\\hline
+addtorow_johansen$pos <- list(0)
+addtorow_johansen$command <- c("
+Variable & Tipo de test & \\multicolumn{2}{c}{Ninguna}& \\multicolumn{2}{c}{Lineal}&\\multicolumn{1}{c}{Cuadrática} \\\\
+\\cline{3-7}
+& & Sin Intercepto & Intercepto & Intercepto &Intercepto & Intercepto \\\\
+&&Sin tendencia & Sin tendencia & Sin tendencia & Tendencia & Tendencia \\\\
+\\hline 
 ")
-print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
+print(xtable(johansen_results, caption="Prueba de cointegración de Johansen", label="tab:cointegracion"), add.to.row = addtorow_johansen , include.rownames = FALSE, include.colnames = FALSE,caption.placement = "top" )
 
 
 
@@ -733,9 +735,9 @@ models_pub_inv <- cbind(col, coef_pval_pub_inv)
 addtorow_models_pub_inv <- list()
 addtorow_models_pub_inv$pos <- list(0)
 addtorow_models_pub_inv$command <- c("\\hline
-\\multicolumn{13}{c}{Variable dependiente: Logaritmo del PIB per cápita}                                                                                                                                                                                                                                        \\\ \\hline
-                                                       &      & \\multicolumn{3}{c}{OLS}                      &                          & \\multicolumn{3}{c}{FMOLS}                         &                                                 & \\multicolumn{3}{c}{CCR}                        \\\ \\cline{3-5} \\cline{7-9} \\cline{11-13} 
-\\multirow{-2}{*}{Variables}                            &      & Lineal      & Cuadrática     & Cúbica        & \\multicolumn{1}{c}{}     & Lineal          & Cuadrática     & Cúbica         & \\multicolumn{1}{c}{}                            & Lineal       & Cuadrática     & Cúbica         \\\ \\hline\\hline
+\\multicolumn{10}{c}{Variable dependiente: Logaritmo del PIB per cápita}\\\\     \\hline
+                                                       &      \\multicolumn{3}{c}{OLS}    &     \\multicolumn{3}{c}{FMOLS}    & \\multicolumn{3}{c}{CCR}                        \\\\ \\cline{2-10} 
+Variables                           &  Lineal      & Cuadrática     & Cúbica            & Lineal          & Cuadrática     & Cúbica              & Lineal       & Cuadrática     & Cúbica         \\\\
 ")
 #print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
 
