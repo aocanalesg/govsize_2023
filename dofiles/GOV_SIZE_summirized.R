@@ -9,7 +9,7 @@ rm(list = ls())
 #Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
 #Axel working directory WINDOWS: 'C:/Users/Axel Canales/Documents/GitHub/govsize_2023'
 
-setwd('C:/Users/Axel Canales/Documents/GitHub/govsize_2023')
+setwd('C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023')
 path <- getwd()
 
 #Packages to install/load 
@@ -551,7 +551,9 @@ u_root <- u_root %>% relocate(series)
  addtorow$pos <- list(0)
  addtorow$command <- c(" \\toprule
 \\headrow & \\multicolumn{5}{c}{Criterio de seleccion de rezagos} \\\\
-  \\midrule
+  \\midrule &
+  \\multicolumn{5}{c}{Numero de rezagos}
+    \\midrule
 \\headrow Criterio &
  \\multicolumn{1}{c}{1} &
   \\multicolumn{1}{c}{2} &
@@ -564,7 +566,7 @@ u_root <- u_root %>% relocate(series)
 
 
 #Criterio de seleccion de rezagos Inversion Fija Publica (Tony Stark)
- var_inv <- variables %>%  select(log_gdp_pc_s, log_pub_inv_gdp_s)
+ var_inv <- variables %>%  select(log_gdp_pc, pub_inv_gdp)
  lag_selection_inv <- VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
                                 season = NULL, exogen = NULL)
  df_lag_selection_inv <- as.data.frame(VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
@@ -580,6 +582,8 @@ u_root <- u_root %>% relocate(series)
  addtorow$command <- c(" \\toprule
 \\headrow & \\multicolumn{5}{c}{Criterio de seleccion de rezagos} \\\\
   \\midrule
+  \\multicolumn{5}{c}{Numero de rezagos}
+    \\midrule
 \\headrow Criterio &
  \\multicolumn{1}{c}{1} &
   \\multicolumn{1}{c}{2} &
@@ -590,7 +594,7 @@ u_root <- u_root %>% relocate(series)
  print(xtable(df_lag_selection_inv), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 
- #Prueba de presedencia temporal De Gasto Gobierno Agregado (Tony Stark)
+ #Prueba de precedencia temporal De Gasto Gobierno Agregado (Tony Stark)
  granger_gov_pib <- list()
  granger_pib_gov <- list()
  for (i in 1:4) { 
