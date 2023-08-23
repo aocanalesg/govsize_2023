@@ -509,13 +509,12 @@ cuadraticos_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsiz
 
 
 'Cuadro 8 Estimacion de tamano optimo del gobierno
-table(3, 7) tamano_optimo
-tamano_optimo(1,4) = -100*eq_quad_ag_1.@coef(6)/(2*eq_quad_ag_1.@coef(7))
-tamano_optimo(2,4) = -100*eq_quad_ag_2.@coef(1)/(2*eq_quad_ag_2.@coef(2))
-tamano_optimo(3,4) = -100*eq_quad_ag_3.@coef(6)/(2*eq_quad_ag_3.@coef(7))
-tamano_optimo(1,5) = -100*eq_quad_inv_1.@coef(6)/(2*eq_quad_inv_1.@coef(7))
-tamano_optimo(2,5) = -100*eq_quad_inv_2.@coef(6)/(2*eq_quad_inv_2.@coef(7))
-tamano_optimo(3,5) = -100*eq_quad_inv_3.@coef(6)/(2*eq_quad_inv_3.@coef(7))
-tamano_optimo(2,6) =  100*@mean( x1)
-tamano_optimo(2,7) = 100*@mean( PUB_INV_GDP)
+table(3, 7) cuadro8
+cuadro8(1,4) = -100*eq_quad_ag_1.@coef(6)/(2*eq_quad_ag_1.@coef(7))
+cuadro8(2,4) = -100*eq_quad_ag_2.@coef(1)/(2*eq_quad_ag_2.@coef(2))
+cuadro8(3,4) = -100*eq_quad_ag_3.@coef(6)/(2*eq_quad_ag_3.@coef(7))
+cuadro8(1,5) = -100*eq_quad_inv_1.@coef(6)/(2*eq_quad_inv_1.@coef(7))
+cuadro8(2,5) = -100*eq_quad_inv_2.@coef(6)/(2*eq_quad_inv_2.@coef(7))
+cuadro8(3,5) = -100*eq_quad_inv_3.@coef(6)/(2*eq_quad_inv_3.@coef(7))
 
+cuadro8.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\cuad.csv"
