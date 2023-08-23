@@ -404,7 +404,7 @@ combined_plot_seas <- ggarrange(seas_plot1,
 combined_plot_seas
 ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
 #########
-#-- Scatterplots 
+#Scatterplots 
 #########
 
 
@@ -594,7 +594,7 @@ cuadro_2 <- cuadro_2 %>%
  print(xtable(df_cuadro_4), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 
- #Prueba de precedencia temporal De Gasto Gobierno Agregado (Tony Stark)
+ #Prueba de precedencia temporal De Gasto Gobierno Agregado 
  granger_gov_pib <- list()
  granger_pib_gov <- list()
  for (i in 1:4) { 
@@ -824,7 +824,11 @@ t_limsup_inv<-mean_inv_op+critical_t_95*se_inv_op
 
 
 #Replication Table Bootstrap 
-####################################3Que hago con esta?? la borro??
+values<-unname(lapply(bootstrap[5:6], quantile, na.rm=T,  prob = c(0.05,0.95), names = FALSE))
+
+ag_bootstrap <-values[[1]]
+inv_bootstrap <- values[[2]]
+#Replication Table Bootstrap
 
 tabla_10<-c(
   "Gasto Público Agregado",
@@ -840,13 +844,13 @@ tabla_10$opt_mean <- c(
 )
 
 tabla_10$lim_inf <- c(
-  paste(round(100*t_liminf_ag,2),"%"),
-  paste(round(100*t_liminf_inv,2),"%")
+  paste(round(100*ag_bootstrap[1],2),"%"),
+  paste(round(100*ag_bootstrap[2],2),"%")
 )
 
 tabla_10$lim_sup<- c(
-  paste(round(100*t_limsup_ag,2),"%"),
-  paste(round(100*t_limsup_inv,2),"%")
+  paste(round(100*inv_bootstrap[1],2),"%"),
+  paste(round(100*inv_bootstrap[2],2),"%")
 )
 
 
