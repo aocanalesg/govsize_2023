@@ -767,31 +767,10 @@ bootstrap <- bootstrap %>%
     
   )
 
-mean_ag_op <- mean(bootstrap$ag_op)
-mean_inv_op <- mean(bootstrap$inv_op)
+values<-unname(lapply(bootstrap[5:6], quantile, na.rm=T,  prob = c(0.05,0.95), names = FALSE))
 
-se_ag_op <- sd(bootstrap$ag_op)/sqrt(length(bootstrap$ag_op))
-se_inv_op <- sd(bootstrap$inv_op)/sqrt(length(bootstrap$inv_op))
-
-critical_95<-qnorm(p=0.05, mean=0, sd=1, lower.tail = FALSE)
-
-df <-length(bootstrap$inv_op)-1
-
-critical_t_95 <- -qt(p=0.05,df)
-
-liminf_ag<-mean_ag_op-critical_95*se_ag_op
-limsup_ag<-mean_ag_op+critical_95*se_ag_op
-
-liminf_inv<-mean_inv_op-critical_95*se_inv_op
-limsup_inv<-mean_inv_op+critical_95*se_inv_op
-
-t_liminf_ag<-mean_ag_op-critical_t_95*se_ag_op
-t_limsup_ag<-mean_ag_op+critical_t_95*se_ag_op
-
-t_liminf_inv<-mean_inv_op-critical_t_95*se_inv_op
-t_limsup_inv<-mean_inv_op+critical_t_95*se_inv_op
-
-
+ag_bootstrap <-values[[1]]
+inv_bootstrap <- values[[2]]
 #Replication Table Bootstrap
 
 tabla_10<-c(
@@ -808,13 +787,13 @@ tabla_10$opt_mean <- c(
 )
 
 tabla_10$lim_inf <- c(
-  paste(round(100*t_liminf_ag,2),"%"),
-  paste(round(100*t_liminf_inv,2),"%")
+  paste(round(100*ag_bootstrap[1],2),"%"),
+  paste(round(100*ag_bootstrap[2],2),"%")
 )
 
 tabla_10$lim_sup<- c(
-  paste(round(100*t_limsup_ag,2),"%"),
-  paste(round(100*t_limsup_inv,2),"%")
+  paste(round(100*inv_bootstrap[1],2),"%"),
+  paste(round(100*inv_bootstrap[2],2),"%")
 )
 
 
