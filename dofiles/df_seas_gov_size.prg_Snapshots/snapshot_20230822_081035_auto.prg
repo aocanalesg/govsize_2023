@@ -516,6 +516,5 @@ tamano_optimo(3,4) = -100*eq_quad_ag_3.@coef(6)/(2*eq_quad_ag_3.@coef(7))
 tamano_optimo(1,5) = -100*eq_quad_inv_1.@coef(6)/(2*eq_quad_inv_1.@coef(7))
 tamano_optimo(2,5) = -100*eq_quad_inv_2.@coef(6)/(2*eq_quad_inv_2.@coef(7))
 tamano_optimo(3,5) = -100*eq_quad_inv_3.@coef(6)/(2*eq_quad_inv_3.@coef(7))
-tamano_optimo(2,6) =  100*@mean( x1)
-tamano_optimo(2,7) = 100*@mean( PUB_INV_GDP)
+
 

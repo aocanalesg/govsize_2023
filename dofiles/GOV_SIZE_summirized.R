@@ -404,7 +404,7 @@ combined_plot_seas <- ggarrange(seas_plot1,
 combined_plot_seas
 ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
 #########
-#-- Scatterplots 
+#Scatterplots 
 #########
 
 
@@ -447,10 +447,10 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
 seas_plot8 
 ggsave("gdp_vs_public_inv.png", width=24, height =14 , units= c("cm"), dpi=500)
 
-#Replicacion tabla estadisticos descriptivos
+#Replicacion - CUADRO 1. Tabla estadisticos descriptivos
 
-exploratory_analysis<-df_seas[,2:7]
-exploratory_analysis<-exploratory_analysis %>%
+cuadro_1<-df_seas[,2:7]
+cuadro_1<- cuadro_1 %>%
   mutate(
     log_gdp_pc = exp(log_gdp_pc),
    gov_gdp = gov_gdp*100,
@@ -460,7 +460,7 @@ exploratory_analysis<-exploratory_analysis %>%
     tr_op = tr_op
   )
 
-colnames(exploratory_analysis)<-c("PIB per capita",
+colnames(cuadro_1)<-c("PIB per capita",
                                   "Gasto de Gobierno agregado",
                                   "Gasto de Gobierno corriente",
                                   "Inversión fija pública",
@@ -468,45 +468,41 @@ colnames(exploratory_analysis)<-c("PIB per capita",
                                   "Apertura comercial"
 )
 
-exploratory_analysis_tex <- stargazer(exploratory_analysis, type='latex', digits=2)
-stargazer(exploratory_analysis, type='text', digits=2)
+cuadro_1 <- stargazer(cuadro_1, type='latex', digits=2)
+stargazer(cuadro_1, type='text', digits=2)
 
-##############                                      ##############     
+##############                                                          ############   
+############## Cuadro 2.Test de Raiz Unitaria ADF para serie en niveles ############
+##############                                                          ############   
+##############             Variables en log-niveles                     ############
 
-##############    Estacionariedad (Tony Stark).    ####################
-
-##############                                      ##############   
-
-### Test de Raiz Unitaria ADF para serie en niveles 
-##Variables en log-niveles
 variables <- df_seas[,2:7] #Crea un dataframe con variables desestacionalizadas y en logaritmos
-u_root <- data.frame(matrix(NA, nrow = 6, ncol = 12)) #Crear un dataframe vacio que sera la tabla de salidas para el analisis de raices unitarias
+cuadro_2 <- data.frame(matrix(NA, nrow = 6, ncol = 12)) #Crear un dataframe vacio que sera la tabla de salidas para el analisis de raices unitarias
 
 
 for (i in 1:ncol(variables)) { #Es un loop para realizar el test PP a cada variable guardada en save
      col <- variables[,i]
-     u_root[i,1] <-  adfTest(col, type = c("nc"))@test$p.value
-     u_root[i,2] <-  adfTest(col, type = c("c"))@test$p.value
-     u_root[i,3] <-  adfTest(col, type = c("ct"))@test$p.value
-     u_root[i,4] <-  adfTest(diff(col), type = c("nc"))@test$p.value
-     u_root[i,5] <-  adfTest(diff(col), type = c("c"))@test$p.value
-     u_root[i,6] <-  adfTest(diff(col), type = c("ct"))@test$p.value
-     u_root[i,7] <-  pp.test(col)[1,3]
-     u_root[i,8] <-  pp.test(col)[2,3]
-     u_root[i,9] <-  pp.test(col)[3,3]
-     u_root[i,10] <-  pp.test(diff(col))[1,3]
-     u_root[i,11] <-  pp.test(diff(col))[2,3]
-     u_root[i,12] <-  pp.test(diff(col))[3,3]
+     cuadro_2[i,1] <-  adfTest(col, type = c("nc"))@test$p.value
+     cuadro_2[i,2] <-  adfTest(col, type = c("c"))@test$p.value
+     cuadro_2[i,3] <-  adfTest(col, type = c("ct"))@test$p.value
+     cuadro_2[i,4] <-  adfTest(diff(col), type = c("nc"))@test$p.value
+     cuadro_2[i,5] <-  adfTest(diff(col), type = c("c"))@test$p.value
+     cuadro_2[i,6] <-  adfTest(diff(col), type = c("ct"))@test$p.value
+     cuadro_2[i,7] <-  pp.test(col)[1,3]
+     cuadro_2[i,8] <-  pp.test(col)[2,3]
+     cuadro_2[i,9] <-  pp.test(col)[3,3]
+     cuadro_2[i,10] <-  pp.test(diff(col))[1,3]
+     cuadro_2[i,11] <-  pp.test(diff(col))[2,3]
+     cuadro_2[i,12] <-  pp.test(diff(col))[3,3]
 }
 
 series = c( "PIB per ́capita","Gasto de Gobierno Agregado","Gasto de Gobierno Corriente","Inversion fija Publica","Inversion Fija Privada","Apertura Comercial")
-u_root$series = series
-u_root <- u_root %>% relocate(series)
+cuadro_2$series = series
+cuadro_2 <- cuadro_2 %>% relocate(series)
 # Redondeando los valores en la tabla
- u_root <- u_root %>% 
+cuadro_2 <- cuadro_2 %>% 
    mutate(across(where(is.numeric), round, digits=2))
 # Exportar codigo de raices unitarias a latex
-
  addtorow <- list()
  addtorow$pos <- list(0)
  addtorow$command <- c(" \\toprule
@@ -532,19 +528,22 @@ u_root <- u_root %>% relocate(series)
   \\multicolumn{1}{c}{I.} &
   \\multicolumn{1}{c}{I. y T.} \\\\
   \\bottomrule")
- print(xtable(u_root), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
+ print(xtable(cuadro_2), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
+ 
+ ##############                                                          ############   
+ ############## Cuadro 3.Criterio de seleccion de rezagos Gasto Agregado ############
+ ##############                                                          ############ 
 
-#Criterio de seleccion de rezagos Gasto Agregado (Tony Stark)
  var_gob <-  variables[,1:2]
  lag_selection_gov <- VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
                                                  season = NULL, exogen = NULL)
- df_lag_selection_gov <- as.data.frame(VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
+ cuadro_3 <- as.data.frame(VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
            season = NULL, exogen = NULL)[[2]])
  Criterio = c("AIC","HQ","SC","FPE")
- df_lag_selection_gov$Criterio = Criterio
- df_lag_selection_gov <-df_lag_selection_gov %>% relocate(Criterio)
+ cuadro_3$Criterio = Criterio
+ cuadro_3 <-cuadro_3 %>% relocate(Criterio)
  # Redondeando los valores en la tabla
- df_lag_selection_gov <- df_lag_selection_gov %>% 
+ cuadro_3 <- cuadro_3 %>% 
    mutate(across(where(is.numeric), round, digits=2))
  
  addtorow <- list()
@@ -561,27 +560,28 @@ u_root <- u_root %>% relocate(series)
   \\multicolumn{1}{c}{4} &
   \\multicolumn{1}{c}{5} \\\\
   \\bottomrule")
- print(xtable(df_lag_selection_gov), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
+ print(xtable(cuadro_3), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
  
+ ##############                                                                  ############   
+ ############## Cuadro 4.Criterio de seleccion de rezagos Inversion Fija Publica ############
+ ##############                                                                  ############ 
 
-
-#Criterio de seleccion de rezagos Inversion Fija Publica (Tony Stark)
  var_inv <- variables %>%  select(log_gdp_pc, pub_inv_gdp)
- lag_selection_inv <- VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
+ cuadro_4<- VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
                                 season = NULL, exogen = NULL)
- df_lag_selection_inv <- as.data.frame(VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
+ df_cuadro_4<- as.data.frame(VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
                                                  season = NULL, exogen = NULL)[[2]])
- df_lag_selection_inv$Criterio = Criterio
- df_lag_selection_inv <-df_lag_selection_inv %>% relocate(Criterio)
+ Criterio = c("AIC","HQ","SC","FPE")
+ df_cuadro_4$Criterio = Criterio
+ df_cuadro_4<-df_cuadro_4%>% relocate(Criterio)
  # Redondeando los valores en la tabla
- df_lag_selection_inv <- df_lag_selection_inv %>% 
+ df_cuadro_4<- df_cuadro_4%>% 
    mutate(across(where(is.numeric), round, digits=2))
  
  addtorow <- list()
  addtorow$pos <- list(0)
  addtorow$command <- c(" \\toprule
-\\headrow & \\multicolumn{5}{c}{Criterio de seleccion de rezagos} \\\\
-  \\midrule
+\\headrow & 
   \\multicolumn{5}{c}{Numero de rezagos}
     \\midrule
 \\headrow Criterio &
@@ -591,10 +591,10 @@ u_root <- u_root %>% relocate(series)
   \\multicolumn{1}{c}{4} &
   \\multicolumn{1}{c}{5} \\\\
   \\bottomrule")
- print(xtable(df_lag_selection_inv), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
+ print(xtable(df_cuadro_4), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 
- #Prueba de precedencia temporal De Gasto Gobierno Agregado (Tony Stark)
+ #Prueba de precedencia temporal De Gasto Gobierno Agregado 
  granger_gov_pib <- list()
  granger_pib_gov <- list()
  for (i in 1:4) { 
@@ -610,18 +610,20 @@ u_root <- u_root %>% relocate(series)
    granger_pib_inv[[i]] <- grangertest(variables[,1],variables[,4], order = i) #PIB causa a Gasto de Gobierno
  }
  
- #Generar cuadro de precedencia temporal de granger
- prueba_granger <- data.frame(matrix(NA, nrow = 4, ncol = 5))
- prueba_granger[1,1] <- c("Gasto publico agregado no causa a PIB per capita")
- prueba_granger[2,1] <- c("PIB per capita no causa a Gasto publico agregado")
- prueba_granger[3,1] <- c("Inversion fija publica no causa a PIB per capita")
- prueba_granger[4,1] <- c("PIB per capita no causa a Inversion fija publica")
+ ##############                                                                  ############   
+ ##############               Cuadro 5.Prueba de Precedencia temporal            ############
+ ##############                                                                  ############ 
+cuadro_5 <- data.frame(matrix(NA, nrow = 4, ncol = 5))
+cuadro_5[1,1] <- c("Gasto publico agregado no causa a PIB per capita")
+cuadro_5[2,1] <- c("PIB per capita no causa a Gasto publico agregado")
+cuadro_5[3,1] <- c("Inversion fija publica no causa a PIB per capita")
+cuadro_5[4,1] <- c("PIB per capita no causa a Inversion fija publica")
  ###Llenado del cuadro de test de procedencia de Granger
  for (i in 1:4) { 
-   prueba_granger[1,i+1] <- granger_gov_pib[[i]][2,4]
-   prueba_granger[2,i+1] <- granger_pib_gov[[i]][2,4]
-   prueba_granger[3,i+1] <- granger_inv_pib[[i]][2,4]
-   prueba_granger[4,i+1] <- granger_pib_inv[[i]][2,4]
+  cuadro_5[1,i+1] <- granger_gov_pib[[i]][2,4]
+  cuadro_5[2,i+1] <- granger_pib_gov[[i]][2,4]
+  cuadro_5[3,i+1] <- granger_inv_pib[[i]][2,4]
+  cuadro_5[4,i+1] <- granger_pib_inv[[i]][2,4]
  }
  ## Creacion de titulos y subtitulos para exportar cuadro a latex 
  addtorow <- list()
@@ -635,9 +637,7 @@ u_root <- u_root %>% relocate(series)
   \\multicolumn{1}{c}{3} &
   \\multicolumn{1}{c}{4} \\\\
   \\bottomrule")
- print(xtable(prueba_granger), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
-
-
+ print(xtable(cuadro_5), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 ############### Exporting data for Eviews ###########
 path<-getwd()
@@ -652,16 +652,13 @@ write.csv(df_seas, paste(path,"df_seas.csv", sep="/"))
 
 
 #########                                                 #########
-
-#########  Prueba de cointegracion de Johansen (Euler)
-
+#########   Cuadro 6.Prueba de cointegracion de Johansen
 #########                                                 #########
 
 #importing table from eviews
 
-
-johansen_results <- read.csv(paste(getwd(), "dofiles/tabla_johansen.csv", sep="/"),header=FALSE)
-johansen_results <- johansen_results %>%
+cuadro_6 <- read.csv(paste(getwd(), "dofiles/tabla_johansen.csv", sep="/"),header=FALSE)
+cuadro_6 <-cuadro_6 %>%
 mutate(across(where(is.numeric), round, digits=2))
 col1_johansen<-c(
   "Gasto Agregado",
@@ -676,10 +673,10 @@ col2_johansen<-c(
   "Valor propio"
 )
 
-johansen_results$col1 <- col1_johansen
-johansen_results$col2 <- col2_johansen
-johansen_results<- johansen_results %>% relocate(col2)
-johansen_results <-johansen_results %>% relocate(col1)
+cuadro_6$col1 <- col1_johansen
+cuadro_6$col2 <- col2_johansen
+cuadro_6 <-cuadro_6 %>% relocate(col2)
+cuadro_6 <-johansen_results %>% relocate(col1)
 
 #Latex code
 addtorow_johansen <- list()
@@ -691,19 +688,20 @@ Variable & Tipo de test & \\multicolumn{2}{c}{Ninguna}& \\multicolumn{2}{c}{Line
 &&Sin tendencia & Sin tendencia & Sin tendencia & Tendencia & Tendencia \\\\
 \\hline 
 ")
-print(xtable(johansen_results, caption="Prueba de cointegración de Johansen", label="tab:cointegracion"), add.to.row = addtorow_johansen , include.rownames = FALSE, include.colnames = FALSE,caption.placement = "top" )
+print(xtable(cuadro_6, caption="Prueba de cointegración de Johansen", label="tab:cointegracion"), add.to.row = addtorow_johansen , include.rownames = FALSE, include.colnames = FALSE,caption.placement = "top" )
 
 
 
-######### Estimates of Long Run equations ##############
+#########                                                             #########
+#########   Cuadro 7. Estimacion de largo plazo de gobierno agregado  #########
+#########                                                             #########
 
 
 #All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
-models_pub_inv <- data.frame(matrix(NA, nrow = 20, ncol = 10))
+cuadro_7 <- data.frame(matrix(NA, nrow = 20, ncol = 10))
 
 coef_pval_pub_inv <- read.csv(paste(getwd(), "dofiles/tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
 coef_pval_pub_inv <- coef_pval_pub_inv %>% 
-  
 mutate(across(where(is.numeric), round, digits=2))#rounding
 
 col<-c(
@@ -727,46 +725,105 @@ col<-c(
        "Estadístico JB",
        "Prueba BGLM",
        "Prueba BPG")
-models_pub_inv$col <- col
-models_pub_inv <- models_pub_inv %>% relocate(col)
-models_pub_inv <- cbind(col, coef_pval_pub_inv)
+cuadro_7$col <- col
+cuadro_7 <- cuadro_7 %>% relocate(col)
+cuadro_7 <- cbind(col, coef_pval_pub_inv)
 
 #generating latex code
-addtorow_models_pub_inv <- list()
-addtorow_models_pub_inv$pos <- list(0)
-addtorow_models_pub_inv$command <- c("\\hline
+addtorow_cuadro_7 <- list()
+addtorow_cuadro_7$pos <- list(0)
+addtorow_cuadro_7$command <- c("\\hline
 \\multicolumn{10}{c}{Variable dependiente: Logaritmo del PIB per cápita}\\\\     \\hline
                                                        &      \\multicolumn{3}{c}{OLS}    &     \\multicolumn{3}{c}{FMOLS}    & \\multicolumn{3}{c}{CCR}                        \\\\ \\cline{2-10} 
 Variables                           &  Lineal      & Cuadrática     & Cúbica            & Lineal          & Cuadrática     & Cúbica              & Lineal       & Cuadrática     & Cúbica         \\\\
 ")
-#print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
 
-print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
+print(xtable(cuadro_7), add.to.row = addtorow_cuadro_7, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
-########################
+#########                                                             #########
+#########   Cuadro 9. Estimacion de tamano optimo                     #########
+#########                                                             #########
+cuadro9_tamano_optimo <- read.csv(paste(getwd(), "dofiles/cuadro8.csv", sep="/"),header=FALSE)
+cuadro9_tamano_optimo[1,1] <- "OLS"
+cuadro9_tamano_optimo[2,1] <- "FMOLS"
+cuadro9_tamano_optimo[3,1] <- "CCR"
+cuadro9_tamano_optimo[1:3,2:3] <- "Si"
+cuadro9_tamano_optimo$V6 <- c("",round(100*mean(raw_data$gov_gdp),2),"")
+cuadro9_tamano_optimo$V7 <- c("",round(100*mean(raw_data$pub_inv_gdp),2),"")
+cuadro9_tamano_optimo <- cuadro9_tamano_optimo %>%
+  mutate(across(where(is.numeric), round, digits=2))
+cuadro9_tamano_optimo$V4 <- paste(cuadro9_tamano_optimo$V4, "%", sep = "")
+cuadro9_tamano_optimo$V5 <- paste(cuadro9_tamano_optimo$V5, "%", sep = "")
+cuadro9_tamano_optimo[2,6:7] <- paste(cuadro9_tamano_optimo[2,6:7], "%", sep = "")
 
-#Bootstrap 
+#### Cuadro 9 latex code #######
 
-#######################
+addtorow <- list()
+addtorow$pos <- list(0)
+addtorow$command <- c(" \\toprule
+\\headrow   \\multicolumn{1}{c}{}  &
+            \\multicolumn{2}{c}{\begin{tabular}[c]{@{}c@{}}¿Es valida la \\ curva de Armey?\end{tabular}} &
+            \\multicolumn{2}{c}{Nivel óptimo de Gasto (\\% del PIB)}&
+             \\multicolumn{2}{c}{Nivel Efectivo de Gasto}\\\\
+  \\midrule
+\\headrow  
+           \\multicolumn{1}{c}{Metodologia} &
+            \\multicolumn{1}{c}{Gasto de Gobierno Agregado} &
+            \\multicolumn{1}{c}{Inversion Fija Publica} &
+            \\multicolumn{1}{c}{Gasto de Gobierno Agregado} &
+            \\multicolumn{1}{c}{Inversion Fija Publica} &
+            \\multicolumn{1}{c}{Gasto de Gobierno Agregado} &
+            \\multicolumn{1}{c}{Inversion Fija Publica}\\\\
+  \\bottomrule")
+print(xtable(cuadro9_tamano_optimo), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
+
+#########                                                             #########
+#########   Cuadro 10. Bootstrap Tamano de Gobierno                   #########
+#########                                                             #########
 
 #The bootstrap exercise was performed in Eviews in the program is "DF_SEAS_GOV_SIZE.prg"
-
 
 bootstrao_lin_ag <- read.csv(paste(getwd(), "dofiles/lineales_agregado.csv", sep="/"),header=FALSE)
 bootstrao_cuad_ag<- read.csv(paste(getwd(), "dofiles/cuadraticos_agregado.csv", sep="/"),header=FALSE)
 bootstrao_lin_inv<-read.csv(paste(getwd(), "dofiles/lineales_inversion.csv", sep="/"),header=FALSE)
 bootstrao_cuad_inv<-read.csv(paste(getwd(), "dofiles/cuadraticos_inversion.csv", sep="/"),header=FALSE)
 
-bootstrap<-as.data.frame(cbind(bootstrao_lin_ag,bootstrao_cuad_ag,bootstrao_lin_inv,bootstrao_cuad_inv ))
-colnames(bootstrap)<-c("lin_ag", "cuad_ag", "lin_inv", "cuad_inv")
+cuadro_10<-as.data.frame(cbind(bootstrao_lin_ag,bootstrao_cuad_ag,bootstrao_lin_inv,bootstrao_cuad_inv ))
+colnames(cuadro_10)<-c("lin_ag", "cuad_ag", "lin_inv", "cuad_inv")
 
-bootstrap <- bootstrap %>%
+cuadro_10 <- cuadro_10 %>%
   mutate(
     ag_op = -lin_ag/(2*cuad_ag),
     inv_op = -lin_inv/(2*cuad_inv),
     
   )
 
+mean_ag_op <- mean(cuadro_10$ag_op)
+mean_inv_op <- mean(cuadro_10$inv_op)
+
+se_ag_op <- sd(cuadro_10$ag_op)/sqrt(length(cuadro_10$ag_op))
+se_inv_op <- sd(cuadro_10$inv_op)/sqrt(length(cuadro_10$inv_op))
+
+critical_95<-qnorm(p=0.05, mean=0, sd=1, lower.tail = FALSE)
+
+df <-length(bootstrap$inv_op)-1
+
+critical_t_95 <- -qt(p=0.05,df)
+
+liminf_ag<-mean_ag_op-critical_95*se_ag_op
+limsup_ag<-mean_ag_op+critical_95*se_ag_op
+
+liminf_inv<-mean_inv_op-critical_95*se_inv_op
+limsup_inv<-mean_inv_op+critical_95*se_inv_op
+
+t_liminf_ag<-mean_ag_op-critical_t_95*se_ag_op
+t_limsup_ag<-mean_ag_op+critical_t_95*se_ag_op
+
+t_liminf_inv<-mean_inv_op-critical_t_95*se_inv_op
+t_limsup_inv<-mean_inv_op+critical_t_95*se_inv_op
+
+
+#Replication Table Bootstrap 
 values<-unname(lapply(bootstrap[5:6], quantile, na.rm=T,  prob = c(0.05,0.95), names = FALSE))
 
 ag_bootstrap <-values[[1]]
@@ -811,30 +868,6 @@ addtorow$command <- c(" \\toprule
             \\multicolumn{1}{c}{Límite inferior} &
             \\multicolumn{1}{c}{Límite superior}\\\\
   \\bottomrule")
-print(xtable(tabla_10), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
-
-
-
-
-
-
-
-
-addtorow_tabla_10 <- list()
-addtorow_tabla_10$pos <- list(0)
-addtorow__tabla_10$command <- c("
-                                \\begin{tabular}{p{6cm} p{4cm} p{4cm}}
-                                \\hline
-                                \\multicolumn{1}{c}{\\multirow{}{}{Variable}} & \\multicolumn{2}{p{6cm}}{\\hspace{2.2cm}Intervalo de confianza} \\\\ \\cline{2-3} 
-                                
-                                \\multicolumn{1}{c}{}                          & \\hspace{0.8cm}Límite Inferior      & \\hspace{0.8cm}Límite Superior     \\\\ \\hline
-                                ")
-print(xtable(models_pub_inv), add.to.row = addtorow_models_pub_inv , include.rownames = FALSE, include.colnames = FALSE )
-
-
-
-
-
 print(xtable(tabla_10), add.to.row = addtorow_tabla_10, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
 
