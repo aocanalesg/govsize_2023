@@ -106,12 +106,6 @@ freeze(pptable_dif_{!i}_nc) x{!i}_sa.uroot(exog=none, dif=1, pp)
 
 next
 
-
-'johansen test
-
-
-
-
 '===========================
 'Long Rung models
 '===========================
@@ -123,37 +117,37 @@ next
 'Modelos lineales  con todas las metodologias en muestra completa
 
 smpl @all
-equation eq_lin_inv_1.ls(cov=hac) log_gdp_pc_sa c  x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_SA 
+equation eq_lin_inv_1.ls(cov=hac) log_gdp_pc_sa c d_2008 d_2018   x2_sa x3_sa PUB_INV_GDP_SA 
 
 
 smpl @all
-equation eq_lin_inv_2.cointreg log_gdp_pc_sa x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_SA
+equation eq_lin_inv_2.cointreg log_gdp_pc_sa x2_sa x3_sa PUB_INV_GDP_SA @determ d_2008 d_2018 
 
 smpl @all
-equation eq_lin_inv_3.cointreg(method=ccr) log_gdp_pc_sa x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_SA
+equation eq_lin_inv_3.cointreg(method=ccr) log_gdp_pc_sa x2_sa x3_sa PUB_INV_GDP_SA @determ d_2008 d_2018 
 
 
 'Modelos cuadráticos con todas las metodologias en muestra completa
 
 smpl @all
-equation eq_quad_inv_1.ls(cov=hac) log_gdp_pc_sa c x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2
+equation eq_quad_inv_1.ls(cov=hac) log_gdp_pc_sa c d_2008 d_2018  x2_sa x3_sa PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2
 
 smpl @all
-equation eq_quad_inv_2.cointreg log_gdp_pc_sa x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2
+equation eq_quad_inv_2.cointreg log_gdp_pc_sa x2_sa x3_sa  PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2 @determ d_2008 d_2018 
 
 smpl @all
-equation eq_quad_inv_3.cointreg(method=ccr) log_gdp_pc_sa x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2
+equation eq_quad_inv_3.cointreg(method=ccr) log_gdp_pc_sa x2_sa x3_sa PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2 @determ d_2008 d_2018 
 
 'Modelos cúbicos con todas las metodologias en muestra completa
 
 smpl @all
-equation eq_cub_inv_1.ls(cov=hac) log_gdp_pc_sa c x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2 (PUB_INV_GDP_SA )^3
+equation eq_cub_inv_1.ls(cov=hac) log_gdp_pc_sa c d_2008 d_2018  x2_sa x3_sa PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2 (PUB_INV_GDP_SA )^3
 
 smpl @all
-equation eq_cub_inv_2.cointreg log_gdp_pc_sa  x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2 (PUB_INV_GDP_SA )^3
+equation eq_cub_inv_2.cointreg log_gdp_pc_sa  x2_sa x3_sa PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2 (PUB_INV_GDP_SA )^3 @determ d_2008 d_2018 
 
 smpl @all
-equation eq_cub_inv_3.cointreg(method=ccr) log_gdp_pc_sa  x2_sa x3_sa @determ d_2008 d_2018 PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2 (PUB_INV_GDP_SA )^3
+equation eq_cub_inv_3.cointreg(method=ccr) log_gdp_pc_sa  x2_sa x3_sa PUB_INV_GDP_SA  (PUB_INV_GDP_SA )^2 (PUB_INV_GDP_SA )^3 @determ d_2008 d_2018 
 
 '------------------------------------------------------------------------------------------------------------------------------
 'Variable independiente del gobierno: Gasto Agregado
@@ -162,40 +156,37 @@ equation eq_cub_inv_3.cointreg(method=ccr) log_gdp_pc_sa  x2_sa x3_sa @determ d_
 'Modelos lineales  con todas las metodologias en muestra completa
 
 smpl @all
-equation eq_lin_ag_1.ls(cov=hac) log_gdp_pc_sa c  x2_sa x3_sa d_2008 d_2018 x1_sa 
+equation eq_lin_ag_1.ls(cov=hac) log_gdp_pc_sa c  d_2008 d_2018  x2_sa x3_sa x1_sa 
 
 
 smpl @all
-equation eq_lin_ag_2.cointreg log_gdp_pc_sa  x1_sa x2_sa x3_sa @determ d_2008 d_2018
+equation eq_lin_ag_2.cointreg log_gdp_pc_sa  x2_sa x3_sa  x1_sa @determ d_2008 d_2018
 
 smpl @all
-equation eq_lin_ag_3.cointreg(method=ccr) log_gdp_pc_sa x2_sa x3_sa @determ d_2008 d_2018 x1_sa
+equation eq_lin_ag_3.cointreg(method=ccr) log_gdp_pc_sa  x2_sa x3_sa  x1_sa  @determ d_2008 d_2018 
 
 
 'Modelos cuadráticos con todas las metodologias en muestra completa
 
 smpl @all
-equation eq_quad_ag_1.ls(cov=hac) log_gdp_pc_sa c x2_sa x3_sa d_2008 d_2018 x1_sa  (x1_sa )^2
+equation eq_quad_ag_1.ls(cov=hac) log_gdp_pc_sa c d_2008 d_2018  x2_sa x3_sa x1_sa  (x1_sa )^2
 
 smpl @all
-equation eq_quad_ag_2.cointreg log_gdp_pc_sa  x1_sa  (x1_sa )^2 x2_sa x3_sa @determ d_2008 d_2018
+equation eq_quad_ag_2.cointreg log_gdp_pc_sa   x2_sa x3_sa x1_sa  (x1_sa )^2 @determ d_2008 d_2018
 
 smpl @all
-equation eq_quad_ag_3.cointreg(method=ccr) log_gdp_pc_sa x2_sa x3_sa @determ d_2008 d_2018 x1_sa  (x1_sa )^2
+equation eq_quad_ag_3.cointreg(method=ccr) log_gdp_pc_sa x2_sa x3_sa  x1_sa  (x1_sa )^2  @determ d_2008 d_2018
 
 'Modelos cúbicos con todas las metodologias en muestra completa
 
 smpl @all
-equation eq_cub_ag_1.ls(cov=hac) log_gdp_pc_sa c x2_sa x3_sa d_2008 d_2018 x1_sa  (x1_sa )^2 (x1_sa )^3
+equation eq_cub_ag_1.ls(cov=hac) log_gdp_pc_sa c d_2008 d_2018 x2_sa x3_sa  x1_sa  (x1_sa )^2 (x1_sa )^3
 
 smpl @all
-equation eq_cub_ag_2.cointreg log_gdp_pc_sa  x2_sa x3_sa @determ d_2008 d_2018 x1_sa  (x1_sa )^2 (x1_sa )^3
+equation eq_cub_ag_2.cointreg log_gdp_pc_sa  x2_sa x3_sa  x1_sa  (x1_sa )^2 (x1_sa )^3 @determ d_2008 d_2018
 
 smpl @all
-equation eq_cub_ag_3.cointreg(method=ccr) log_gdp_pc_sa  x2_sa x3_sa @determ d_2008 d_2018 x1_sa  (x1_sa )^2 (x1_sa )^3
-
-
-
+equation eq_cub_ag_3.cointreg(method=ccr) log_gdp_pc_sa  x2_sa x3_sa x1_sa  (x1_sa )^2 (x1_sa )^3 @determ d_2008 d_2018 
 
 '=============================
 'Bootstrap
@@ -241,8 +232,6 @@ cuadraticos_inversion({!x},1) = reg_inversion{!x}.@coef(2)
 next
 
 
-
-
 '=============================
 'Tabla Gasto Agregado
 '=============================
@@ -263,47 +252,84 @@ for !x=1 to 8
 tabla_modelos_agregado(2*{!x}-1,3) = eq_cub_ag_1.@coef({!x})
 tabla_modelos_agregado(2*{!x},3) = eq_cub_ag_1.@pval({!x})
 next
+'cubicos valor R2
 tabla_modelos_agregado(17,1) = eq_lin_ag_1.@r2
 tabla_modelos_agregado(17,2) = eq_quad_ag_1.@r2
 tabla_modelos_agregado(17,3) = eq_cub_ag_1.@r2
 
-
-
 'Modelos FMOLS
+'Lineales
 for !x=1 to 6
-tabla_modelos_agregado(2*{!x}-1,4) = eq_lin_ag_2.@coef({!x})
-tabla_modelos_agregado(2*{!x},4) = eq_lin_ag_2.@pval({!x})
-next
+if !x<4 then
+tabla_modelos_agregado(2*(!x+3)-1,4) = eq_lin_ag_2.@coef({!x})
+tabla_modelos_agregado(2*(!x+3),4) = eq_lin_ag_2.@pval({!x})
+else
+tabla_modelos_agregado(2*(!x-3) -1,4) = eq_lin_ag_2.@coef({!x})
+tabla_modelos_agregado(2*(!x-3),4) = eq_lin_ag_2.@pval({!x})
+endif
+next 
+
 'cuadraticos
 for !x=1 to 7
-tabla_modelos_agregado(2*{!x}-1,5) = eq_quad_ag_2.@coef({!x})
-tabla_modelos_agregado(2*{!x},5) = eq_quad_ag_2.@pval({!x})
-next
+if !x<5 then
+tabla_modelos_agregado(2*(!x + 3) - 1,5) = eq_quad_ag_2.@coef({!x})
+tabla_modelos_agregado(2*(!x+ 3),5) = eq_quad_ag_2.@pval({!x})
+else
+tabla_modelos_agregado(2*(!x - 4) - 1,5) = eq_quad_ag_2.@coef({!x})
+tabla_modelos_agregado(2*(!x - 4),5) = eq_quad_ag_2.@pval({!x})
+endif
+next 
+
 'cubicos
 for !x=1 to 8
-tabla_modelos_agregado(2*{!x}-1,6) = eq_cub_ag_2.@coef({!x})
-tabla_modelos_agregado(2*{!x},6) = eq_cub_ag_2.@pval({!x})
-next
+if !x<6 then
+tabla_modelos_agregado(2*(!x + 3) - 1,6) = eq_cub_ag_2.@coef({!x})
+tabla_modelos_agregado(2*(!x+ 3),6) = eq_cub_ag_2.@pval({!x})
+else
+tabla_modelos_agregado(2*(!x - 5) - 1,6) = eq_cub_ag_2.@coef({!x})
+tabla_modelos_agregado(2*(!x - 5),6) = eq_cub_ag_2.@pval({!x})
+endif
+next 
+
 tabla_modelos_agregado(17,4) = eq_lin_ag_2.@r2
 tabla_modelos_agregado(17,5) = eq_quad_ag_2.@r2
 tabla_modelos_agregado(17,6) = eq_cub_ag_2.@r2
 
 
 'Modelos CCR
+'Lineales
 for !x=1 to 6
-tabla_modelos_agregado(2*{!x}-1,7) = eq_lin_ag_3.@coef({!x})
-tabla_modelos_agregado(2*{!x},7) = eq_lin_ag_3.@pval({!x})
-next
+if !x<4 then
+tabla_modelos_agregado(2*(!x+3)-1,7) = eq_lin_ag_3.@coef({!x})
+tabla_modelos_agregado(2*(!x+3),7)= eq_lin_ag_3.@pval({!x})
+else
+tabla_modelos_agregado(2*(!x-3) -1,7) = eq_lin_ag_3.@coef({!x})
+tabla_modelos_agregado(2*(!x-3),7) = eq_lin_ag_3.@pval({!x})
+endif
+next 
+
 'cuadraticos
 for !x=1 to 7
-tabla_modelos_agregado(2*{!x}-1,8) = eq_quad_ag_3.@coef({!x})
-tabla_modelos_agregado(2*{!x},8) = eq_quad_ag_3.@pval({!x})
-next
+if !x<5 then
+tabla_modelos_agregado(2*(!x + 3) - 1,8) = eq_quad_ag_3.@coef({!x})
+tabla_modelos_agregado(2*(!x+ 3),8) = eq_quad_ag_3.@pval({!x})
+else
+tabla_modelos_agregado(2*(!x - 4) - 1,8) = eq_quad_ag_3.@coef({!x})
+tabla_modelos_agregado(2*(!x - 4),8) = eq_quad_ag_3.@pval({!x})
+endif
+next 
+
 'cubicos
 for !x=1 to 8
-tabla_modelos_agregado(2*{!x}-1,9) = eq_cub_ag_3.@coef({!x})
-tabla_modelos_agregado(2*{!x},9) = eq_cub_ag_3.@pval({!x})
-next
+if !x<6 then
+tabla_modelos_agregado(2*(!x + 3) - 1,9) = eq_cub_ag_3.@coef({!x})
+tabla_modelos_agregado(2*(!x+ 3),9) = eq_cub_ag_3.@pval({!x})
+else
+tabla_modelos_agregado(2*(!x - 5) - 1,9) = eq_cub_ag_3.@coef({!x})
+tabla_modelos_agregado(2*(!x - 5),9) = eq_cub_ag_3.@pval({!x})
+endif
+next 
+
 tabla_modelos_agregado(17,7) = eq_lin_ag_3.@r2
 tabla_modelos_agregado(17,8) = eq_quad_ag_3.@r2
 tabla_modelos_agregado(17,9) = eq_cub_ag_3.@r2
@@ -337,20 +363,20 @@ tabla_modelos_agregado(18,9) = @val(jb_eq_cub_ag_3(14,2))
 freeze(auto_eq_lin_ag_1) eq_lin_ag_1.auto
 freeze(auto_eq_quad_ag_1) eq_quad_ag_1.auto
 freeze(auto_eq_cub_ag_1) eq_cub_ag_1.auto
-tabla_modelos_agregado(19,1) = @val(auto_eq_lin_ag_1(3,2))
-tabla_modelos_agregado(19,2) = @val(auto_eq_quad_ag_1(3,2))
-tabla_modelos_agregado(19,3) = @val(auto_eq_cub_ag_1(3,2))
+tabla_modelos_agregado(19,1) = @val(auto_eq_lin_ag_1(4,5))
+tabla_modelos_agregado(19,2) = @val(auto_eq_quad_ag_1(4,5))
+tabla_modelos_agregado(19,3) = @val(auto_eq_cub_ag_1(4,5))
 
 'heteroskedasticity BPG test
 freeze(bpg_eq_lin_ag_1) eq_lin_ag_1.hettest c x2_sa x3_sa d_2008 d_2018 x1_sa
 freeze(bpg_eq_quad_ag_1) eq_lin_ag_1.hettest c x2_sa x3_sa d_2008 d_2018 x1_sa (x1_sa)^2
 freeze(bpg_eq_cub_ag_1) eq_lin_ag_1.hettest c x2_sa x3_sa d_2008 d_2018 x1_sa (x1_sa)^3
-tabla_modelos_agregado(20,1) = @val(bpg_eq_lin_ag_1(3,2))
-tabla_modelos_agregado(20,2) = @val(bpg_eq_quad_ag_1(3,2))
-tabla_modelos_agregado(20,3) = @val(bpg_eq_cub_ag_1(3,2))
+tabla_modelos_agregado(20,1) = @val(bpg_eq_lin_ag_1(4,5))
+tabla_modelos_agregado(20,2) = @val(bpg_eq_quad_ag_1(4,5))
+tabla_modelos_agregado(20,3) = @val(bpg_eq_cub_ag_1(4,5))
 
 'export
-tabla_modelos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_agregado.csv"
+tabla_modelos_agregado.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_agregado.csv"
 
 
 
@@ -361,65 +387,99 @@ tabla_modelos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsi
 'Modelos OLS
 'lineales
 for !x=1 to 6
-table(17, 9) tabla_modelos
-tabla_modelos(2*{!x}-1,1) = eq_lin_inv_1.@coef({!x})
-tabla_modelos(2*{!x},1) = eq_lin_inv_1.@pval({!x})
+table(17, 9) tabla_modelos_inv
+tabla_modelos_inv(2*{!x}-1,1) = eq_lin_inv_1.@coef({!x})
+tabla_modelos_inv(2*{!x},1) = eq_lin_inv_1.@pval({!x})
 next
 'cuadraticos
 for !x=1 to 7
-tabla_modelos(2*{!x}-1,2) = eq_quad_inv_1.@coef({!x})
-tabla_modelos(2*{!x},2) = eq_quad_inv_1.@pval({!x})
+tabla_modelos_inv(2*{!x}-1,2) = eq_quad_inv_1.@coef({!x})
+tabla_modelos_inv(2*{!x},2) = eq_quad_inv_1.@pval({!x})
 next
 'cubicos
 for !x=1 to 8
-tabla_modelos(2*{!x}-1,3) = eq_cub_inv_1.@coef({!x})
-tabla_modelos(2*{!x},3) = eq_cub_inv_1.@pval({!x})
+tabla_modelos_inv(2*{!x}-1,3) = eq_cub_inv_1.@coef({!x})
+tabla_modelos_inv(2*{!x},3) = eq_cub_inv_1.@pval({!x})
 next
-tabla_modelos(17,1) = eq_lin_inv_1.@r2
-tabla_modelos(17,2) = eq_quad_inv_1.@r2
-tabla_modelos(17,3) = eq_cub_inv_1.@r2
-
-
+tabla_modelos_inv(17,1) = eq_lin_inv_1.@r2
+tabla_modelos_inv(17,2) = eq_quad_inv_1.@r2
+tabla_modelos_inv(17,3) = eq_cub_inv_1.@r2
 
 'Modelos FMOLS
+'Lineales
 for !x=1 to 6
-tabla_modelos(2*{!x}-1,4) = eq_lin_inv_2.@coef({!x})
-tabla_modelos(2*{!x},4) = eq_lin_inv_2.@pval({!x})
-next
+if !x<4 then
+tabla_modelos_inv(2*(!x+3)-1,4) = eq_lin_inv_2.@coef({!x})
+tabla_modelos_inv(2*(!x+3),4) = eq_lin_inv_2.@pval({!x})
+else
+tabla_modelos_inv(2*(!x-3) -1,4) = eq_lin_inv_2.@coef({!x})
+tabla_modelos_inv(2*(!x-3),4) = eq_lin_inv_2.@pval({!x})
+endif
+next 
+
 'cuadraticos
 for !x=1 to 7
-tabla_modelos(2*{!x}-1,5) = eq_quad_inv_2.@coef({!x})
-tabla_modelos(2*{!x},5) = eq_quad_inv_2.@pval({!x})
-next
+if !x<5 then
+tabla_modelos_inv(2*(!x + 3) - 1,5) = eq_quad_inv_2.@coef({!x})
+tabla_modelos_inv(2*(!x+ 3),5) = eq_quad_inv_2.@pval({!x})
+else
+tabla_modelos_agregado(2*(!x - 4) - 1,5) = eq_quad_inv_2.@coef({!x})
+tabla_modelos_inv(2*(!x - 4),5) = eq_quad_inv_2.@pval({!x})
+endif
+next 
+
 'cubicos
 for !x=1 to 8
-tabla_modelos(2*{!x}-1,6) = eq_cub_inv_2.@coef({!x})
-tabla_modelos(2*{!x},6) = eq_cub_inv_2.@pval({!x})
-next
-tabla_modelos(17,4) = eq_lin_inv_2.@r2
-tabla_modelos(17,5) = eq_quad_inv_2.@r2
-tabla_modelos(17,6) = eq_cub_inv_2.@r2
+if !x<6 then
+tabla_modelos_inv(2*(!x + 3) - 1,6) = eq_cub_inv_2.@coef({!x})
+tabla_modelos_inv(2*(!x+ 3),6) = eq_cub_inv_2.@pval({!x})
+else
+tabla_modelos_inv(2*(!x - 5) - 1,6) = eq_cub_inv_2.@coef({!x})
+tabla_modelos_inv(2*(!x - 5),6) = eq_cub_inv_2.@pval({!x})
+endif
+next 
+
+tabla_modelos_inv(17,4) = eq_lin_inv_2.@r2
+tabla_modelos_inv(17,5) = eq_quad_inv_2.@r2
+tabla_modelos_inv(17,6) = eq_cub_inv_2.@r2
 
 
 'Modelos CCR
+'Lineales
 for !x=1 to 6
-tabla_modelos(2*{!x}-1,7) = eq_lin_inv_3.@coef({!x})
-tabla_modelos(2*{!x},7) = eq_lin_inv_3.@pval({!x})
-next
+if !x<4 then
+tabla_modelos_inv(2*(!x+3)-1,7) = eq_lin_inv_3.@coef({!x})
+tabla_modelos_inv(2*(!x+3),7)= eq_lin_inv_3.@pval({!x})
+else
+tabla_modelos_inv(2*(!x-3) -1,7) = eq_lin_inv_3.@coef({!x})
+tabla_modelos_inv(2*(!x-3),7) = eq_lin_inv_3.@pval({!x})
+endif
+next 
+
 'cuadraticos
 for !x=1 to 7
-tabla_modelos(2*{!x}-1,8) = eq_quad_inv_3.@coef({!x})
-tabla_modelos(2*{!x},8) = eq_quad_inv_3.@pval({!x})
-next
+if !x<5 then
+tabla_modelos_inv(2*(!x + 3) - 1,8) = eq_quad_inv_3.@coef({!x})
+tabla_modelos_inv(2*(!x+ 3),8) = eq_quad_inv_3.@pval({!x})
+else
+tabla_modelos_inv(2*(!x - 4) - 1,8) = eq_quad_inv_3.@coef({!x})
+tabla_modelos_inv(2*(!x - 4),8) = eq_quad_inv_3.@pval({!x})
+endif
+next 
+
 'cubicos
 for !x=1 to 8
-tabla_modelos(2*{!x}-1,9) = eq_cub_inv_3.@coef({!x})
-tabla_modelos(2*{!x},9) = eq_cub_inv_3.@pval({!x})
-next
-tabla_modelos(17,7) = eq_lin_inv_3.@r2
-tabla_modelos(17,8) = eq_quad_inv_3.@r2
-tabla_modelos(17,9) = eq_cub_inv_3.@r2
-
+if !x<6 then
+tabla_modelos_inv(2*(!x + 3) - 1,9) = eq_cub_inv_3.@coef({!x})
+tabla_modelos_inv(2*(!x+ 3),9) = eq_cub_inv_3.@pval({!x})
+else
+tabla_modelos_inv(2*(!x - 5) - 1,9) = eq_cub_inv_3.@coef({!x})
+tabla_modelos_inv(2*(!x - 5),9) = eq_cub_inv_3.@pval({!x})
+endif
+next 
+tabla_modelos_inv(17,7) = eq_lin_inv_3.@r2
+tabla_modelos_inv(17,8) = eq_quad_inv_3.@r2
+tabla_modelos_inv(17,9) = eq_cub_inv_3.@r2
 
 'jb test
 for !x=1 to 3
@@ -434,35 +494,35 @@ for !x=1 to 3
 eq_cub_inv_{!x}.makeresids resid_eq_cub_inv_{!x}
 freeze(jb_eq_cub_inv_{!x}) resid_eq_cub_inv_{!x}.stats
 next
-tabla_modelos(18,1) = @val(jb_eq_lin_inv_1(14,2))
-tabla_modelos(18,2) = @val(jb_eq_quad_inv_1(14,2))
-tabla_modelos(18,3) = @val(jb_eq_cub_inv_1(14,2))
-tabla_modelos(18,4) = @val(jb_eq_lin_inv_2(14,2))
-tabla_modelos(18,5) = @val(jb_eq_quad_inv_2(14,2))
-tabla_modelos(18,6) = @val(jb_eq_cub_inv_2(14,2))
-tabla_modelos(18,7) = @val(jb_eq_lin_inv_3(14,2))
-tabla_modelos(18,8) = @val(jb_eq_quad_inv_3(14,2))
-tabla_modelos(18,9) = @val(jb_eq_cub_inv_3(14,2))
+tabla_modelos_inv(18,1) = @val(jb_eq_lin_inv_1(14,2))
+tabla_modelos_inv(18,2) = @val(jb_eq_quad_inv_1(14,2))
+tabla_modelos_inv(18,3) = @val(jb_eq_cub_inv_1(14,2))
+tabla_modelos_inv(18,4) = @val(jb_eq_lin_inv_2(14,2))
+tabla_modelos_inv(18,5) = @val(jb_eq_quad_inv_2(14,2))
+tabla_modelos_inv(18,6) = @val(jb_eq_cub_inv_2(14,2))
+tabla_modelos_inv(18,7) = @val(jb_eq_lin_inv_3(14,2))
+tabla_modelos_inv(18,8) = @val(jb_eq_quad_inv_3(14,2))
+tabla_modelos_inv(18,9) = @val(jb_eq_cub_inv_3(14,2))
 
 'auto LM test
 
 freeze(auto_eq_lin_inv_1) eq_lin_inv_1.auto
 freeze(auto_eq_quad_inv_1) eq_quad_inv_1.auto
 freeze(auto_eq_cub_inv_1) eq_cub_inv_1.auto
-tabla_modelos(19,1) = @val(auto_eq_lin_inv_1(3,2))
-tabla_modelos(19,2) = @val(auto_eq_quad_inv_1(3,2))
-tabla_modelos(19,3) = @val(auto_eq_cub_inv_1(3,2))
+tabla_modelos_inv(19,1) = @val(auto_eq_lin_inv_1(3,2))
+tabla_modelos_inv(19,2) = @val(auto_eq_quad_inv_1(3,2))
+tabla_modelos_inv(19,3) = @val(auto_eq_cub_inv_1(3,2))
 
 'heteroskedasticity BPG test
 freeze(bpg_eq_lin_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_SA
 freeze(bpg_eq_quad_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_SA (PUB_INV_GDP_SA)^2
 freeze(bpg_eq_cub_inv_1) eq_lin_inv_1.hettest c x2_sa x3_sa d_2008 d_2018 PUB_INV_GDP_SA (PUB_INV_GDP_SA)^3
-tabla_modelos(20,1) = @val(bpg_eq_lin_inv_1(3,2))
-tabla_modelos(20,2) = @val(bpg_eq_quad_inv_1(3,2))
-tabla_modelos(20,3) = @val(bpg_eq_cub_inv_1(3,2))
+tabla_modelos_inv(20,1) = @val(bpg_eq_lin_inv_1(3,2))
+tabla_modelos_inv(20,2) = @val(bpg_eq_quad_inv_1(3,2))
+tabla_modelos_inv(20,3) = @val(bpg_eq_cub_inv_1(3,2))
 
 'export
-tabla_modelos.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_inv.csv"
+tabla_modelos_inv.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\tabla_modelos_inv.csv"
 
 'Johansen
 'Gasto agregado
@@ -498,14 +558,14 @@ tabla_johansen(4,2)=@val(johansen_test_inv(13,3))
 tabla_johansen(4,3)=@val(johansen_test_inv(13,4))
 tabla_johansen(4,4)=@val(johansen_test_inv(13,5))
 tabla_johansen(4,5)=@val(johansen_test_inv(13,6))
-tabla_johansen.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\tabla_johansen.csv"
+tabla_johansen.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\tabla_johansen.csv"
 
 
 'bootstrap
-lineales_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
-cuadraticos_agregado.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_agregado.csv"
-lineales_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\lineales_inversion.csv"
-cuadraticos_inversion.save(t=csv) "C:\Users\Axel Canales\Documents\GitHub\govsize_2023\dofiles\cuadraticos_inversion.csv"
+lineales_agregado.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\lineales_agregado.csv"
+cuadraticos_agregado.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\cuadraticos_agregado.csv"
+lineales_inversion.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\lineales_inversion.csv"
+cuadraticos_inversion.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\cuadraticos_inversion.csv"
 
 
 'Cuadro 8 Estimacion de tamano optimo del gobierno
@@ -517,4 +577,6 @@ cuadro8(1,5) = -100*eq_quad_inv_1.@coef(6)/(2*eq_quad_inv_1.@coef(7))
 cuadro8(2,5) = -100*eq_quad_inv_2.@coef(6)/(2*eq_quad_inv_2.@coef(7))
 cuadro8(3,5) = -100*eq_quad_inv_3.@coef(6)/(2*eq_quad_inv_3.@coef(7))
 
-cuadro8.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\cuad.csv"
+cuadro8.save(t=csv) "C:\Users\MatildeCerdaRuiz\Documents\GitHub\govsize_2023\dofiles\cuadro8.csv"
+
+
