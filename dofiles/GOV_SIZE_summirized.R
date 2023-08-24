@@ -472,7 +472,7 @@ cuadro_1 <- stargazer(cuadro_1, type='latex', digits=2)
 stargazer(cuadro_1, type='text', digits=2)
 
 ##############                                                          ############   
-############## Cuadro 2.Test de Raiz Unitaria ADF para serie en niveles ############
+############## Cuadro 2.Test de Raiz Unitaria ADF                       ############
 ##############                                                          ############   
 ##############             Variables en log-niveles                     ############
 
@@ -594,6 +594,10 @@ cuadro_2 <- cuadro_2 %>%
  print(xtable(df_cuadro_4), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 
+ ##############                                                                  ############   
+ ##############               Cuadro 5.Prueba de Precedencia temporal            ############
+ ##############                                                                  ############
+ 
  #Prueba de precedencia temporal De Gasto Gobierno Agregado 
  granger_gov_pib <- list()
  granger_pib_gov <- list()
@@ -610,9 +614,6 @@ cuadro_2 <- cuadro_2 %>%
    granger_pib_inv[[i]] <- grangertest(variables[,1],variables[,4], order = i) #PIB causa a Gasto de Gobierno
  }
  
- ##############                                                                  ############   
- ##############               Cuadro 5.Prueba de Precedencia temporal            ############
- ##############                                                                  ############ 
 cuadro_5 <- data.frame(matrix(NA, nrow = 4, ncol = 5))
 cuadro_5[1,1] <- c("Gasto publico agregado no causa a PIB per capita")
 cuadro_5[2,1] <- c("PIB per capita no causa a Gasto publico agregado")
@@ -676,7 +677,7 @@ col2_johansen<-c(
 cuadro_6$col1 <- col1_johansen
 cuadro_6$col2 <- col2_johansen
 cuadro_6 <-cuadro_6 %>% relocate(col2)
-cuadro_6 <-johansen_results %>% relocate(col1)
+cuadro_6 <-cuadro_6 %>% relocate(col1)
 
 #Latex code
 addtorow_johansen <- list()
@@ -690,8 +691,6 @@ Variable & Tipo de test & \\multicolumn{2}{c}{Ninguna}& \\multicolumn{2}{c}{Line
 ")
 print(xtable(cuadro_6, caption="Prueba de cointegración de Johansen", label="tab:cointegracion"), add.to.row = addtorow_johansen , include.rownames = FALSE, include.colnames = FALSE,caption.placement = "top" )
 
-
-
 #########                                                             #########
 #########   Cuadro 7. Estimacion de largo plazo de gobierno agregado  #########
 #########                                                             #########
@@ -700,20 +699,20 @@ print(xtable(cuadro_6, caption="Prueba de cointegración de Johansen", label="ta
 #All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
 cuadro_7 <- data.frame(matrix(NA, nrow = 20, ncol = 10))
 
-coef_pval_pub_inv <- read.csv(paste(getwd(), "dofiles/tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
-coef_pval_pub_inv <- coef_pval_pub_inv %>% 
+coef_pval_ag <- read.csv(paste(getwd(), "dofiles/tabla_modelos_agregado.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
+coef_pval_ag <- coef_pval_ag %>% 
 mutate(across(where(is.numeric), round, digits=2))#rounding
 
 col<-c(
        "$c$",
        "",
-       "$INV$",
-       "",
-       "$AC$",
-       "",
        "$D_{2008}$",
        "",
        "$D_{2018}$",
+       "",
+       "$INV$",
+       "",
+       "$AC$",
        "",
        "$GOB$",
        "",
@@ -727,7 +726,7 @@ col<-c(
        "Prueba BPG")
 cuadro_7$col <- col
 cuadro_7 <- cuadro_7 %>% relocate(col)
-cuadro_7 <- cbind(col, coef_pval_pub_inv)
+cuadro_7 <- cbind(col, coef_pval_ag)
 
 #generating latex code
 addtorow_cuadro_7 <- list()
@@ -739,6 +738,56 @@ Variables                           &  Lineal      & Cuadrática     & Cúbica  
 ")
 
 print(xtable(cuadro_7), add.to.row = addtorow_cuadro_7, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
+
+
+#########                                                                  #########
+#########   Cuadro 8. Estimacion de largo plazo de Inversion Fija Publica  #########
+#########                                                                  #########
+
+#All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
+cuadro_8 <- data.frame(matrix(NA, nrow = 20, ncol = 10))
+
+coef_pval_inv <- read.csv(paste(getwd(), "dofiles/tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
+coef_pval_inv <- coef_pval_inv %>% 
+  mutate(across(where(is.numeric), round, digits=2))#rounding
+
+col<-c(
+  "$c$",
+  "",
+  "$D_{2008}$",
+  "",
+  "$D_{2018}$",
+  "",
+  "$INV$",
+  "",
+  "$AC$",
+  "",
+  "$INV_PUB$",
+  "",
+  "$INV_PUB^2$",
+  "",
+  "$INV_PUB^3$",
+  "",
+  "$R^2$ ajustado",
+  "Estadístico JB",
+  "Prueba BGLM",
+  "Prueba BPG")
+cuadro_8$col <- col
+cuadro_8 <- cuadro_8 %>% relocate(col)
+cuadro_8 <- cbind(col, coef_pval_inv)
+
+#generating latex code
+addtorow_cuadro_8 <- list()
+addtorow_cuadro_8$pos <- list(0)
+addtorow_cuadro_8$command <- c("\\hline
+\\multicolumn{10}{c}{Variable dependiente: Logaritmo del PIB per cápita}\\\\     \\hline
+                                                       &      \\multicolumn{3}{c}{OLS}    &     \\multicolumn{3}{c}{FMOLS}    & \\multicolumn{3}{c}{CCR}                        \\\\ \\cline{2-10} 
+Variables                           &  Lineal      & Cuadrática     & Cúbica            & Lineal          & Cuadrática     & Cúbica              & Lineal       & Cuadrática     & Cúbica         \\\\
+")
+
+print(xtable(cuadro_8), add.to.row = addtorow_cuadro_8, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
+
+
 
 #########                                                             #########
 #########   Cuadro 9. Estimacion de tamano optimo                     #########
@@ -762,7 +811,7 @@ addtorow <- list()
 addtorow$pos <- list(0)
 addtorow$command <- c(" \\toprule
 \\headrow   \\multicolumn{1}{c}{}  &
-            \\multicolumn{2}{c}{\begin{tabular}[c]{@{}c@{}}¿Es valida la \\ curva de Armey?\end{tabular}} &
+            \\multicolumn{2}{c}{\begin{tabular}[c]{@{}c@{}}¿Es valida la \\ curva de Armey? \\end{tabular}} &
             \\multicolumn{2}{c}{Nivel óptimo de Gasto (\\% del PIB)}&
              \\multicolumn{2}{c}{Nivel Efectivo de Gasto}\\\\
   \\midrule
@@ -798,33 +847,8 @@ cuadro_10 <- cuadro_10 %>%
     
   )
 
-mean_ag_op <- mean(cuadro_10$ag_op)
-mean_inv_op <- mean(cuadro_10$inv_op)
-
-se_ag_op <- sd(cuadro_10$ag_op)/sqrt(length(cuadro_10$ag_op))
-se_inv_op <- sd(cuadro_10$inv_op)/sqrt(length(cuadro_10$inv_op))
-
-critical_95<-qnorm(p=0.05, mean=0, sd=1, lower.tail = FALSE)
-
-df <-length(bootstrap$inv_op)-1
-
-critical_t_95 <- -qt(p=0.05,df)
-
-liminf_ag<-mean_ag_op-critical_95*se_ag_op
-limsup_ag<-mean_ag_op+critical_95*se_ag_op
-
-liminf_inv<-mean_inv_op-critical_95*se_inv_op
-limsup_inv<-mean_inv_op+critical_95*se_inv_op
-
-t_liminf_ag<-mean_ag_op-critical_t_95*se_ag_op
-t_limsup_ag<-mean_ag_op+critical_t_95*se_ag_op
-
-t_liminf_inv<-mean_inv_op-critical_t_95*se_inv_op
-t_limsup_inv<-mean_inv_op+critical_t_95*se_inv_op
-
-
 #Replication Table Bootstrap 
-values<-unname(lapply(bootstrap[5:6], quantile, na.rm=T,  prob = c(0.05,0.95), names = FALSE))
+values<-unname(lapply(cuadro_10[5:6], quantile, na.rm=T,  prob = c(0.05,0.95), names = FALSE))
 
 ag_bootstrap <-values[[1]]
 inv_bootstrap <- values[[2]]
@@ -838,29 +862,27 @@ tabla_10<-c(
 tabla_10 <- data.frame(tabla_10)
 
 tabla_10$opt_mean <- c(
- paste( round(100*mean_ag_op,2),"%"),
- paste( round(100*mean_inv_op,2),"%")
-  
-)
+ paste(round(100*mean(cuadro_10$ag_op),2),"%"),
+ paste( round(100*mean(cuadro_10$inv_op),2),"%"))
 
 tabla_10$lim_inf <- c(
   paste(round(100*ag_bootstrap[1],2),"%"),
-  paste(round(100*ag_bootstrap[2],2),"%")
+  paste(round(100*inv_bootstrap[1],2),"%")
 )
 
 tabla_10$lim_sup<- c(
-  paste(round(100*inv_bootstrap[1],2),"%"),
+  paste(round(100*ag_bootstrap[2],2),"%"),
   paste(round(100*inv_bootstrap[2],2),"%")
 )
 
 
 #generating latex code
 
-addtorow <- list()
-addtorow$pos <- list(0)
-addtorow$command <- c(" \\toprule
+addtorow_tabla_10 <- list()
+addtorow_tabla_10$pos <- list(0)
+addtorow_tabla_10$command <- c(" \\toprule
 \\headrow  \\multicolumn{1}{c}{Variable} &
-            \\multicolumn{1}{c}{Nivel óptimo de gasto (% del PIB)}&
+            \\multicolumn{1}{c}{Nivel óptimo de gasto (\% del PIB)}&
             \\multicolumn{2}{c}{Intervalo de confianza}\\\\
   \\midrule
 \\headrow  \\multicolumn{1}{c}{} &
@@ -868,6 +890,5 @@ addtorow$command <- c(" \\toprule
             \\multicolumn{1}{c}{Límite inferior} &
             \\multicolumn{1}{c}{Límite superior}\\\\
   \\bottomrule")
-print(xtable(tabla_10), add.to.row = addtorow_tabla_10, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
-
-
+print(xtable(tabla_10), add.to.row = addtorow_tabla_10, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x})
+ 
