@@ -423,7 +423,7 @@ if !x<5 then
 tabla_modelos_inv(2*(!x + 3) - 1,5) = eq_quad_inv_2.@coef({!x})
 tabla_modelos_inv(2*(!x+ 3),5) = eq_quad_inv_2.@pval({!x})
 else
-tabla_modelos_agregado(2*(!x - 4) - 1,5) = eq_quad_inv_2.@coef({!x})
+tabla_modelos_inv(2*(!x - 4) - 1,5) = eq_quad_inv_2.@coef({!x})
 tabla_modelos_inv(2*(!x - 4),5) = eq_quad_inv_2.@pval({!x})
 endif
 next 
