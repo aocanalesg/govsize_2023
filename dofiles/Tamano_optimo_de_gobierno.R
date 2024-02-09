@@ -434,7 +434,11 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
   geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        plot.caption = element_text(hjust = 0)
+        plot.caption = element_text(family="serif", size=14, hjust = 0),
+        axis.title.x = element_text(size=14),
+        axis.title.y= element_text(size=14),
+        axis.text.x = element_text(size=11),
+        axis.text.y = element_text(size=11)
         #      plot.caption = element_text(hjust = 0),
         #      plot.title.position = "plot",
         #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -446,7 +450,7 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
        x="Inversión pública (porcentaje del PIB)",
        caption = "Fuente: Elaboración propia")
 seas_plot8 
-ggsave("gdp_vs_public_inv.png", width=24, height =14 , units= c("cm"), dpi=500)
+ggsave("gdp_vs_public_inv.png", width=18, height =12, units= c("cm"), dpi=500)
 
 #Replicacion - CUADRO 1. Tabla estadisticos descriptivos ----
 
