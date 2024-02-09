@@ -295,13 +295,13 @@ seas_plot1 <- ggplot(df_seas, aes(x = date, y = df_seas[,2])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 10, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
   #ggtitle("Producto Interno Bruto Per Capita")+
-  labs(x="",y="",title = "Producto Interno Bruto Per Capita", 
+  labs(x="",y="",title = "Producto Interno Bruto per cápita", 
        subtitle = "Cordobas constantes por habitante", )
 
 seas_plot2 <- ggplot(df_seas, aes(x = date, y = df_seas[,3])) +
@@ -313,8 +313,8 @@ seas_plot2 <- ggplot(df_seas, aes(x = date, y = df_seas[,3])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 10, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
@@ -330,8 +330,8 @@ seas_plot3 <- ggplot(df_seas, aes(x = date, y = df_seas[,4])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 10, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
@@ -348,8 +348,8 @@ seas_plot4 <- ggplot(df_seas, aes(x = date, y = df_seas[,5])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 10, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
@@ -366,8 +366,8 @@ seas_plot5 <- ggplot(df_seas, aes(x = date, y = df_seas[,6])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 10, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
@@ -384,8 +384,8 @@ seas_plot6 <- ggplot(df_seas, aes(x = date, y = df_seas[,7])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 10, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
@@ -403,7 +403,8 @@ combined_plot_seas <- ggarrange(seas_plot1,
                            ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
 combined_plot_seas
-ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
+annotate_figure(combined_plot_seas, bottom=text_grob("Fuente: Elaboración propia con base en datos dele BCN", hjust=0, x=0, family="serif", size=16), fig.lab.pos = "bottom.left")
+ggsave("variables_sin_titulo.png", width=24, height =16 , units= c("cm"), dpi=500)
 
 #Scatterplots ----
 
@@ -414,7 +415,10 @@ seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
   geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        plot.caption = element_text(hjust = 0)
+        plot.caption = element_text(family="serif", size=14, hjust = 0),
+        axis.title.x = element_text(size=14),
+        axis.title.y= element_text(size=14),
+        axis.text.x = element_text(size=11),
   #      plot.caption = element_text(hjust = 0),
   #      plot.title.position = "plot",
   #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -426,7 +430,7 @@ seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
        x="Gasto de Gobierno agregado (porcentaje del PIB)",
        caption = "Fuente: Elaboración propia")
 seas_plot7
-ggsave("gdp_vs_aggregate_exp.png", width=24, height =14 , units= c("cm"), dpi=500)
+ggsave("gdp_vs_aggregate_exp.png", width=18, height =12 , units= c("cm"), dpi=500)
 
 
 seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
@@ -451,6 +455,119 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
        caption = "Fuente: Elaboración propia")
 seas_plot8 
 ggsave("gdp_vs_public_inv.png", width=18, height =12, units= c("cm"), dpi=500)
+
+
+
+seas_plot9 <- ggplot(df_seas, aes(x =df_seas[,4])) +
+  geom_point(aes (y=df_seas[,2]), shape=16)+
+  geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(family="serif", size=14, hjust = 0),
+        axis.title.x = element_text(size=14),
+        axis.title.y= element_text(size=14),
+        axis.text.x = element_text(size=11),
+        axis.text.y = element_text(size=11)
+        #      plot.caption = element_text(hjust = 0),
+        #      plot.title.position = "plot",
+        #      plot.title = element_text(color = "black", size = 10, face = "bold"),
+        #      plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        #      plot.caption.position = "plot",
+        #      axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  labs(y="Logaritmo del PIB per cápita",
+       x="Gasto de Gobierno corriente (porcentaje del PIB)",
+       caption = "Fuente: Elaboración propia")
+seas_plot9 
+ggsave("gdp_vs_gov_con_gdp.png", width=18, height =12, units= c("cm"), dpi=500)
+
+
+#No Caption
+
+nc_seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
+  geom_point(aes (y=df_seas[,2]), shape=16)+
+  geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(family="serif", size=14, hjust = 0),
+        axis.title.x = element_text(size=14),
+        axis.title.y= element_text(size=14),
+        axis.text.x = element_text(size=11),
+        #      plot.caption = element_text(hjust = 0),
+        #      plot.title.position = "plot",
+        #      plot.title = element_text(color = "black", size = 10, face = "bold"),
+        #      plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        #      plot.caption.position = "plot",
+        #      axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  labs(y="Logaritmo del PIB per cápita",
+       x="Gasto de Gobierno agregado (porcentaje del PIB)",
+      )
+nc_seas_plot7
+ggsave("nc_seas_plot7.png", width=18, height =12 , units= c("cm"), dpi=500)
+
+
+nc_seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
+  geom_point(aes (y=df_seas[,2]), shape=16)+
+  geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(family="serif", size=14, hjust = 0),
+        axis.title.x = element_text(size=14),
+        axis.title.y= element_text(size=14),
+        axis.text.x = element_text(size=11),
+        axis.text.y = element_text(size=11)
+        #      plot.caption = element_text(hjust = 0),
+        #      plot.title.position = "plot",
+        #      plot.title = element_text(color = "black", size = 10, face = "bold"),
+        #      plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        #      plot.caption.position = "plot",
+        #      axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  labs(y="Logaritmo del PIB per cápita",
+       x="Inversión pública (porcentaje del PIB)",
+    )
+nc_seas_plot8
+ggsave("nc_seas_plot8.png", width=18, height =12, units= c("cm"), dpi=500)
+
+
+
+nc_seas_plot9 <- ggplot(df_seas, aes(x =df_seas[,4])) +
+  geom_point(aes (y=df_seas[,2]), shape=16)+
+  geom_smooth(aes(y=df_seas[,2]), method="lm", formula = y ~ x + I(x^2), se=FALSE)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        plot.caption = element_text(family="serif", size=14, hjust = 0),
+        axis.title.x = element_text(size=14),
+        axis.title.y= element_text(size=14),
+        axis.text.x = element_text(size=11),
+        axis.text.y = element_text(size=11)
+        #      plot.caption = element_text(hjust = 0),
+        #      plot.title.position = "plot",
+        #      plot.title = element_text(color = "black", size = 10, face = "bold"),
+        #      plot.subtitle = element_text(color = "black", size = 7, face = "italic"),
+        #      plot.caption.position = "plot",
+        #      axis.text.x = element_text(angle=90, hjust = 1)
+  )+
+  labs(y="Logaritmo del PIB per cápita",
+       x="Gasto de Gobierno corriente (porcentaje del PIB)",
+   )
+nc_seas_plot9
+ggsave("nc_seas_plot9.png", width=18, height =12, units= c("cm"), dpi=500)
+
+
+
+
+combined_scatterplot <- ggarrange(seas_plot7,
+                                seas_plot8,
+                                seas_plot9,
+                                nrow = 1,
+                                ncol = 3) #nrow & ncol depend on how you want to #organize your plots
+
+combined_scatterplot
+annotate_figure(combined_scatterplot, bottom=text_grob("Fuente: Elaboración propia", hjust=0, x=0, family="serif", size=13), fig.lab.pos = "bottom.left")
+ggsave("scatterplot_combined.png", width=40, height =20 , units= c("cm"), dpi=500)
+
 
 #Replicacion - CUADRO 1. Tabla estadisticos descriptivos ----
 
