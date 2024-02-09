@@ -1,0 +1,1728 @@
+%%
+%% This is file `continua-journal.cls' and is based off of dgl-journal.cls
+%%
+%% ----------------------------------------------------------------
+%% dgl-journal --- Support for submissions to Dglobal Notes 
+%%   
+%% Email: paul.gessler@overleaf.com
+%% Released under the LaTeX Project Public License v1.3c or later
+%% See http://www.latex-project.org/lppl.txt
+%% ----------------------------------------------------------------
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesClass{continua-journal} %%Changed class to contiuna-journal from dgl-journal
+  [19/12/2022 v1.01 Submission to Dglobal Notes]
+\LoadClass[10pt,letter,twoside]{article}
+% Style the sectioning elements:
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {0.2ex \@plus.2ex}%
+  {\sffamily\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {0.2ex \@plus .2ex}%
+  {\sffamily\bfseries\itshape}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {0.2ex \@plus .2ex}%
+  {\sffamily\itshape}} 
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {3.25ex \@plus1ex \@minus.2ex}%
+  {-1em}%
+  {\sffamily}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\parindent}%
+  {3.25ex \@plus1ex \@minus .2ex}%
+  {-1em}%
+  {\sffamily}}
+\def\@hangfrom#1{\setbox\@tempboxa\hbox{{#1}}%
+  \hangindent 0pt%\wd\@tempboxa
+  \noindent\box\@tempboxa}
+\RequirePackage{lastpage} % For getting the last page in the first page header
+\RequirePackage{enumitem} % For list styling
+\setlist{noitemsep,leftmargin=\parindent}
+\RequirePackage[online]{threeparttable} % For table notes
+\let\TPTnoteSettingsOrig\TPTnoteSettings
+\def\TPTnoteSettings{\TPTnoteSettingsOrig\scriptsize}
+\RequirePackage{endnotes}
+\newcommand*{\printendnotes}{%
+  \def\enoteformat{\rightskip=0pt \leftskip=0pt \parindent=0pt \makeenmark}
+  \def\makeenmark{\bgroup\bfseries\theenmark\enspace\egroup}
+  \theendnotes
+}
+%%
+\newcommand*\dgl@warning{\ClassWarning{dgl-journal}}
+\newcommand*\dgl@ifundefined[1]{%
+  \begingroup\expandafter\expandafter\expandafter\endgroup
+  \expandafter\ifx\csname #1\endcsname\relax
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
+\RequirePackage{xkeyval}
+\newcommand*\dgl@keyval@bool[2]{%
+  \dgl@ifundefined{dgl@#1#2}{%
+    \dgl@warning{Unknown option `#2' for key #1}%
+  }{%
+    \@nameuse{dgl@#1#2}%
+  }%
+}
+\newif\ifdgl@abbreviations
+\newif\ifdgl@jel
+\newif\ifdgl@msc
+\newif\ifdgl@dates
+\newif\ifdgl@copyright
+\newif\ifdgl@articletitle
+\newif\ifdgl@chaptertitle
+\newif\ifdgl@email
+\newif\ifdgl@hyperref
+\newif\ifdgl@keywords
+\newif\ifdgl@super
+\newif\ifdgl@simfonts
+\define@key{dgl}{abbreviations}[true]{%
+  \dgl@keyval@bool{abbreviations}{#1}%
+}
+\define@key{dgl}{jel}[true]{%
+  \dgl@keyval@bool{jel}{#1}%
+}
+\define@key{dgl}{msc}[true]{%
+  \dgl@keyval@bool{msc}{#1}%
+}
+\define@key{dgl}{suppmat}[true]{%
+  \dgl@keyval@bool{suppmat}{#1}%
+}
+\define@key{dgl}{suppdata}[true]{%
+  \dgl@keyval@bool{suppdata}{#1}%
+}
+\define@key{dgl}{orcid}[true]{%
+  \dgl@keyval@bool{orcid}{#1}%
+}
+\define@key{dgl}{ack}[true]{%
+  \dgl@keyval@bool{ack}{#1}%
+}
+\define@key{dgl}{contrib}[true]{%
+  \dgl@keyval@bool{contrib}{#1}%
+}
+\define@key{dgl}{financial}[true]{%
+  \dgl@keyval@bool{financial}{#1}%
+}
+\define@key{dgl}{conflicts}[true]{%
+  \dgl@keyval@bool{conflicts}{#1}%
+}
+\define@key{dgl}{ethics}[true]{%
+  \dgl@keyval@bool{ethics}{#1}%
+}
+\define@key{dgl}{dates}[true]{%
+  \dgl@keyval@bool{dates}{#1}%
+}
+\define@key{dgl}{copyright}[true]{%
+  \dgl@keyval@bool{copyright}{#1}%
+}
+\define@key{dgl}{articletitle}[true]{%
+  \dgl@keyval@bool{articletitle}{#1}%
+}
+\define@key{dgl}{chaptertitle}[true]{%
+  \dgl@keyval@bool{chaptertitle}{#1}%
+}
+\define@key{dgl}{email}[true]{%
+  \dgl@keyval@bool{email}{#1}%
+}
+\define@key{dgl}{hyperref}[true]{%
+  \dgl@keyval@bool{hyperref}{#1}%
+}
+\define@key{dgl}{keywords}[true]{%
+  \dgl@keyval@bool{keywords}{#1}%
+}
+\define@key{dgl}{super}[true]{%
+  \dgl@keyval@bool{super}{#1}%
+}
+\define@key{dgl}{usetitle}[true]{%
+  \dgl@keyval@bool{articletitle}{#1}%
+}
+\define@key{dgl}{simfonts}[true]{%
+  \dgl@keyval@bool{simfonts}{#1}%
+}
+\newcommand*\dgl@journal{jdglat}
+\newcommand*\dgl@doi{\dgl@warning{No DOI provided}}
+\newcommand*\dgl@layout{traditional}
+\newcommand*\dgl@manuscript{article}
+\newcommand*\dgl@year{\dgl@warning{No year provided}}
+\newcommand*\dgl@vol{\dgl@warning{No volume provided}}
+\newcommand*\dgl@maxauthors{15}
+\define@key{dgl}{journal}{%
+  \def\dgl@journal{#1}%
+}
+\define@key{dgl}{layout}{%
+  \def\dgl@layout{#1}%
+}
+\define@key{dgl}{manuscript}{%
+  \AtBeginDocument{\def\dgl@manuscript{#1}}%
+}
+\define@key{dgl}{year}{%
+  \def\dgl@year{#1}%
+}
+\define@key{dgl}{volume}{%
+  \def\dgl@vol{#1}%
+}
+\ProcessOptionsX*<dgl>
+\newcommand*\dgl@manuscript@communication{communication}
+\newcommand*\dgl@manuscript@letter{letter}
+\newcommand*\dgl@manuscript@note{note}
+\newcommand*\dgl@manuscript@suppinfo{suppinfo}
+\setkeys{dgl}{
+  articletitle,
+  super,
+  dates, %%Activated to include dates received, revised, and accepted
+  % copyright, 
+  abbreviations,
+  jel,
+  msc,
+  keywords,
+  simfonts
+}
+% Approximations of commercial fonts:
+\newcommand{\simfonts}{%
+  \RequirePackage[scaled=0.97]{fbb}
+  \RequirePackage[semibold]{sourcesanspro}
+  \RequirePackage{sansmath}
+  \RequirePackage[italic,eulergreek]{mathastext}
+}
+\RequirePackage{geometry}
+\RequirePackage{changepage}
+\RequirePackage{stringstrings}
+\RequirePackage[absolute]{textpos}
+\RequirePackage[table,svgnames]{xcolor}
+\RequirePackage{
+  caption,
+  floatrow,
+  graphicx,
+  url,
+  mdframed,
+  mfirstuc,
+%   footmisc,
+  alphalph
+}
+\urlstyle{same}
+\captionsetup{
+  font={
+    footnotesize,
+    sf,
+%    sansmath
+  },
+  labelfont=bf,
+  labelsep=period
+}
+\floatsetup{
+  font={
+    sf,
+%    sansmath,
+    footnotesize
+  }
+}
+\colorlet{structure@color}{black}
+\def\@seccntformat#1{\@ifundefined{#1@cntformat}%
+   {\csname the#1\endcsname\quad}%  default
+   {\csname #1@cntformat\endcsname}% individual control
+   }
+   \def\section@cntformat{\thesection.\quad}
+\renewcommand\appendix{\par
+  \setcounter{section}{0}
+  \setcounter{subsection}{0}
+  \gdef\thesection{Appendix \@arabic\c@section}
+}
+\newmdenv[backgroundcolor=structure@color!15,hidealllines=true,leftmargin=3mm,rightmargin=3mm,innertopmargin=2mm,innerbottommargin=3mm,frametitle={\abstractfont\sffamily Abstract},frametitleaboveskip=3mm,frametitlebelowskip=0mm]{dgl@abstract@box}
+\let\abstract@org\abstract
+\def\abstract{\dgl@abstract@box\small}
+\def\endabstract{\enddgl@abstract@box}
+\ifdgl@hyperref
+  \expandafter\RequirePackage
+\else
+  \expandafter\@gobble
+\fi
+  {hyperref}
+\renewcommand*{\title}[2][]{%
+  \gdef\dgl@title@short{#1}%
+  \gdef\@title{#2}%
+  \ifx\dgl@title@short\@empty
+    \global\let\dgl@title@short\@title
+  \fi
+}
+\@onlypreamble\title
+\newcount\dgl@author@cnt
+\newcount\dgl@affil@cnt
+\newcount\dgl@affil@alt@cnt
+\newcount\dgl@footnote@cnt
+\newcount\dgl@affil@marker@cnt
+\def\author#1{%
+  \global\advance\dgl@author@cnt\@ne\relax
+  \expandafter\gdef\csname @author@\@roman\dgl@author@cnt\endcsname{#1}%
+  \begingroup
+    \advance\dgl@affil@cnt\@ne
+    \expandafter\xdef\csname @author@affil@\@roman
+      \dgl@author@cnt\endcsname
+      {\the\dgl@affil@cnt}%
+  \endgroup
+}
+\@onlypreamble\author
+\def\and{%
+  \dgl@warning{%
+    \string\and\space not used by the dgl-journal class: please see
+    the\MessageBreak package documentation for details%
+  }%
+}
+\def\thanks{%
+  \dgl@warning{%
+    \string\thanks\space not used by the dgl-journal class: please see
+    the\MessageBreak the package documentation for details%
+  }%
+}
+\newcommand*\affiliation[2][\relax]{%
+  \ifnum\dgl@author@cnt>\z@\relax
+    \dgl@affil@ifdup{#2}{%
+      \dgl@affil@swap{#2}%
+    }{%
+      \global\advance\dgl@affil@cnt\@ne\relax
+      \expandafter\gdef\csname @address@\@roman\dgl@affil@cnt\endcsname
+        {#2}%
+      \ifx\relax#1\relax
+        \expandafter\gdef\csname @affil@\@roman\dgl@affil@cnt\endcsname
+          {#2}%
+      \else
+        \expandafter\gdef\csname @affil@\@roman\dgl@affil@cnt\endcsname
+          {#1}%
+      \fi
+    }%
+  \else
+    \dgl@warning{Affiliation with no author}%
+  \fi
+}
+\@onlypreamble\affiliation
+\newcommand*\dgl@affil@ifdup[1]{%
+  \begingroup
+    \def\@tempa{#1}%
+    \@tempswafalse
+    \@tempcnta\z@\relax
+    \dgl@affil@ifdup@aux
+    \if@tempswa
+      \aftergroup\@firstoftwo
+    \else
+      \aftergroup\@secondoftwo
+    \fi
+  \endgroup
+}
+\newcommand*\dgl@affil@ifdup@aux{%
+  \advance\@tempcnta\@ne\relax
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter
+    \expandafter\@tempb\expandafter\expandafter\expandafter
+    {\csname @address@\@roman\@tempcnta\endcsname}%
+  \ifx\@tempa\@tempb
+    \expandafter\@tempswatrue
+  \else
+    \ifnum\@tempcnta<\dgl@affil@cnt\relax
+      \expandafter\expandafter\expandafter\dgl@affil@ifdup@aux
+    \fi
+  \fi
+}
+\newcommand*\dgl@affil@swap[1]{%
+  \begingroup
+    \def\@tempa{#1}%
+    \@tempcnta\z@\relax
+    \@tempcntb\z@\relax
+    \dgl@affil@ifdup@aux
+    \advance\dgl@affil@cnt\@ne\relax
+    \dgl@affil@swap@aux
+  \endgroup
+}
+\newcommand*\dgl@affil@swap@aux{%
+  \advance\@tempcntb\@ne\relax
+  \expandafter\ifnum\csname @author@affil@\@roman\@tempcntb\endcsname
+    = \dgl@affil@cnt\relax
+    \expandafter\xdef\csname @author@affil@\@roman\@tempcntb\endcsname{%
+      \the\@tempcnta
+    }%
+  \fi
+  \ifnum\@tempcntb<\dgl@author@cnt\relax
+    \expandafter\dgl@affil@swap@aux
+  \fi
+}
+\newcommand*\alsoaffiliation[2][\relax]{%
+  \ifnum\dgl@author@cnt>\z@\relax
+    \dgl@affil@ifdup{#2}{%
+      \dgl@alsoaffil@find{#2}%
+    }{%
+      \global\advance\dgl@affil@cnt\@ne\relax
+      \@tempcnta\dgl@affil@cnt\relax
+      \expandafter\gdef\csname @address@\@roman\dgl@affil@cnt\endcsname
+        {#2}%
+      \ifx\relax#1\relax
+        \expandafter\gdef\csname @affil@\@roman\dgl@affil@cnt\endcsname
+          {#2}%
+      \else
+        \expandafter\gdef\csname @affil@\@roman\dgl@affil@cnt\endcsname
+          {#1}%
+      \fi
+    }%
+    \@ifundefined{@author@alsoaffil@\@roman\dgl@author@cnt}{%
+      \expandafter\xdef\csname @author@alsoaffil@\@roman\dgl@author@cnt
+        \endcsname{\the\@tempcnta}%
+    }{%
+      \expandafter\xdef\csname @author@alsoaffil@\@roman\dgl@author@cnt
+        \endcsname{%
+        \csname @author@alsoaffil@\@roman\dgl@author@cnt\endcsname
+        ,\the\@tempcnta
+      }%
+    }%
+  \else
+    \dgl@warning{Affiliation with no author}%
+  \fi
+}
+\newcommand*\dgl@alsoaffil@find[1]{%
+  \begingroup
+    \def\@tempa{#1}%
+    \@tempcnta\z@\relax
+    \@tempcntb\z@\relax
+    \dgl@affil@ifdup@aux
+  \expandafter\endgroup
+  \expandafter\@tempcnta\the\@tempcnta\relax
+}
+\newcommand*\altaffiliation[1]{%
+  \ifnum\dgl@author@cnt>\z@\relax
+    \begingroup
+      \dgl@altaffil@ifdup{#1}{%
+        \expandafter\xdef\csname @author@altaffil@\\dgl@author@cnt
+          \endcsname{\the\@tempcnta}%
+      }{%
+        \global\advance\dgl@affil@alt@cnt\@ne\relax
+        \expandafter\gdef\csname @altaffil@\\dgl@affil@alt@cnt
+          \endcsname{#1}%
+        \expandafter\xdef\csname @author@altaffil@\@roman\dgl@author@cnt
+          \endcsname{\the\dgl@affil@alt@cnt}%
+      }%
+    \endgroup
+  \else
+    \dgl@warning{Affiliation with no author}%
+  \fi
+}
+\@onlypreamble\altaffiliation
+\newcommand*\dgl@altaffil@ifdup[1]{%
+  \def\@tempa{#1}%
+  \@tempswafalse
+  \@tempcnta\z@\relax
+  \ifnum\dgl@affil@alt@cnt>\z@\relax
+    \expandafter\dgl@altaffil@ifdup@aux
+  \fi
+  \if@tempswa
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
+\newcommand*\dgl@altaffil@ifdup@aux{%
+  \advance\@tempcnta\@ne\relax
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter
+    \expandafter\@tempb\expandafter\expandafter\expandafter
+    {\csname @altaffil@\@roman\@tempcnta\endcsname}%
+  \ifx\@tempa\@tempb
+    \expandafter\@tempswatrue
+  \else
+    \ifnum\@tempcnta<\dgl@affil@alt@cnt\relax
+      \expandafter\expandafter\expandafter\dgl@altaffil@ifdup@aux
+    \fi
+  \fi
+}
+\newcommand*\email[2][]{%
+  \ifnum\dgl@author@cnt>\z@\relax
+    \dgl@emailtrue%
+    \expandafter\gdef\csname @emailname@\@roman\dgl@author@cnt\endcsname
+      {#1}%
+    \expandafter\gdef\csname @email@\@roman\dgl@author@cnt\endcsname
+      {#2}%
+  \else
+    \dgl@warning{E-mail with no author}%
+  \fi
+}
+\@onlypreamble\email
+\newcommand*\fax[1]{%
+  \ifnum\dgl@author@cnt>\z@\relax
+    \expandafter\gdef\csname @fax@\@roman\dgl@author@cnt\endcsname
+      {#1}%
+  \else
+    \dgl@warning{Fax number with no author}%
+  \fi
+}
+\@onlypreamble\fax
+\newcommand*\phone[1]{%
+  \ifnum\dgl@author@cnt>\z@\relax
+    \expandafter\gdef\csname @phone@\@roman\dgl@author@cnt\endcsname
+      {#1}%
+  \else
+    \dgl@warning{Phone number with no author}%
+  \fi
+}
+\@onlypreamble\phone
+\newcommand*\abbreviations[1]{%
+  \gdef\@abbreviations{#1}%
+}
+\newcommand*\@abbreviations{}
+\@onlypreamble\abbreviations
+\newcommand*\keywords[1]{%
+  \gdef\@keywords{#1}%
+}
+\newcommand*\@keywords{}
+\@onlypreamble\keywords
+\newcommand*\dgl@abbreviations@print{%
+  \ifx\@abbreviations\@empty\else
+    {\noindent\bfseries Abbreviations: }
+    \@abbreviations
+    \par
+  \fi
+}
+\newcommand*\jel[1]{%
+  \gdef\@jel{#1}%
+}
+\newcommand*\@jel{}
+\@onlypreamble\jel
+\newcommand*\dgl@jel@print{%
+  \ifx\@jel\@empty\else
+    {\noindent\bfseries JEL classification: }
+    \@jel
+    \par
+  \fi
+}
+\newcommand*\msc[1]{%
+  \gdef\@msc{#1}%
+}
+\newcommand*\@msc{}
+\@onlypreamble\msc
+\newcommand*\dgl@msc@print{%
+  \ifx\@msc\@empty\else
+    {\noindent\bfseries MSC Codes: }
+    \@msc
+    \par
+  \fi
+}
+\newcommand*\dgl@keywords@print{%
+  \ifx\@keywords\@empty\else
+    {\noindent\bfseries Keywords: }
+    \@keywords
+    \par
+  \fi
+}
+\newcommand*\doi[1]{\gdef\dgl@doi{#1}}
+\@onlypreamble\doi
+\newcommand*\received[1] {\gdef\dgl@recvd{#1}}
+\newcommand*\revised[1]  {\gdef\dgl@revd{#1}}
+\newcommand*\accepted[1] {\gdef\dgl@accptd{#1}}
+\newcommand*\published[1]{\gdef\dgl@publd{#1}}
+\newlength\dgl@space@pre@title
+\setlength\dgl@space@pre@title{1em}
+\newlength\dgl@space@post@title
+\setlength\dgl@space@post@title{1em}
+\newlength\dgl@space@post@author
+\setlength\dgl@space@post@author{0.5em}
+\newlength\dgl@space@post@address
+\setlength\dgl@space@post@address{0pt}
+\newlength\dgl@space@post@email
+\setlength\dgl@space@post@email{1.5em}
+\newlength\dgl@space@post@date
+\setlength\dgl@space@post@date{0.5em}
+\newlength\dgl@space@inter@extra
+\setlength\dgl@space@inter@extra{0.5em}
+\newlength\dgl@maketitle@width
+\setlength\dgl@maketitle@width{\textwidth}
+\newcommand*\affilsize{\footnotesize}
+\newcommand*\authorsize{\normalsize}
+\newcommand*\emailsize{\footnotesize}
+\newcommand*\titlesize{\LARGE}
+\newcommand*\datesize{\footnotesize}
+\newcommand*\firstheadsize{\scriptsize}
+\newcommand*\affilfont{\footnotesize}
+\newcommand*\authorfont{}
+\newcommand*\emailfont{\footnotesize}
+\newcommand*\emailsymbol{*}
+\newcommand*\titlefont{\sffamily\bfseries\raggedright\color{structure@color}}
+\newcommand*\datefont{\footnotesize}
+\newcommand*\extrasfont{\footnotesize}
+\newcommand*\abstractfont{\small}
+\newcommand*\journalnamefont{\itshape}
+\newcommand*\volumefont{\bfseries}
+\newcommand*\dgl@etal{\emph{et al.}}
+
+%\def\ps@plain{
+ % \renewcommand{\@oddhead}{}%
+ % \renewcommand{\@evenhead}%{}%
+  %{} %%Replacing the previous line to take out et al. from the header
+ % \renewcommand{\@evenfoot}{}%
+ % \renewcommand{\@oddfoot}{\@evenfoot}%
+%} %%Removed to adjust header content
+
+
+\pagestyle{plain}
+\newcommand*\dgl@copyright@notice{\scriptsize%
+  \textcopyright\ Dglobal University Press \dgl@year. 
+  This is an Open Access article, distributed under the terms of the 
+  Creative Commons Attribution licence (\url{http://creativecommons.org/licenses/by/4.0/}), 
+  which permits unrestricted re-use, distribution, and reproduction in any medium, 
+  provided the original work is properly cited.
+}
+\def\@maketitle{%
+  \setlength\parindent{\z@}
+  \ifnum\dgl@author@cnt<\z@\relax
+    \dgl@warning{No authors defined: At least one author is required}%
+  \fi
+  \newpage\vspace*{\dimexpr-\headsep-\headheight\relax}
+  \parbox[b]{\dimexpr\textwidth-26mm\relax}{%
+    {\footnotesize{\textit{Tarea 2 - Microeconometría lineal y no lineal}}}
+   
+    \par% doi:{\dgl@doi}
+    }\hfill\includegraphics[width=19mm]{continua-logo}\par %%Logo changed to Continua logo and size changed to 16mm width from 26mm
+  \vspace*{\baselineskip}
+  {\sffamily\bfseries\color{structure@color}\par}
+  \vspace*{\dgl@space@pre@title}%
+        {%
+          \titlefont
+          \titlesize
+          \let\@fnsymbol\dgl@author@fnsymbol  
+          \let\footnote@org\footnote
+          \let\footnote\dgl@title@footnote
+          \dgl@maketitle@suppinfo \@title
+          \dgl@title@footnote@check
+          \global\dgl@footnote@cnt\c@footnote
+          \@maketitle@title@hook
+          \par
+        }%
+        \vspace*{\dgl@space@post@title}%
+        {%
+          \authorsize
+          \authorfont
+          \frenchspacing
+          \dgl@author@list
+          \par
+        }%
+        \vspace*{\dgl@space@post@author}%
+        {%
+          \affilsize
+          \affilfont
+          \dgl@address@list
+          \par
+        }%
+        \vspace*{\dgl@space@post@address}%
+        {%
+          \emailsize
+          \emailfont
+          \ifdgl@email
+            \expandafter\dgl@contact@details
+            \par
+            \vspace*{\dgl@space@post@email}%
+          \fi
+        }%
+        {%
+          \datesize
+          \datefont
+          \ifdgl@dates
+            Profesor: Emilio Depetris\\
+			Ayudante: Vedran Razmilic
+            \vspace*{\dgl@space@post@date}%
+          \fi
+          \ifdgl@copyright
+            \bgroup\let\thefootnote\relax
+            \footnote{\dgl@copyright@notice}
+            \egroup
+          \fi
+        }%
+}
+\newcommand*\@maketitle@title@hook{}
+\newcommand*\dgl@maketitle@suppinfo{%
+  \ifx\dgl@manuscript\dgl@manuscript@suppinfo
+    Supporting Information:\\
+  \fi
+}
+\newcommand*\dgl@title@footnote[1]{%
+  \footnotemark
+  \g@addto@macro\@thanks{\footnotetext{#1}}%
+}
+\newcommand\dgl@title@footnote@check{%
+  \ifx\@thanks\@empty
+  \else
+    \begingroup
+      \toks@=\expandafter{\@thanks}%
+      \xdef\@thanks{%
+        \begingroup
+          \let\noexpand\@fnsymbol\noexpand\dgl@author@fnsymbol 
+          \the\toks@
+        \endgroup
+      }%
+    \endgroup
+  \fi
+}
+\newcommand*\dgl@contact@details{%
+  { \emailsymbol{}Corresponding author. Email: \dgl@email@list}%
+  \dgl@number@list
+}
+\let\@thanks\@empty
+\newcommand*\dgl@author@list{%
+  \@tempcnta\z@\relax
+  \ifnum\dgl@author@cnt=\z@\relax\else
+    \expandafter\dgl@author@list@main
+  \fi
+}
+\newcommand*\dgl@author@footnotes{}
+\newcommand*\dgl@author@list@main{%
+  \advance\@tempcnta\@ne\relax
+  \def\dgl@author@footnotes{}%
+  \dgl@author@list@and
+  \space
+  \@nameuse{@author@\@roman\@tempcnta}%
+  \dgl@author@list@comma
+  \dgl@author@star
+  \dgl@author@affil
+  \dgl@author@affil@also
+  \dgl@author@affil@alt
+  \ifx\@empty\dgl@author@footnotes\else
+    \textsuperscript{\dgl@author@footnotes}%
+  \fi
+  \ifnum\@tempcnta<\dgl@author@cnt\relax
+    \expandafter\dgl@author@list@main
+  \fi
+}
+\newcommand*\dgl@author@list@and{%
+  \ifnum\dgl@author@cnt=\@ne\relax\else
+    \ifnum\@tempcnta=\dgl@author@cnt\relax
+      \space and%
+    \fi
+  \fi
+}
+\newcommand*\dgl@author@list@comma{%
+  \ifnum\dgl@author@cnt>\tw@\relax
+    \ifnum\@tempcnta<\dgl@author@cnt\relax
+      ,%
+    \fi
+  \fi
+}
+\newcommand*\dgl@author@star{%
+  \dgl@ifundefined{@email@\@roman\@tempcnta}{}{%
+    \dgl@author@star@aux
+  }%
+}
+\newcommand*\dgl@author@star@aux{%
+  \protected@edef\dgl@author@footnotes{%
+    % \dgl@author@fnsymbol{\z@}%
+    \emailsymbol%
+    \ifnum\dgl@affil@cnt>\@ne\relax
+      %,%
+    \else
+      \ifnum\dgl@affil@alt@cnt>\z@\relax
+        %,%
+      \fi
+    \fi
+  }%
+}
+\newcommand*\dgl@author@affil{%
+  \dgl@ifundefined{%
+    @affil@\@roman\csname @author@affil@\@roman\@tempcnta\endcsname
+  }{%
+    \dgl@warning{%
+      No affiliation given for author\MessageBreak
+      \@nameuse{@author@\@roman\@tempcnta}%
+    }%
+  }{%
+    \dgl@author@affil@aux
+  }%
+}
+\newcommand*\dgl@author@affil@aux{%
+  \ifnum\dgl@affil@cnt>\@ne\relax
+    \expandafter\dgl@affil@marker@cnt\csname @author@affil@\@roman
+      \@tempcnta\endcsname\relax
+    \advance\dgl@affil@marker@cnt\dgl@footnote@cnt\relax
+    \protected@edef\dgl@author@footnotes{%
+      \dgl@author@footnotes
+      \dgl@author@fnsymbol{\dgl@affil@marker@cnt}% 
+    }%
+  \else
+    \ifnum\dgl@affil@alt@cnt>\z@\relax
+      \dgl@affil@marker@cnt\@ne\relax
+      \advance\dgl@affil@marker@cnt\dgl@footnote@cnt\relax
+      \protected@edef\dgl@author@footnotes{%
+        \dgl@author@footnotes
+        \dgl@author@fnsymbol{\dgl@affil@marker@cnt}% 
+      }%
+    \fi
+  \fi
+}
+\newcommand*\dgl@author@affil@also{%
+  \dgl@ifundefined{@author@alsoaffil@\@roman\@tempcnta}{}{%
+    \dgl@author@affil@also@aux
+  }%
+}
+\newcommand*\dgl@author@affil@also@aux{%
+  \expandafter\@for\expandafter\@tempa\expandafter:\expandafter
+    =\csname @author@alsoaffil@\@roman\@tempcnta\endcsname\do{%
+    \dgl@affil@marker@cnt\@tempa\relax
+    \advance\dgl@affil@marker@cnt\dgl@footnote@cnt\relax
+    \protected@edef\dgl@author@footnotes{%
+      \dgl@author@footnotes
+      %,%
+      \dgl@author@fnsymbol{\dgl@affil@marker@cnt}%
+    }%
+  }%
+}
+\newcommand*\dgl@author@affil@alt{%
+  \dgl@ifundefined{@author@altaffil@\@roman\@tempcnta}{}{%
+    \dgl@author@affil@alt@aux
+  }%
+}
+\newcommand*\dgl@author@affil@alt@aux{%
+  \expandafter\dgl@affil@marker@cnt
+    \csname @author@altaffil@\@roman\@tempcnta\endcsname\relax
+  \advance\dgl@affil@marker@cnt\dgl@affil@cnt\relax
+  \advance\dgl@affil@marker@cnt\dgl@footnote@cnt\relax
+  \protected@edef\dgl@author@footnotes{%
+    \dgl@author@footnotes
+    %,%
+    \dgl@author@fnsymbol{\dgl@affil@marker@cnt}% 
+  }%
+}
+\newcommand*{\dgl@author@fnsymbol}[1]{% 
+  \ensuremath{%
+    \expandafter\dgl@author@fnsymbol@aux\expandafter{\number#1}% 
+  }%
+}
+\newcommand*{\dgl@author@fnsymbol@aux}[1]{% 
+  \ifnum#1>10 %
+    \expandafter\dgl@author@fnsymbol@loop 
+  \else
+    \expandafter\dgl@author@fnsymbol@symbol 
+  \fi
+    {#1}%
+}
+\newcommand*{\dgl@author@fnsymbol@loop}[1]{%
+   \dgl@author@fnsymbol@loop@aux@i#1% 
+}
+\newcommand*{\dgl@author@fnsymbol@loop@aux@i}[2]{% 
+  \dgl@author@fnsymbol@symbol{\ifnum#2=0 10\else #2\fi}% 
+  \expandafter\dgl@author@fnsymbol@loop@aux@ii\romannumeral #1000Q{}%
+    {\dgl@author@fnsymbol@symbol{\ifnum#2=0 10\else #2\fi}}%
+}
+\newcommand*{\dgl@author@fnsymbol@loop@aux@ii}[1]{%  
+  \@nameuse{dgl@author@fnsymbol@loop@aux@#1}%
+}
+\def\dgl@author@fnsymbol@loop@aux@m#1Q#2#3{% 
+  \dgl@author@fnsymbol@loop@aux@ii#1Q{#2#3}{#3}% 
+}
+\newcommand*{\dgl@author@fnsymbol@loop@aux@Q}[2]{#1} 
+\newcommand*{\dgl@author@fnsymbol@symbol}[1]{% %
+  \ifcase #1 *\or
+    %\dagger\or
+     % \ddagger\or
+      %  \P\or
+       %   \S\or
+        %    \|\or
+         %     \bot\or
+          %      \#\or
+           %       @\or
+            %        \triangle\or
+             %         \nabla
+    \textsuperscript{1}\or
+      \textsuperscript{2}\or
+        \textsuperscript{3}\or
+          \textsuperscript{4}\or
+            \textsuperscript{5}\or
+              \textsuperscript{6}\or
+                \textsuperscript{7}\or
+                  \textsuperscript{8}\or
+                    \textsuperscript{9}\or
+                      \textsuperscript{10} %Replaced symbols with superscript numbers 
+    \fi
+}
+\newcommand*\dgl@address@list{%
+  \ifnum\dgl@affil@cnt>\z@
+    \expandafter\dgl@address@list@auxi
+  \else
+    \dgl@warning{No affiliations: at least one affiliation is needed}%
+  \fi
+}
+\newcommand*\dgl@address@list@auxi{%
+  \ifnum0%
+    \ifnum\dgl@affil@cnt>\@ne    1\fi
+    \ifnum\dgl@affil@alt@cnt>\z@ 1\fi
+      >\z@
+    \expandafter\dgl@address@list@auxii
+  \else
+    \@address@i\par
+  \fi
+}
+\newcommand*\dgl@address@list@auxii{%
+  \@tempcnta\z@
+  \dgl@affil@marker@cnt\dgl@footnote@cnt
+  \loop\ifnum\@tempcnta<\dgl@affil@cnt
+    \advance\@tempcnta\@ne
+    \advance\dgl@affil@marker@cnt\@ne
+    \dgl@author@fnsymbol{\dgl@affil@marker@cnt}% 
+    \@nameuse{@address@\@roman\@tempcnta}\par% and % TODO handle multiples
+  \repeat
+  \@tempcnta\z@
+  \loop\ifnum\@tempcnta<\dgl@affil@cnt
+    \advance\@tempcnta\@ne
+    \advance\dgl@affil@marker@cnt\@ne
+    \dgl@ifundefined{@altaffil@\@roman\@tempcnta}
+      {}
+      {%
+        \dgl@author@fnsymbol{\dgl@affil@marker@cnt}% 
+        \@nameuse{@altaffil@\@roman\@tempcnta}\par
+      }%
+  \repeat
+}
+\newcommand*\dgl@fnsymbol@org{} 
+\newcommand*\dgl@affil@list{%
+  \let\dgl@fnsymbol@org\@fnsymbol 
+  \let\@fnsymbol\dgl@author@fnsymbol 
+  \@tempcnta\z@\relax
+  \@tempcntb\z@\relax
+  \ifnum\dgl@affil@cnt>\@ne\relax
+    \expandafter\dgl@affil@list@aux
+  \else
+    \ifnum\dgl@affil@alt@cnt>\z@\relax
+      \dgl@affil@marker@cnt\@ne\relax
+      \advance\dgl@affil@marker@cnt\dgl@footnote@cnt\relax
+      \footnotetext[^\dgl@affil@marker@cnt]{\@affil@i}%
+      \@tempcnta\@ne\relax
+    \fi
+  \fi
+  \ifnum\dgl@affil@alt@cnt>\z@\relax
+    \expandafter\dgl@affil@alt@list
+  \fi
+  \let\@fnsymbol\dgl@fnsymbol@org 
+}
+\newcommand*\dgl@affil@list@aux{%
+  \advance\@tempcnta\@ne\relax
+  \dgl@affil@marker@cnt\@tempcnta\relax
+  \advance\dgl@affil@marker@cnt\dgl@footnote@cnt\relax
+  \footnotetext[\dgl@affil@marker@cnt]{%
+    \@nameuse{@affil@\@roman\@tempcnta}%
+  }%
+  \ifnum\@tempcnta<\dgl@affil@cnt\relax
+    \expandafter\dgl@affil@list@aux
+  \fi
+}
+\newcommand*\dgl@affil@alt@list{%
+  \advance\@tempcntb\@ne\relax
+  \dgl@ifundefined{@altaffil@\@roman\@tempcntb}{}{%
+    \dgl@altaffil@foot@aux
+  }
+  \ifnum\@tempcntb<\dgl@author@cnt\relax
+    \expandafter\dgl@affil@alt@list
+  \fi
+}
+\newcommand*\dgl@altaffil@foot@aux{%
+  \advance\@tempcnta\@ne\relax
+  \dgl@affil@marker@cnt\@tempcnta\relax
+  \advance\dgl@affil@marker@cnt\dgl@footnote@cnt\relax
+  \footnotetext[\dgl@affil@marker@cnt]{%
+    \@nameuse{@altaffil@\@roman\@tempcntb}%
+  }%
+}
+\newcommand*\dgl@email@list@font{}
+\newcommand*\dgl@email@list{%
+  \begingroup
+    \def\UrlFont{\dgl@email@list@font}%
+    \@tempcnta\z@\relax
+    \@tempcntb\z@\relax
+    \dgl@email@list@aux
+    \ifnum\@tempcntb=\z@\relax
+      \dgl@warning{%
+        No e-mail given:\MessageBreak
+        at lest one author must have a contact e-mail%
+      }%
+    \fi
+  \endgroup
+}
+\newcommand*\dgl@email@list@aux{%
+  \advance\@tempcnta\@ne\relax
+  \ifnum\@tempcnta>\dgl@author@cnt\relax\else
+    \dgl@ifundefined{@email@\@roman\@tempcnta}{}{%
+      \advance\@tempcntb\@ne\relax
+      \ifnum\@tempcntb>\@ne\relax
+        ;
+      \fi
+      \expandafter\expandafter\expandafter\url\expandafter
+        \expandafter\expandafter{%
+           \csname @email@\@roman\@tempcnta\endcsname
+      }%
+    }%
+    \expandafter\dgl@email@list@aux
+  \fi
+}
+\newcommand*\dgl@number@list{%
+  \begingroup
+    \dgl@number@list@aux@i{phone}%
+    \let\@tempb\@tempa
+    \dgl@number@list@aux@i{fax}%
+    \ifx\@tempa\@empty
+      \let\@tempa\@tempb
+    \else
+      \ifx\@tempb\@empty\else
+        \protected@edef\@tempa{%
+          \@tempb.\space\@tempa
+        }%
+      \fi
+    \fi
+    \ifx\@tempa\@empty\else
+      \par
+      \@tempa
+    \fi
+  \endgroup
+}
+\newcommand*\dgl@number@list@aux@i[1]{%
+  \def\@tempa{}%
+  \@tempcnta\z@\relax
+  \def\dgl@number@list@aux@ii{%
+    \advance\@tempcnta\@ne\relax
+    \ifnum\@tempcnta>\dgl@author@cnt\relax\else
+      \dgl@ifundefined{@#1@\@roman\@tempcnta}{}{%
+        \dgl@ifundefined{@email@\@roman\@tempcnta}{}{%
+          \ifx\@tempa\@empty
+            \edef\@tempa{%
+              \@nameuse{@#1@\@roman\@tempcnta}%
+            }%
+          \else
+            \edef\@tempa{%
+              \@tempa
+              ;
+              \@nameuse{@#1@\@roman\@tempcnta}%
+            }%
+          \fi
+        }%
+      }%
+      \expandafter\dgl@number@list@aux@ii
+    \fi
+  }%
+  \dgl@number@list@aux@ii
+  \ifx\@tempa\@empty\else
+    \protected@edef\@tempa{%
+      \MakeUppercase#1: \@tempa
+    }%
+  \fi
+}
+\newcommand*\dgl@number@list@aux@ii{}
+\g@addto@macro\endabstract{%
+  \aftergroup\dgl@abstract@extras
+}
+\newcommand*{\dgl@abstract@extras}{%
+  \bgroup
+  \extrasfont
+  \ifdgl@keywords
+    \dgl@keywords@print
+    \par\vspace*{\dgl@space@inter@extra}
+  \fi
+  \ifdgl@jel
+    \dgl@jel@print
+    \par\vspace*{\dgl@space@inter@extra}
+  \fi
+  \ifdgl@msc
+    \dgl@msc@print
+    \par\vspace*{\dgl@space@inter@extra}
+  \fi
+  \ifdgl@abbreviations
+    \dgl@abbreviations@print
+    \par\vspace*{\dgl@space@inter@extra}
+  \fi
+  \egroup
+}
+\newcommand*\dgl@maketitle@extras{%
+  \dgl@maketitle@extras@hook
+}
+\newcommand*\dgl@maketitle@extras@hook{}
+\g@addto@macro{\maketitle}{\dgl@maketitle@extras\thispagestyle{empty}}
+\g@addto@macro{\document}{\maketitle}
+\newfloat{scheme}{htbp}{los}
+\floatname{scheme}{Scheme}
+\newfloat{chart}{htbp}{loc}
+\floatname{chart}{Chart}
+\newfloat{graph}{htbp}{loh}
+\floatname{graph}{Graph}
+%\newcommand*\schemename{Scheme}
+%\newcommand*\chartname{Chart}
+%\newcommand*\graphname{Graph}
+\floatplacement{table}{htbp}
+\floatplacement{figure}{htbp}
+\floatstyle{plaintop}
+\restylefloat{table}
+\let\dgl@floatboxreset\@floatboxreset
+\def\@floatboxreset{%
+  \centering
+  \dgl@floatboxreset
+}
+\AtEndOfClass{%
+  \colorlet{tbrowcolor}{structure@color!10}
+  \colorlet{tbheadcolor}{structure@color!30}
+  \arrayrulecolor{structure@color}
+}
+%% From https://tex.stackexchange.com/a/32366/226
+\newcommand*{\trfiller}{%
+  \arrayrulecolor{tbrowcolor}% change to cell colour
+  \specialrule{\heavyrulewidth}{0pt}{-\heavyrulewidth}% "invisible" rule
+  \arrayrulecolor{structure@color}% revert to regular line colour
+}
+\newcommand*{\thfiller}{%
+  \arrayrulecolor{tbheadcolor}% change to cell colour
+  \specialrule{\heavyrulewidth}{0pt}{-\heavyrulewidth}% "invisible" rule
+  \arrayrulecolor{structure@color}% revert to regular line colour
+}
+\newcommand{\headrow}{\rowcolor{tbheadcolor}}
+\newcommand{\patchdgltables}{%
+  %\rowcolors*{1}{tbrowcolor}{tbrowcolor}% %%Commenting this out to remove shading.
+  \setlength{\aboverulesep}{0pt}%
+  \setlength{\belowrulesep}{0pt}%
+  \setlength{\extrarowheight}{.75ex}%
+}
+\AtBeginEnvironment{table}{\patchdgltables}
+\AtBeginEnvironment{table*}{\patchdgltables}
+\newcommand*\dgl@section{}
+\let\dgl@section\section
+\newcommand*\dgl@subsection{}
+\let\dgl@subsection\subsection
+\newcommand*\dgl@subsubsection{}
+\let\dgl@subsubsection\subsubsection
+\newcommand*\dgl@startsection@orig{}
+\let\dgl@startsection@orig\@startsection
+\newcommand\dgl@startsection[6]{%
+ \if@noskipsec \leavevmode \fi
+ \par \@tempskipa #4\relax
+ \@afterindenttrue
+ \ifdim \@tempskipa <\z@ \@tempskipa -\@tempskipa \@afterindentfalse\fi
+ \if@nobreak \everypar{}\else
+     \addpenalty\@secpenalty\addvspace\@tempskipa\fi
+ \@ifstar{\@dblarg{\@sect{#1}{\@m}{#3}{#4}{#5}{#6}}}%
+         {\@dblarg{\@sect{#1}{#2}{#3}{#4}{#5}{#6}}}%
+}
+\let\@startsection\dgl@startsection
+\newcommand*\dgl@startsection@alt[6]{%
+  \if@noskipsec \leavevmode \fi
+  \par \@tempskipa #4\relax
+  \@afterindenttrue
+ \ifdim \@tempskipa <\z@ \@tempskipa -\@tempskipa \@afterindentfalse\fi
+ \if@nobreak \everypar{}\else
+     \addpenalty\@secpenalty\addvspace\@tempskipa\fi
+  \@ifstar{\@ssect{#3}{#4}{#5}{#6}}
+          {\@ssect{#3}{#4}{#5}{#6}}%
+}
+\newcommand*\dgl@sections@none{%
+  \@ifstar{%
+    \dgl@sections@none@aux
+  }{%
+    \dgl@sections@none@aux
+  }%
+}
+\newcommand*\dgl@sections@none@aux[2][]{%
+  \dgl@warning{%
+    (Sub)section `#2' ignored%
+  }%
+}
+\patchcmd{\@ssect}{#4}{\color{structure@color}#4}{}{}
+\patchcmd{\@sect}{#6}{\color{structure@color}#6}{}{}
+\newcommand*\SectionNumbersOff{%
+  \let\@startsection\dgl@startsection@alt
+}
+\@onlypreamble\SectionNumbersOff
+\newcommand*\SectionNumbersOn{%
+  \let\@startsection\dgl@startsection
+}
+\@onlypreamble\SectionNumbersOn
+\newcommand*\SectionsOff{%
+  \let\section\dgl@sections@none
+  \let\subsection\dgl@sections@none
+  \let\subsubsection\dgl@sections@none
+}
+\@onlypreamble\SectionsOff
+\newcommand*\SectionsOn{%
+  \let\section\dgl@section
+  \let\subsection\dgl@subsection
+  \let\subsubsection\dgl@subsubsection
+}
+\@onlypreamble\SectionsOn
+\begingroup
+  \toks@=\expandafter{\tableofcontents}
+  \xdef\tableofcontents{%
+    \begingroup
+      \let\noexpand\@startsection\noexpand\dgl@startsection@orig
+      \the\toks@
+    \endgroup
+  }
+\endgroup %%\newenvironment changed to `acknowledgements' (from `acknowledgement').
+\newenvironment{acknowledgements}{%
+  \dgl@section*{\acknowledgementname}%
+}{}
+\newenvironment{suppinfo}{%
+  \dgl@section*{\suppinfoname}%
+}{}
+\newcommand*\acknowledgementname{Acknowledgements} %%Changed to `Acknowledgements' from `Acknowledgement'
+\AtEndOfClass{%
+  \def\bibsection{%
+    \dgl@section*{\refname}%
+  }%
+}
+\newcommand*\suppinfoname{Supporting Information Available}
+\newcommand*\dgl@iffalse{\iffalse}
+\newtoks\dgl@collect@toks
+\newtoks\dgl@collect@empty@toks
+\newcommand*\dgl@collect@begins{}
+\newcommand*\dgl@collect@content{}
+\newcommand\dgl@collect[1]{%
+  \dgl@collect@toks{%
+    \expandafter#1\expandafter{\the\dgl@collect@toks}%
+  }%
+  \edef\dgl@collect@content{%
+    \the\dgl@collect@toks
+    \noexpand\end{\@currenvir}%
+  }%
+  \dgl@collect@toks\dgl@collect@empty@toks
+  \def\dgl@collect@begins{b}%
+  \begingroup
+    \expandafter\let\csname\@currenvir\endcsname\dgl@collect@aux
+    \edef\dgl@collect@content{%
+      \expandafter\noexpand\csname\@currenvir\endcsname
+    }%
+    \dgl@collect@content
+}
+\newcommand*\dgl@collect@aux{}
+\long\def\dgl@collect@aux#1\end#2{%
+  \edef\dgl@collect@begins{%
+    \dgl@collect@begins@#1\begin\end
+    \expandafter\@gobble\dgl@collect@begins
+  }%
+  \ifx\@empty\dgl@collect@begins
+    \endgroup
+    \@checkend{#2}%
+    \dgl@collect@body{#1}%
+  \else
+    \dgl@collect@body{#1\end{#2}}%
+  \fi
+  \dgl@collect@content
+}
+\newcommand*\dgl@collect@begins@{}
+\long\def\dgl@collect@begins@#1\begin#2{%
+  \ifx\end#2\else
+    b\expandafter\dgl@collect@begins@
+  \fi
+}
+\newcommand\dgl@collect@body[1]{%
+  \global\dgl@collect@toks\expandafter{\the\dgl@collect@toks#1}%
+}
+\newcommand*\dgl@type@list{article,communication,suppinfo}
+\newcommand*\dgl@type@default{article}
+\newcommand*\dgl@type@check{%
+  \@tempswafalse
+  \@for\@tempa:=\dgl@type@list\do{%
+    \ifx\@tempa\dgl@manuscript
+      \expandafter\@tempswatrue
+    \fi
+  }%
+  \if@tempswa\else
+    \dgl@warning{%
+      Invalid manuscript type \dgl@manuscript:\MessageBreak
+      changed to default type \dgl@type@default
+    }%
+    \let\dgl@manuscript\dgl@type@default
+  \fi
+}
+\newcommand*\dgl@setkeys{\setkeys{dgl}}
+\let\dgl@killsecs\SectionsOff
+\newcommand*\dgl@validtype[2][article]{%
+  \def\dgl@type@default{#1}%
+  \def\dgl@type@list{#2}%
+}
+\newcommand*\dgl@par{}
+\let\dgl@par\par
+\let\dglTWOCOL\relax
+%%%% CUSTOMISATIONS FOR LARGE LAYOUT
+\newcommand*\dgl@layout@large{%
+  \ifdgl@simfonts\simfonts\fi
+  \newlength{\dgl@sidebar@width}
+  \newlength{\dgl@real@lmargin}
+  \setlength{\dgl@sidebar@width}{5cm}
+  \setlength{\dgl@real@lmargin}{1.5cm}
+  \geometry{paperwidth=210mm,paperheight=280mm,
+      left=7cm,top=2.3cm,bottom=1.7cm,right=1.4cm,
+      columnsep=2em,headsep=0.8cm
+      }
+  \def\dglTWOCOL{%
+      \let\dglTWOCOL\relax%
+      {\unskip\parfillskip 0pt\par}%
+      \twocolumn\changetext{}{\dimexpr\Gm@lmargin-\dgl@real@lmargin\relax}{}{-\dimexpr\Gm@lmargin-\dgl@real@lmargin\relax}{}{}%
+      \noindent\ignorespaces%
+  }
+    \def\ps@plain{
+      \renewcommand{\@oddhead}{}%
+      \renewcommand{\@evenhead}%{\sffamily\thepage\hfill\@author@i\space\dgl@etal}%
+      {\sffamily\thepage\hfill\@author@i\space}% %%Replaced the previous line to take out et al. from header 
+      \renewcommand{\@evenfoot}{}%
+      \renewcommand{\@oddfoot}{\@evenfoot}%
+    }
+  \pagestyle{plain}
+  \setcounter{secnumdepth}{0}
+  \def\sidebarfont{\sffamily}
+  \patchcmd{\dgl@keywords@print}{Keywords: }{Keywords:\par}{}{}
+  \patchcmd{\dgl@msc@print}{Codes: }{Codes:\par}{}{}
+  \patchcmd{\dgl@jel@print}{classification: }{classification:\par}{}{}
+  \patchcmd{\dgl@abbreviations@print}{Abbreviations: }{Abbreviations:\par}{}{}
+  \def\@maketitle{%
+      \vspace*{\dimexpr-\headsep-\headheight\relax}%
+      \setlength\parindent{\z@}
+      \ifnum\dgl@author@cnt<\z@\relax
+        \dgl@warning{No authors defined: At least one author is required}%
+      \fi
+      \def\titlefont{\sffamily\mdseries\color{structure@color}\raggedright}
+      \def\authorfont{\sffamily}
+      \def\affilfont{\sffamily}
+      \setlength{\dgl@space@inter@extra}{1em}
+      \begin{textblock*}{\dgl@sidebar@width}(\dgl@real@lmargin,\dimexpr\Gm@tmargin-\headsep\relax)
+        \raggedright%
+        \sidebarfont
+        {%
+          \journalnamefont
+          \dgl@journal@name
+          \par
+        }%
+        \vspace*{\dgl@space@inter@extra}%
+        \textbf{www.Dglobal.org}\par%
+        \vspace*{3\dgl@space@inter@extra}%
+        {\large\bfseries\color{structure@color}\xmakefirstuc{\dgl@manuscript}\par}%
+        \vspace*{\dgl@space@inter@extra}%
+        {%
+          \datesize
+          \datefont
+          \ifdgl@dates
+            Received \dgl@recvd\\%
+            Revised \dgl@revd\\%
+            Accepted \dgl@accptd%\\%
+            % First published online \dgl@publd%
+            \par\vspace*{\dgl@space@inter@extra}%
+          \fi
+          \dgl@abstract@extras\par
+          \gdef\dgl@abstract@extras{}
+        }%
+        {%
+          \emailsize
+          \emailfont
+          \ifdgl@email
+            \patchcmd{\dgl@contact@details}{Corresponding author}{Author for correspondence}{}{}
+            \expandafter\dgl@contact@details
+            \par
+            \vspace*{\dgl@space@post@email}%
+          \fi
+        }%
+        % \vspace*{\dgl@space@inter@extra}%        
+        \end{textblock*}
+        % }%
+        \begin{textblock*}{\dgl@sidebar@width}[0,1](\dgl@real@lmargin,\dimexpr\paperheight-\Gm@bmargin\relax)
+          \ifdgl@copyright
+            \raggedright\sidebarfont
+            \dgl@copyright@notice\par
+            \vspace*{2\baselineskip}
+          \fi
+          \includegraphics[width=\linewidth]{continua-logo} %%Changed to Continua logo
+        \end{textblock*}
+        {%
+          \titlefont
+          \titlesize
+          \let\@fnsymbol\dgl@author@fnsymbol 
+          \let\footnote@org\footnote
+          \let\footnote\dgl@title@footnote
+          \dgl@maketitle@suppinfo \@title
+          \dgl@title@footnote@check
+          \global\dgl@footnote@cnt\c@footnote
+          \@maketitle@title@hook
+          \par
+        }%
+        \vspace*{\baselineskip}
+        {%
+          \hrule\vskip2pt
+          \authorsize
+          \authorfont
+          \frenchspacing
+          \dgl@author@list
+          \par\vskip2pt
+          \hrule
+        }%
+        \vspace*{1.5\dgl@space@post@author}%
+        {%
+          \affilsize
+          \affilfont
+          \dgl@address@list
+          \par
+        }%
+    }%
+}
+\newcommand*\dgl@layout@largetwo{%
+  \ifdgl@simfonts\simfonts\fi
+  \geometry{paperwidth=210mm,paperheight=280mm,
+      left=1.5cm,top=2.3cm,bottom=1.7cm,right=1.4cm,
+      columnsep=2em,headsep=0.8cm
+      }
+  \patchcmd{\@maketitle}{\firstheadsize}{\sffamily\firstheadsize}{}{}
+  \appto{\authorfont}{\sffamily}
+  \appto{\affilfont}{\sffamily}
+  \appto{\datesize}{\sffamily}
+  \appto{\emailfont}{\sffamily}
+  \patchcmd{\document}{\maketitle}{}{}{}
+  \RequirePackage{environ}
+  \let\oldabstract\abstract
+  \let\endoldabstract\endabstract
+  \RenewEnviron{abstract}{%
+    \twocolumn[%
+      \begin{@twocolumnfalse}
+        \maketitle%
+        \begin{oldabstract}%
+        \protecting{\BODY}%
+        \end{oldabstract}%
+      \end{@twocolumnfalse}]}
+  \def\ps@plain{
+      \renewcommand{\@oddhead}{}%
+      \renewcommand{\@evenhead}%{}%
+      {}% %%Replaced the previous line to take out et al. from the header 
+      \renewcommand{\@evenfoot}{}%
+      \renewcommand{\@oddfoot}{\@evenfoot}%
+    }
+  \pagestyle{plain}
+}
+\newcommand*\dgl@layout@medium{%
+  \ifdgl@simfonts\simfonts\fi
+  \geometry{paperwidth=174mm,paperheight=247mm,
+    top=2.3cm,bottom=1.4cm,left=1.8cm,right=1.5cm,
+    headsep=0.8cm}
+}
+\newcommand*\dgl@layout@small{%
+  \ifdgl@simfonts\simfonts\fi
+  \geometry{paperwidth=152mm,paperheight=228mm,
+    top=2cm,bottom=1.5cm,left=1.7cm,right=1.5cm,
+    headsep=0.5cm}
+}
+\newcommand*\acksize{\normalsize}
+\newcommand*\suppsize{\normalsize}
+\newcommand*\patch@numeric@authors{%
+  %%% Make author markers numeric...
+  \renewcommand{\dgl@author@fnsymbol@symbol}[1]{##1} 
+  \pretocmd{\dgl@author@fnsymbol}{\let\ensuremath\relax}{}{}
+  \patchcmd{\dgl@author@star@aux}{\else}{,\else}{}{}
+  \patchcmd{\dgl@author@star@aux}
+    {\ifnum\dgl@affil@alt@cnt>\z@\relax}
+    {\ifnum\dgl@affil@alt@cnt>\z@\relax,}
+    {}{}
+  \patchcmd{\dgl@author@affil@also@aux}
+    {\dgl@author@fnsymbol} 
+    {,\dgl@author@fnsymbol} 
+    {}{}
+  \patchcmd{\dgl@address@list@auxii}
+    {\dgl@author@fnsymbol{\dgl@affil@marker@cnt}} 
+    {\textsuperscript{\dgl@author@fnsymbol{\dgl@affil@marker@cnt}}} 
+    {}{} 
+}
+% Journal Definitions
+\def\dgl@jnl@default{%
+  \def\dgl@journal@name{Continua} %%Journal name changed to `Continua'
+  \dgl@layout@medium
+}%
+\def\dgl@jnl@small{%
+  \def\dgl@journal@name{Dglobal Small}
+  \dgl@layout@small
+}%
+\def\dgl@jnl@medium{%
+  \def\dgl@journal@name{Dglobal Medium}
+  \dgl@layout@medium
+}%
+\def\dgl@jnl@large{%
+  \def\dgl@journal@name{Dglobal Large One}
+  \dgl@layout@large
+  \patch@numeric@authors
+}
+\def\dgl@jnl@largetwo{
+  \def\dgl@journal@name{Dglobal Large Two}
+  \dgl@layout@largetwo
+  \setcounter{secnumdepth}{0}
+  \patchcmd{\@maketitle}
+    {{\volumefont\dgl@vol}, }{}{}{}
+  \patch@numeric@authors
+  \renewcommand{\email}[2][]{%
+    \dgl@emailtrue%
+    \def\dgl@contact@details{%
+      {\emailfont \textbf{Author for correspondence: }##1, Email: ##2.}%
+    }%
+  }
+  \let\endnote\footnote
+  \let\printendnotes\relax
+  \renewcommand{\thefootnote}{\alphalph{\value{footnote}}}
+  \renewcommand\footnoterule{}
+  \advance\skip\footins 4\p@\@plus2\p@\relax
+}
+\def\dgl@jnl@aog{
+  % v1.01: AOG and JOG do NOT want the journal name visible
+  \def\dgl@journal@name{}
+  \dgl@layout@large
+  \patch@numeric@authors
+  \patchcmd{\@maketitle}
+    {\includegraphics[width=1.2\linewidth]{continua-logo}} %%Changed to Continua logo
+    {\journalnamefont\upshape\normalsize\bfseries Dglobal.dev}
+    {}{}
+  \patchcmd{\@maketitle}
+    {\textbf{notes.dglobal.dev}}
+    {\includegraphics[width=1.2\linewidth]{continua-logo}} %%Changed to Continua logo
+    {}{}
+  \renewcommand{\email}[2][]{%
+    \dgl@emailtrue%
+    \def\dgl@contact@details{%
+      {\emailfont\textbf{Author for correspondence:}\\##1,\\E-mail: ##2}%
+    }%
+  }
+  \renewmdenv[hidealllines=true,leftmargin=\z@,rightmargin=\z@,innerleftmargin=\z@,innerrightmargin=\z@,innertopmargin=\z@,innerbottommargin=\z@,frametitle={\abstractfont\sffamily Abstract},frametitleaboveskip=2mm,frametitlebelowskip=2mm]{dgl@abstract@box}
+  \setcounter{secnumdepth}{3}
+  \renewcommand*\dgl@etal{et al.}
+  \providecommand{\dgl@reference@code}{%
+    \RequirePackage{natbib}
+    \bibliographystyle{igs}
+    \renewcommand{\bibpreamble}{\let\doi\relax}
+    %\renewcommand*{\bibfont}{\footnotesize} %%Changed to small font
+  \renewcommand*{\bibfont}{\small}
+    \renewcommand*{\bibsep}{\parsep}
+  }
+  \renewcommand{\figurename}{Fig.}
+  \AtEndOfClass{%
+    \colorlet{tbrowcolor}{white}
+    \colorlet{tbheadcolor}{white}
+    \arrayrulecolor{black}
+  }
+  \patchcmd{\trfiller}{structure@color}{black}{}{}
+  \patchcmd{\thfiller}{structure@color}{black}{}{}
+}
+\def\dgl@jnl@jog{
+  % v1.01: AOG and JOG do NOT want the journal name visible
+  \def\dgl@journal@name{}
+  \dgl@layout@large
+  \patch@numeric@authors
+  \patchcmd{\@maketitle}
+    {\includegraphics[width=\linewidth]{continua-logo}} %%Changed to Continua logo
+    {\journalnamefont\upshape\normalsize\bfseries Dglobal.org}
+    {}{}
+  \patchcmd{\@maketitle}
+    {\textbf{www.Dglobal.org}}
+    {\includegraphics[width=\linewidth]{continua-logo}} %%Changed to Continua logo
+    {}{}
+  \renewcommand{\email}[2][]{%
+    \dgl@emailtrue%
+    \def\dgl@contact@details{%
+      {\emailfont\textbf{Author for correspondence:}\\##1,\\E-mail: ##2}%
+    }%
+  }
+  \renewmdenv[hidealllines=true,leftmargin=\z@,rightmargin=\z@,innerleftmargin=\z@,innerrightmargin=\z@,innertopmargin=\z@,innerbottommargin=\z@,frametitle={\abstractfont\sffamily Abstract},frametitleaboveskip=2mm,frametitlebelowskip=2mm]{dgl@abstract@box}
+  \setcounter{secnumdepth}{3}
+  \renewcommand*\dgl@etal{et al.}
+  \providecommand{\dgl@reference@code}{%
+    \RequirePackage{natbib}
+    \bibliographystyle{igs}
+    \renewcommand{\bibpreamble}{\let\doi\relax}
+    %\renewcommand*{\bibfont}{\footnotesize} %%Changed to small font
+  \renewcommand*{\bibfont}{\small}
+    \renewcommand*{\bibsep}{\parsep}
+  }
+  \renewcommand{\figurename}{Fig.}
+  \AtEndOfClass{%
+    \colorlet{tbrowcolor}{white}
+    \colorlet{tbheadcolor}{white}
+    \arrayrulecolor{black}
+  }
+  \patchcmd{\trfiller}{structure@color}{black}{}{}
+  \patchcmd{\thfiller}{structure@color}{black}{}{}
+}
+\def\dgl@jnl@bjps{
+  \def\dgl@journal@name{British Journal of Political Science}
+  \dgl@layout@medium 
+  % \colorlet{structure@color}{green!40!black}
+  % \patchcmd{\@maketitle}
+  %   {\includegraphics[width=26mm]{dgl-logo-new}}
+  %   {\parbox{5em}{\fontsize{1em}{1em}\fontfamily{NimbusSans}\bfseries\color{structure@color}British\\Journal of\\Political\\Science}}{}{}
+  \patch@numeric@authors
+  \let\endnote\footnote
+  \let\printendnotes\relax
+}
+\def\dgl@jnl@jjps{
+  \def\dgl@journal@name{Japanese Journal of Political Science}
+  \dgl@layout@medium 
+  % \patchcmd{\@maketitle}
+  %   {\includegraphics[width=26mm]{dgl-logo-new}}
+  %   {{\fontsize{2em}{2em}{\fontfamily{LinuxBiolinumT-LF}\selectfont JJPS}}}{}{}
+  % \patchcmd{\@maketitle}
+  %   {(Received \dgl@recvd; revised \dgl@revd; accepted \dgl@accptd; first published online \dgl@publd)}
+  %   {(First published online \dgl@publd)}
+  %   {}{}
+  \patch@numeric@authors
+  \let\endnote\footnote
+  \let\printendnotes\relax
+  % \renewcommand{\dgl@copyright@notice}
+  %   {\scriptsize\textcopyright\ Dglobal University Press \dgl@year.}
+}
+
+\def\dgl@jnl@ash{
+  \def\dgl@journal@name{Antimicrobial Stewardship \& Healthcare Epidemiology}
+  \dgl@layout@largetwo
+  \setcounter{secnumdepth}{0}
+  % \definecolor{structure@color}{RGB}{36,62,112}
+  \patchcmd{\@maketitle}
+    {{\volumefont\dgl@vol}, }{}{}{}
+  \patch@numeric@authors
+  \renewcommand{\email}[2][]{%
+    \dgl@emailtrue%
+    \def\dgl@contact@details{%
+      {\emailfont \textbf{Author for correspondence: }##1, Email: ##2.}%
+    }%
+  }
+  \let\endnote\footnote
+  \let\printendnotes\relax
+  \renewcommand{\thefootnote}{\alphalph{\value{footnote}}}
+  \renewcommand\footnoterule{}
+  \advance\skip\footins 4\p@\@plus2\p@\relax
+
+  \providecommand{\dgl@reference@code}{%
+    \RequirePackage[style=nejm,autocite=superscript]{biblatex}
+    %\renewcommand*{\bibfont}{\footnotesize}%%Changed to small font
+   \renewcommand*{\bibfont}{\small}
+  }
+
+  \AtEndOfClass{%
+    \arrayrulecolor{black}
+  }
+}
+
+\def\dgl@jnl@pasa{
+  \def\dgl@journal@name{Publications of the Astronomical Society of Australia}
+  \dgl@layout@largetwo
+  % \definecolor{structure@color}{RGB}{0,32,135}
+  \patchcmd{\@maketitle}
+    {{\volumefont\dgl@vol}, }{}{}{}
+  % \renewcommand{\dgl@copyright@notice}
+  %   {\scriptsize\textcopyright\ Astronomical Society of Australia \dgl@year; published by Dglobal University Press.}
+  \patch@numeric@authors
+  \renewcommand{\email}[2][]{%
+    \dgl@emailtrue%
+    \def\dgl@contact@details{%
+      {\emailfont \textbf{Author for correspondence: }##1, Email: ##2.}%
+    }%
+  }
+  \let\endnote\footnote
+  \let\printendnotes\relax
+  \renewcommand{\thefootnote}{\alphalph{\value{footnote}}}
+  \renewcommand\footnoterule{}
+  \advance\skip\footins 4\p@\@plus2\p@\relax
+  \renewmdenv[rightline=false,leftline=false,linecolor=black,linewidth=1pt,leftmargin=\z@,rightmargin=\z@,innerleftmargin=\z@,innerrightmargin=\z@,innertopmargin=\z@,innerbottommargin=2mm,frametitle={\abstractfont\sffamily Abstract},frametitleaboveskip=2mm,frametitlebelowskip=2mm]{dgl@abstract@box}
+  \def\endoldabstract{\par\vspace*{\dgl@space@inter@extra}\dgl@abstract@extras\enddgl@abstract@box}
+  \providecommand{\dgl@reference@code}{%
+     \RequirePackage{natbib}
+     \RequirePackage{aas-macros}
+     \bibliographystyle{apj}
+     %\renewcommand*{\bibfont}{\footnotesize} %%Changed to small font
+     \renewcommand*{\bibfont}{\small}
+     \renewcommand*{\bibsep}{\parsep}
+  }
+  \AtEndOfClass{%
+    \colorlet{tbrowcolor}{white}
+    \colorlet{tbheadcolor}{white}
+    \arrayrulecolor{black}
+  }
+  \patchcmd{\trfiller}{structure@color}{black}{}{}
+  \patchcmd{\thfiller}{structure@color}{black}{}{}
+}
+\def\dgl@jnl@psrm{
+  \def\dgl@journal@name{Political Science Research and Methods}
+  \dgl@layout@medium 
+  % \colorlet{structure@color}{red!70!black}
+  \patch@numeric@authors
+  % \patchcmd{\@maketitle}
+    % {dgl-logo-new}{epsa-outline-black}{}{}
+  \let\endnote\footnote
+  \let\printendnotes\relax
+  \AtEndOfClass{%
+    \colorlet{tbrowcolor}{white}
+    \colorlet{tbheadcolor}{white}
+    \arrayrulecolor{black}
+  }
+  \patchcmd{\trfiller}{structure@color}{black}{}{}
+  \patchcmd{\thfiller}{structure@color}{black}{}{}
+}
+\def\dgl@jnl@jpup{
+  \def\dgl@journal@name{Journal of Public Policy}
+  \dgl@layout@small 
+  \patch@numeric@authors
+  % \patchcmd{\@maketitle}
+  %   {\includegraphics[width=26mm]{dgl-logo-new}}
+  %   {\fcolorbox{black}{black}{\includegraphics[height=2em]{pup-logo}}}{}{}
+  \let\endnote\footnote
+  \let\printendnotes\relax
+  \AtEndOfClass{%
+    \colorlet{tbrowcolor}{white}
+    \colorlet{tbheadcolor}{white}
+    \arrayrulecolor{black}
+  }
+  \patchcmd{\trfiller}{structure@color}{black}{}{}
+  \patchcmd{\thfiller}{structure@color}{black}{}{}
+}
+\ifcsname dgl@jnl@\dgl@journal\endcsname%
+  \csname dgl@jnl@\dgl@journal\endcsname%
+\else%
+  \dgl@warning{%
+    Unknown journal `\dgl@journal':\MessageBreak
+    using default configuration%
+  }%
+  \dgl@jnl@default%
+\fi%
+\providecommand*\dgl@reference@code{% default citation style; can be modified in journal config or preamble
+  \RequirePackage[authordate-trad,noibid,backend=biber,natbib]{biblatex-chicago}
+  %\renewcommand*{\bibfont}{\footnotesize} %%Changed to small font
+  \renewcommand*{\bibfont}{\small}
+}
+\dgl@reference@code
+\dgl@type@check
+\ifx\dgl@manuscript\dgl@manuscript@note
+  \SectionsOff
+\fi
+
+  \SectionsOn
+  \SectionNumbersOn
+\fi
+\ifx\dgl@manuscript\dgl@manuscript@suppinfo
+  \setkeys{dgl}{maxauthors = 0}
+  \def\thepage{S-\arabic{page}}
+  \renewcommand*\thefigure{S\@arabic\c@figure}
+  \renewcommand*\thescheme{S\@arabic\c@scheme}
+  \renewcommand*\thetable{S\@arabic\c@table}
+  \AtBeginDocument
+    {%
+      \renewcommand*\citenumfont[1]{S#1}%
+      \renewcommand*\bibnumfmt[1]{(S#1)}%
+    }
+\fi
+\SectionNumbersOn
+%% 
+%% Based on the achemso class
+%% Originally developed by Mats Dahlgren
+%% Copyright (C) 1996-1998 by Mats Dahlgren
+%% Copyright (C) 2008-2018 by Joseph Wright <joseph.wright@morningstar2.co.uk>
+%% Copyright (C) 2019 by Overleaf (WriteLaTeX Limited)
+%% 
+%% Part of this bundle is derived from cite.sty, to which the
+%% following license applies:
+%%   Copyright (C) 1989-2009 by Donald Arseneau
+%%   These macros may be freely transmitted, reproduced, or
+%%   modified provided that this notice is left intact.
+%% 
+%% It may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License (LPPL), either version 1.3c of
+%% this license or (at your option) any later version.  The latest
+%% version of this license is in the file:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% This work is "maintained" (as per LPPL maintenance status) by
+%%   Paul Gessler.
+%% 
+%% This work consists of the file dgl-journal.cls.
+%% 
+%%
+%% End of file `dgl-journal.cls'.

@@ -1,18 +1,14 @@
-#Investigacion: Impacto del tamano del Gobierno en el crecimiento Economico 
-#Fecha: Julio 4, 2023
+#Investigacion: Tamano optimo de Gobierno en el crecimiento Economico: El caso de Nicaragua
 
 #CLEAR
 rm(list = ls())
 
-#Working directory
-#Matilde working directory: 'C:/Users/MatildeCerdaRuiz/Documents/GitHub/govsize_2023'
-#Axel working directory: '/Users/axelcanales/Documents/GitHub/govsize_2023'
-#Axel working directory WINDOWS: 'C:/Users/Axel Canales/Documents/GitHub/govsize_2023'
 
-setwd('C:/Users/Axel Canales/Documents/GitHub/govsize_2023')
+setwd('C:/Users/Axel Canales/Downloads/govsize_2023 (2)/govsize_2023')
 path <- getwd()
 
-#Packages to install/load 
+
+# Packages to install/load ---- 
 
 
 install.packages("googlesheets4")
@@ -46,6 +42,7 @@ install.packages("stargazer")
 install.packages("writexl")
 install.packages("fUnitRoots")
 
+# Cargar paquetes ----
 library(patchwork)#para combinar graficos en una imagen
 library(ggplot2)
 library(fUnitRoots)
@@ -69,22 +66,16 @@ library(dplyr)
 library(stargazer)
 library(vars)
 library(readxl)
-install.packages("gapminder")
-library(gapminder)
 
-#Import data from Drive
+# Import data ----
 
-raw_data <- read_sheet("https://docs.google.com/spreadsheets/d/15_lA3MjsOMDQinHgw2A93T7tTmHdqEpOQGHSFFtkpIU/edit?usp=sharing",
-           sheet = "RAW_DATA3",
-           col_names = TRUE,
-           range = "A1:I69"
-           )
 raw_data <- read_xlsx(paste(path, "data.xlsx", sep = "/"),
                       sheet = "RAW_DATA3",
                       col_names = TRUE,
                       range = "A1:I69")
 
-#Data procesing
+
+# Data processing ----
 
 #rename
 raw_data <- raw_data %>%
@@ -115,7 +106,7 @@ raw_data <- raw_data %>%
     gdp_nom=gdp_nom*10^6
          )
 
-### Replicacion de la grafica de la serie poblacion
+# Replicacion de la grafica de la serie poblacion ----
 raw_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
@@ -147,7 +138,7 @@ for (x in 26:1) {
 for (x in 50:68) {
   raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,10])
 }
-##Graph of re-scaled population (with title)
+# Graph of re-scaled population (with title) ----
 
 tr_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
@@ -170,7 +161,7 @@ tr_pop
 #Exporting graph
 ggsave("population_con_titulo.png", width=10, height =7 , units= c("cm"), dpi=500)
 
-#Graph (without title)
+#Graph (without title) ----
 tr_pop_2 <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
   scale_x_date(date_breaks = "years" , date_labels = "%b %Y")+ 
@@ -197,7 +188,7 @@ ggsave("population_sin_titulo.png", width=10, height =7 , units= c("cm"), dpi=50
 
 
 
-#Creating variables as share of GDP per capita
+#Creating variables as share of GDP per capita ----
 
 raw_data <- raw_data %>%
   mutate(
@@ -216,7 +207,7 @@ raw_data <- raw_data %>%
     growth_gdp_pc = log_gdp_pc/lag(log_gdp_pc)-1
   )
 
-#create dummies 
+#create dummies ----
 raw_data <- raw_data %>%
   mutate(
     d_2008 = ifelse(date >= "2008-7-1" & date <= "2009-4-1" ,1,0)
@@ -228,7 +219,7 @@ raw_data <- raw_data %>%
   )
 
 
-#Time series set
+#Time series set ----
 ts_vars <- ts(data = raw_data[,11:ncol(raw_data)],
              start = c(2006,1),
              frequency = 4
@@ -240,6 +231,10 @@ df$date<-as.Date(df$date,  "%m/%d/%y")
 
 
 raw_plot1 <- ggplot(df, aes(x = date, y = log_gdp_pc)) +
+  geom_line() +
+  scale_x_date(date_labels = "%b %Y")
+
+raw_plot2 <- ggplot(df, aes(x = date, y = x)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
 
@@ -275,7 +270,7 @@ combined_plot_raw <- ggarrange(raw_plot1,
 combined_plot_raw
 
 
-#Desestacionalizacion (Done)
+#Desestacionalizacion (Done) ----
 
 seasonal_adj <- seas(x = ts_vars[,1:7])
 seasonal_adj <- final(seasonal_adj)
@@ -409,9 +404,9 @@ combined_plot_seas <- ggarrange(seas_plot1,
 
 combined_plot_seas
 ggsave("variables_sin_titulo.png", width=24, height =14 , units= c("cm"), dpi=500)
-#########
-#Scatterplots 
-#########
+
+#Scatterplots ----
+
 
 
 seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
@@ -448,12 +443,12 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
         #      axis.text.x = element_text(angle=90, hjust = 1)
   )+
   labs(y="Logaritmo del PIB per cápita",
-       x="Gasto de Gobierno agregado (porcentaje del PIB)",
+       x="Inversión pública (porcentaje del PIB)",
        caption = "Fuente: Elaboración propia")
 seas_plot8 
 ggsave("gdp_vs_public_inv.png", width=24, height =14 , units= c("cm"), dpi=500)
 
-#Replicacion - CUADRO 1. Tabla estadisticos descriptivos
+#Replicacion - CUADRO 1. Tabla estadisticos descriptivos ----
 
 cuadro_1<-df_seas[,2:7]
 cuadro_1<- cuadro_1 %>%
@@ -477,10 +472,10 @@ colnames(cuadro_1)<-c("PIB per capita",
 cuadro_1 <- stargazer(cuadro_1, type='latex', digits=2)
 stargazer(cuadro_1, type='text', digits=2)
 
-##############                                                          ############   
-############## Cuadro 2.Test de Raiz Unitaria ADF                       ############
-##############                                                          ############   
-##############             Variables en log-niveles                     ############
+                                                        
+#Cuadro 2.Test de Raiz Unitaria ADF ----                  
+                                                      
+#          Variables en log-niveles                     
 
 variables <- df_seas[,2:7] #Crea un dataframe con variables desestacionalizadas y en logaritmos
 cuadro_2 <- data.frame(matrix(NA, nrow = 6, ncol = 12)) #Crear un dataframe vacio que sera la tabla de salidas para el analisis de raices unitarias
@@ -536,9 +531,9 @@ cuadro_2 <- cuadro_2 %>%
   \\bottomrule")
  print(xtable(cuadro_2), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
  
- ##############                                                          ############   
- ############## Cuadro 3.Criterio de seleccion de rezagos Gasto Agregado ############
- ##############                                                          ############ 
+                                                         
+  #Cuadro 3.Criterio de seleccion de rezagos Gasto Agregado ----
+                                                         
 
  var_gob <-  variables[,1:2]
  lag_selection_gov <- VARselect(var_gob, lag.max = 5, type = c("const", "trend", "both", "none"),
@@ -568,9 +563,9 @@ cuadro_2 <- cuadro_2 %>%
   \\bottomrule")
  print(xtable(cuadro_3), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
  
- ##############                                                                  ############   
+                                                                
  ############## Cuadro 4.Criterio de seleccion de rezagos Inversion Fija Publica ############
- ##############                                                                  ############ 
+                                                                  
 
  var_inv <- variables %>%  select(log_gdp_pc, pub_inv_gdp)
  cuadro_4<- VARselect(var_inv, lag.max = 5, type = c("const", "trend", "both", "none"),
@@ -600,10 +595,8 @@ cuadro_2 <- cuadro_2 %>%
  print(xtable(df_cuadro_4), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 
- ##############                                                                  ############   
  ##############               Cuadro 5.Prueba de Precedencia temporal            ############
- ##############                                                                  ############
- 
+
  #Prueba de precedencia temporal De Gasto Gobierno Agregado 
  granger_gov_pib <- list()
  granger_pib_gov <- list()
@@ -632,7 +625,7 @@ cuadro_5[4,1] <- c("PIB per capita no causa a Inversion fija publica")
   cuadro_5[3,i+1] <- granger_inv_pib[[i]][2,4]
   cuadro_5[4,i+1] <- granger_pib_inv[[i]][2,4]
  }
- ## Creacion de titulos y subtitulos para exportar cuadro a latex 
+ # Creacion de titulos y subtitulos para exportar cuadro a latex ----
  addtorow <- list()
  addtorow$pos <- list(0)
  addtorow$command <- c(" \\toprule
@@ -647,7 +640,7 @@ cuadro_5[4,1] <- c("PIB per capita no causa a Inversion fija publica")
  print(xtable(cuadro_5), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 ############### Exporting data for Eviews ###########
-path<-getwd()
+
 
 #exporting the raw data
 write_xlsx(raw_data, paste(path,"raw_data.xlsx", sep="/"))
@@ -658,9 +651,12 @@ write_xlsx(df_seas, paste(path,"df_seas.xlsx", sep="/"))
 write.csv(df_seas, paste(path,"df_seas.csv", sep="/"))
 
 
-#########                                                 #########
-#########   Cuadro 6.Prueba de cointegracion de Johansen
-#########                                                 #########
+#########   Cuadro 6.Prueba de cointegracion de Johansen ----
+
+
+
+### ADVERTENCIA: Antes de correr las siguientes lineas se debe correr el archivo de eviews: "C:\Users\Axel Canales\Desktop\govsize_2023\dofiles\df_seas_gov_size.prg"
+
 
 #importing table from eviews
 
@@ -697,15 +693,13 @@ Variable & Tipo de test & \\multicolumn{2}{c}{Ninguna}& \\multicolumn{2}{c}{Line
 ")
 print(xtable(cuadro_6, caption="Prueba de cointegración de Johansen", label="tab:cointegracion"), add.to.row = addtorow_johansen , include.rownames = FALSE, include.colnames = FALSE,caption.placement = "top" )
 
-#########                                                             #########
 #########   Cuadro 7. Estimacion de largo plazo de gobierno agregado  #########
-#########                                                             #########
 
 
 #All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
-cuadro_7 <- data.frame(matrix(NA, nrow = 20, ncol = 10))
+cuadro_7 <- data.frame(matrix(NA, nrow = 18, ncol = 10))
 
-coef_pval_ag <- read.csv(paste(getwd(), "tabla_modelos_agregado.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
+coef_pval_ag <- read.csv(paste(getwd(), "dofiles/tabla_modelos_agregado.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
 coef_pval_ag <- coef_pval_ag %>% 
 mutate(across(where(is.numeric), round, digits=2))#rounding
 
@@ -727,9 +721,7 @@ col<-c(
        "$GOB^3$",
        "",
        "$R^2$ ajustado",
-       "Estadístico JB",
-       "Prueba BGLM",
-       "Prueba BPG")
+       "Estadístico JB")
 cuadro_7$col <- col
 cuadro_7 <- cuadro_7 %>% relocate(col)
 cuadro_7 <- cbind(col, coef_pval_ag)
@@ -746,14 +738,12 @@ Variables                           &  Lineal      & Cuadrática     & Cúbica  
 print(xtable(cuadro_7), add.to.row = addtorow_cuadro_7, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
 
-#########                                                                  #########
 #########   Cuadro 8. Estimacion de largo plazo de Inversion Fija Publica  #########
-#########                                                                  #########
 
 #All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
-cuadro_8 <- data.frame(matrix(NA, nrow = 20, ncol = 10))
+cuadro_8 <- data.frame(matrix(NA, nrow = 18, ncol = 10))
 
-coef_pval_inv <- read.csv(paste(getwd(), "tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
+coef_pval_inv <- read.csv(paste(getwd(), "/dofiles/tabla_modelos_inv.csv", sep="/"), header = FALSE)#reading table with coefficients and p-values
 coef_pval_inv <- coef_pval_inv %>% 
   mutate(across(where(is.numeric), round, digits=2))#rounding
 
@@ -775,9 +765,7 @@ col<-c(
   "$INV_PUB^3$",
   "",
   "$R^2$ ajustado",
-  "Estadístico JB",
-  "Prueba BGLM",
-  "Prueba BPG")
+  "Estadístico JB")
 cuadro_8$col <- col
 cuadro_8 <- cuadro_8 %>% relocate(col)
 cuadro_8 <- cbind(col, coef_pval_inv)
@@ -795,9 +783,7 @@ print(xtable(cuadro_8), add.to.row = addtorow_cuadro_8, include.rownames = FALSE
 
 
 
-#########                                                             #########
 #########   Cuadro 9. Estimacion de tamano optimo                     #########
-#########                                                             #########
 cuadro9_tamano_optimo <- read.csv(paste(getwd(), "dofiles/cuadro8.csv", sep="/"),header=FALSE)
 cuadro9_tamano_optimo[1,1] <- "OLS"
 cuadro9_tamano_optimo[2,1] <- "FMOLS"
@@ -811,7 +797,7 @@ cuadro9_tamano_optimo$V4 <- paste(cuadro9_tamano_optimo$V4, "%", sep = "")
 cuadro9_tamano_optimo$V5 <- paste(cuadro9_tamano_optimo$V5, "%", sep = "")
 cuadro9_tamano_optimo[2,6:7] <- paste(cuadro9_tamano_optimo[2,6:7], "%", sep = "")
 
-#### Cuadro 9 latex code #######
+# Cuadro 9 latex code 
 
 addtorow <- list()
 addtorow$pos <- list(0)
@@ -832,9 +818,7 @@ addtorow$command <- c(" \\toprule
   \\bottomrule")
 print(xtable(cuadro9_tamano_optimo), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
-#########                                                             #########
 #########   Cuadro 10. Bootstrap Tamano de Gobierno                   #########
-#########                                                             #########
 
 #The bootstrap exercise was performed in Eviews in the program is "DF_SEAS_GOV_SIZE.prg"
 
@@ -853,7 +837,7 @@ cuadro_10 <- cuadro_10 %>%
     
   )
 
-#Replicación 
+##### Histogramas de estimaciones de tamano optimo obtenido mediante bootstrap #######
 hist_ag_op<-ggplot(cuadro_10, aes(x=ag_op))+
   geom_histogram(fill="gray", color="black",bins=10)+
   geom_vline(aes(xintercept=mean(ag_op)), color="blue",
@@ -878,17 +862,11 @@ ggsave("hist_inv_op.png", width=12, height =10, units= c("cm"), dpi=500)
 
 
 
-#Replication Table Bootstrap 
+#Replication Tabla 10 Bootstrap ----
 values<-unname(lapply(cuadro_10[5:6], quantile, na.rm=T,  prob = c(0.05,0.95), names = FALSE))
 
 ag_bootstrap <-values[[1]]
 inv_bootstrap <- values[[2]]
-
-ag_bootstrap_append<-as.data.frame(ag_bootstrap)
-inv_bootstrap_append<-as.data.frame(inv_bootstrap)
-
-print(xtable(cuadro_10),  include.rownames = FALSE, digits=4)
-
 #Replication Table Bootstrap
 
 tabla_10<-c(
@@ -901,7 +879,6 @@ tabla_10 <- data.frame(tabla_10)
 tabla_10$opt_mean <- c(
  paste(round(100*mean(cuadro_10$ag_op),2),"%"),
  paste( round(100*mean(cuadro_10$inv_op),2),"%"))
-
 
 tabla_10$lim_inf <- c(
   paste(round(100*ag_bootstrap[1],2),"%"),
@@ -920,7 +897,7 @@ addtorow_tabla_10 <- list()
 addtorow_tabla_10$pos <- list(0)
 addtorow_tabla_10$command <- c(" \\toprule
 \\headrow  \\multicolumn{1}{c}{Variable} &
-            \\multicolumn{1}{c}{Nivel óptimo de gasto (\% del PIB)}&
+            \\multicolumn{1}{c}{Nivel óptimo de gasto (\\% del PIB)}&
             \\multicolumn{2}{c}{Intervalo de confianza}\\\\
   \\midrule
 \\headrow  \\multicolumn{1}{c}{} &
@@ -930,3 +907,7 @@ addtorow_tabla_10$command <- c(" \\toprule
   \\bottomrule")
 print(xtable(tabla_10), add.to.row = addtorow_tabla_10, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x})
  
+
+#Replicacion tabla14 apendice ----
+print(xtable(cuadro_10),  include.rownames = FALSE, digits=4)
+

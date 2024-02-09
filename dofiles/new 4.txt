@@ -1,0 +1,113 @@
+'CallForPaper Concurso SIECA 
+ 
+'======================================================== 
+'Por favor, para el correcto funcionamiento del programa, se debe renombrar las variables que se encuentran en la hoja "Base de datos del modelo" 
+'la variable exportaciones debe llamarse expo, las importaciones como imp y los instrumentos como i1 e i2. 
+ 
+'======================================================== 
+'Gr·ficos de dispersiÛn 
+'_______________________________________________________________ 
+ 
+group group01 tfp expo  'Grupo entre el TFP y las exportaciones como porcentaje del PIB. 
+ 
+freeze(scat01) group01.scat(panel=combine) 'Gr·fico de dispersiÛn entre el TFP y las exportaciones como porcentaje del PIB. 
+ 
+group group02 tfp imp  'Grupo entre el TFP y las importaciones como porcentaje del PIB. 
+ 
+freeze(scat02) group02.scat(panel=combine) 'Gr·fico de dispersiÛn entre el TFP y las importaciones como porcentaje del PIB. 
+ 
+'======================================================= 
+'EstimaciÛn con efectos fijos por MCO. 
+ 
+'lag=0 
+ 
+equation Fixeffect01.ls(cx=f, per=f) tfp log(expo) log(imp) 
+equation Fixeffect02.ls(cx=f, per=f) tfp log(expo)    'Modelo ganador en base a los criterios de informaciÛn 
+equation Fixeffect03.ls(cx=f, per=f) tfp log(imp) 
+ 
+'lag=1 
+ 
+equation Fixeffect11.ls(cx=f, per=f) tfp log(expo(-1)) log(imp(-1)) 
+equation Fixeffect12.ls(cx=f, per=f) tfp log(expo(-1)) 
+equation Fixeffect13.ls(cx=f, per=f) tfp log(imp(-1))   'Modelo ganador en base a los criterios de informaciÛn 
+ 
+'lag=2 
+ 
+equation Fixeffect21.ls(cx=f, per=f) tfp log(expo(-2)) log(imp(-2)) 
+equation Fixeffect22.ls(cx=f, per=f) tfp log(expo(-2)) 
+equation Fixeffect23.ls(cx=f, per=f) tfp log(imp(-2))   'Modelo ganador en base a los criterios de informaciÛn 
+ 
+'lag=3 
+ 
+equation Fixeffect31.ls(cx=f, per=f) tfp log(expo(-3)) log(imp(-3)) 
+equation Fixeffect32.ls(cx=f, per=f) tfp log(expo(-3)) 
+equation Fixeffect33.ls(cx=f, per=f) tfp log(imp(-3))   'Modelo ganador en base a los criterios de informaciÛn 
+ 
+'lag=4 
+ 
+equation Fixeffect41.ls(cx=f, per=f) tfp log(expo(-4)) log(imp(-4)) 
+equation Fixeffect42.ls(cx=f, per=f) tfp log(expo(-4)) 
+equation Fixeffect43.ls(cx=f, per=f) tfp log(imp(-4))   'Modelo ganador en base a los criterios de informaciÛn 
+ 
+'====================================================== 
+'MÌnimos Cuadrados Bietapicos 
+ 
+'Relevancia del Instrumentos 
+ 
+equation relev01.ls expo c i1 
+equation relev02.ls imp c i2 
+ 
+'______________________________________________________________ 
+'lag=0 
+ 
+equation I_Fixeffect01.tsls(cx=f, per=f) tfp log(expo) log(imp) @ c i1 i2 
+equation I_Fixeffect02.tsls(cx=f, per=f) tfp log(expo) @ c i1 i2 
+equation I_Fixeffect03.tsls(cx=f, per=f) tfp log(imp) @ c i1 i2 
+ 
+'lag=1 
+ 
+equation I_Fixeffect11.tsls(cx=f, per=f) tfp log(expo(-1)) log(imp(-1)) @ c i1 i2 
+equation I_Fixeffect12.tsls(cx=f, per=f) tfp log(expo(-1)) @ c i1 i2 
+equation I_Fixeffect13.tsls(cx=f, per=f) tfp log(imp(-1)) @ c i1 i2 
+ 
+'lag=2 
+ 
+equation I_Fixeffect21.tsls(cx=f, per=f) tfp log(expo(-2)) log(imp(-2)) @ c i1 i2 
+equation I_Fixeffect22.tsls(cx=f, per=f) tfp log(expo(-2)) @ c i1 i2 
+equation I_Fixeffect23.tsls(cx=f, per=f) tfp log(imp(-2)) @ c i1 i2 
+ 
+'lag=3 
+ 
+equation I_Fixeffect31.tsls(cx=f, per=f) tfp log(expo(-3)) log(imp(-3)) @ c i1 i2 
+equation I_Fixeffect32.tsls(cx=f, per=f) tfp log(expo(-3)) @ c i1 i2 
+equation I_Fixeffect33.tsls(cx=f, per=f) tfp log(imp(-3)) @ c i1 i2 
+ 
+'lag=4 
+ 
+equation I_Fixeffect41.tsls(cx=f, per=f) tfp log(expo(-4)) log(imp(-4)) @ c i1 i2 
+equation I_Fixeffect42.tsls(cx=f, per=f) tfp log(expo(-4)) @ c i1 i2 
+equation I_Fixeffect43.tsls(cx=f, per=f) tfp log(imp(-4)) @ c i1 i2 
+ 
+'_____________________________________________________________ 
+'Normalidad en los residuos de los modelos ganadores 
+ 
+'lag=0 
+ 
+fixeffect02.hist  'Modelo por MCO 
+I_fixeffect02.hist  'Modelo por MC2E 
+ 
+'lag=1 
+ 
+fixeffect13.hist  'Modelo por MCO 
+I_fixeffect13.hist  'Modelo por MC2E 
+ 
+'lag=2 
+ 
+fixeffect23.hist  'Modelo por MCO 
+I_fixeffect23.hist  'Modelo por MC2E 
+ 
+'lag=3 
+ 
+fixeffect33.hist  'Modelo por MCO
+
+YA VENGO X2
