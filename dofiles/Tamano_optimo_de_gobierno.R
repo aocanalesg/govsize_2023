@@ -1,14 +1,13 @@
-#Investigacion: Tamano optimo de Gobierno en el crecimiento Economico: El caso de Nicaragua
-
-#CLEAR
+#### Investigacion: Tamano optimo de Gobierno en el crecimiento Economico: El caso de Nicaragua
+#### Premio de Economía y Finanzas 2023 - Banco Central de Nicaragua
+# CLEAR environment
 rm(list = ls())
-
-
+# Definición de directorio de trabajo
 setwd('C:/Users/Axel Canales/Downloads/govsize_2023 (2)/govsize_2023')
 path <- getwd()
 
 
-# Packages to install/load ---- 
+# Instalación de paquetes necesarios (no correr de tenerlos ya instalados) ---- 
 
 
 install.packages("googlesheets4")
@@ -67,7 +66,7 @@ library(stargazer)
 library(vars)
 library(readxl)
 
-# Import data ----
+# Importar data ----
 
 raw_data <- read_xlsx(paste(path, "data.xlsx", sep = "/"),
                       sheet = "RAW_DATA3",
@@ -75,7 +74,7 @@ raw_data <- read_xlsx(paste(path, "data.xlsx", sep = "/"),
                       range = "A1:I69")
 
 
-# Data processing ----
+# Procesacimiento de data----
 
 #rename
 raw_data <- raw_data %>%
@@ -106,7 +105,7 @@ raw_data <- raw_data %>%
     gdp_nom=gdp_nom*10^6
          )
 
-# Replicacion de la grafica de la serie poblacion ----
+# Grafica de la serie poblacion ----
 raw_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
   scale_x_date(date_labels = "%b %Y")
@@ -138,7 +137,7 @@ for (x in 26:1) {
 for (x in 50:68) {
   raw_data[x,8] = raw_data[x-1,8]*(1+ raw_data[x,10])
 }
-# Graph of re-scaled population (with title) ----
+# Serie de población re-escalada ----
 
 tr_pop <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
@@ -161,7 +160,7 @@ tr_pop
 #Exporting graph
 ggsave("population_con_titulo.png", width=10, height =7 , units= c("cm"), dpi=500)
 
-#Graph (without title) ----
+# Grafico poblacion (without title) ----
 tr_pop_2 <- ggplot(raw_data, aes(x = as.Date(date), y = pop)) +
   geom_line() +
   scale_x_date(date_breaks = "years" , date_labels = "%b %Y")+ 
@@ -188,7 +187,7 @@ ggsave("population_sin_titulo.png", width=10, height =7 , units= c("cm"), dpi=50
 
 
 
-#Creating variables as share of GDP per capita ----
+# Creating variables as share of GDP per capita ----
 
 raw_data <- raw_data %>%
   mutate(
@@ -207,7 +206,7 @@ raw_data <- raw_data %>%
     growth_gdp_pc = log_gdp_pc/lag(log_gdp_pc)-1
   )
 
-#create dummies ----
+# create dummies ----
 raw_data <- raw_data %>%
   mutate(
     d_2008 = ifelse(date >= "2008-7-1" & date <= "2009-4-1" ,1,0)
@@ -219,7 +218,7 @@ raw_data <- raw_data %>%
   )
 
 
-#Time series set ----
+# Time series set and raw data plot ----
 ts_vars <- ts(data = raw_data[,11:ncol(raw_data)],
              start = c(2006,1),
              frequency = 4
@@ -270,7 +269,7 @@ combined_plot_raw <- ggarrange(raw_plot1,
 combined_plot_raw
 
 
-#Desestacionalizacion (Done) ----
+# Desestacionalizacion y Figura 2 ----
 
 seasonal_adj <- seas(x = ts_vars[,1:7])
 seasonal_adj <- final(seasonal_adj)
@@ -295,8 +294,8 @@ seas_plot1 <- ggplot(df_seas, aes(x = date, y = df_seas[,2])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 12, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold",family="serif"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic",family="serif"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
@@ -313,13 +312,13 @@ seas_plot2 <- ggplot(df_seas, aes(x = date, y = df_seas[,3])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 12, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold",family="serif"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic",family="serif"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
   labs(x="",y="",title = "Gasto de Goberno agregado", 
-       subtitle = "Porcentaje respecto al PIB p.c.", )
+       subtitle = "Porcentaje respecto al PIB total", )
 
 seas_plot3 <- ggplot(df_seas, aes(x = date, y = df_seas[,4])) +
   geom_line() +
@@ -330,14 +329,14 @@ seas_plot3 <- ggplot(df_seas, aes(x = date, y = df_seas[,4])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 12, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold",family="serif"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic",family="serif"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
   #ggtitle("Producto Interno Bruto Per Capita")+
   labs(x="",y="",title = "Gasto de Gobierno corriente", 
-       subtitle = "Porcentaje respecto al PIB p.c.", )
+       subtitle = "Porcentaje respecto al PIB total", )
 
 seas_plot4 <- ggplot(df_seas, aes(x = date, y = df_seas[,5])) +
   geom_line() +
@@ -348,14 +347,14 @@ seas_plot4 <- ggplot(df_seas, aes(x = date, y = df_seas[,5])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 12, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold",family="serif"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic",family="serif"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
   #ggtitle("Producto Interno Bruto Per Capita")+
   labs(x="",y="",title = "Inversión fija pública", 
-       subtitle = "Porcentaje respecto al PIB p.c.", )
+       subtitle = "Porcentaje respecto al PIB total", )
 
 seas_plot5 <- ggplot(df_seas, aes(x = date, y = df_seas[,6])) +
   geom_line() +
@@ -366,14 +365,14 @@ seas_plot5 <- ggplot(df_seas, aes(x = date, y = df_seas[,6])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 12, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold",family="serif"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic",family="serif"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
   #ggtitle("Inversion Fija Privada")+
   labs(x="",y="",title = "Inversión fija privada", 
-       subtitle = "Porcentaje respecto al PIB p.c.", )
+       subtitle = "Porcentaje respecto al PIB total", )
 
 seas_plot6 <- ggplot(df_seas, aes(x = date, y = df_seas[,7])) +
   geom_line() +
@@ -384,14 +383,14 @@ seas_plot6 <- ggplot(df_seas, aes(x = date, y = df_seas[,7])) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(hjust = 0),
         plot.title.position = "plot",
-        plot.title = element_text(color = "black", size = 12, face = "bold"),
-        plot.subtitle = element_text(color = "black", size = 10, face = "italic"),
+        plot.title = element_text(color = "black", size = 12, face = "bold",family="serif"),
+        plot.subtitle = element_text(color = "black", size = 10, face = "italic",family="serif"),
         plot.caption.position = "plot",
         axis.text.x = element_text(angle=90, hjust = 1)
   )+
   #ggtitle("Apertura Comercial")+
   labs(x="",y="",title = "Apertura comercial", 
-       subtitle = "Porcentaje respecto al PIB p.c.", )
+       subtitle = "Porcentaje respecto al PIB total", )
 
 combined_plot_seas <- ggarrange(seas_plot1,
                                 seas_plot2,
@@ -403,10 +402,10 @@ combined_plot_seas <- ggarrange(seas_plot1,
                            ncol = 3) #nrow & ncol depend on how you want to #organize your plots
 
 combined_plot_seas
-annotate_figure(combined_plot_seas, bottom=text_grob("Fuente: Elaboración propia con base en datos dele BCN", hjust=0, x=0, family="serif", size=16), fig.lab.pos = "bottom.left")
+#annotate_figure(combined_plot_seas, bottom=text_grob("Fuente: Elaboración propia con base en datos dele BCN", hjust=0, x=0, family="serif", size=16), fig.lab.pos = "bottom.left")
 ggsave("variables_sin_titulo.png", width=24, height =16 , units= c("cm"), dpi=500)
 
-#Scatterplots ----
+# Figura 3 (scatterplots) ----
 
 
 
@@ -416,9 +415,10 @@ seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(family="serif", size=14, hjust = 0),
-        axis.title.x = element_text(size=14),
-        axis.title.y= element_text(size=14),
-        axis.text.x = element_text(size=11),
+        axis.title.x = element_text(size=16, family="serif"),
+        axis.title.y= element_text(size=16, family="serif"),
+        axis.text.x = element_text(size=14, family="serif"),
+        axis.text.y = element_text(size=14, family="serif"),
   #      plot.caption = element_text(hjust = 0),
   #      plot.title.position = "plot",
   #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -427,8 +427,9 @@ seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
   #      axis.text.x = element_text(angle=90, hjust = 1)
   )+
   labs(y="Logaritmo del PIB per cápita",
-       x="Gasto de Gobierno agregado (porcentaje del PIB)",
-       caption = "Fuente: Elaboración propia")
+       x="Gasto de Gobierno agregado (porcentaje del PIB)"
+ #      caption = "Fuente: Elaboración propia"
+       )
 seas_plot7
 ggsave("gdp_vs_aggregate_exp.png", width=18, height =12 , units= c("cm"), dpi=500)
 
@@ -439,10 +440,10 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(family="serif", size=14, hjust = 0),
-        axis.title.x = element_text(size=14),
-        axis.title.y= element_text(size=14),
-        axis.text.x = element_text(size=11),
-        axis.text.y = element_text(size=11)
+        axis.title.x = element_text(size=16, family="serif"),
+        axis.title.y= element_text(size=16, family="serif"),
+        axis.text.x = element_text(size=14, family="serif"),
+        axis.text.y = element_text(size=14, family="serif"),
         #      plot.caption = element_text(hjust = 0),
         #      plot.title.position = "plot",
         #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -451,8 +452,9 @@ seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
         #      axis.text.x = element_text(angle=90, hjust = 1)
   )+
   labs(y="Logaritmo del PIB per cápita",
-       x="Inversión pública (porcentaje del PIB)",
-       caption = "Fuente: Elaboración propia")
+       x="Inversión pública (porcentaje del PIB)"
+     #  caption = "Fuente: Elaboración propia"
+     )
 seas_plot8 
 ggsave("gdp_vs_public_inv.png", width=18, height =12, units= c("cm"), dpi=500)
 
@@ -464,10 +466,10 @@ seas_plot9 <- ggplot(df_seas, aes(x =df_seas[,4])) +
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(family="serif", size=14, hjust = 0),
-        axis.title.x = element_text(size=14),
-        axis.title.y= element_text(size=14),
-        axis.text.x = element_text(size=11),
-        axis.text.y = element_text(size=11)
+        axis.title.x = element_text(size=16, family="serif"),
+        axis.title.y= element_text(size=16, family="serif"),
+        axis.text.x = element_text(size=14, family="serif"),
+        axis.text.y = element_text(size=14, family="serif"),
         #      plot.caption = element_text(hjust = 0),
         #      plot.title.position = "plot",
         #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -476,8 +478,9 @@ seas_plot9 <- ggplot(df_seas, aes(x =df_seas[,4])) +
         #      axis.text.x = element_text(angle=90, hjust = 1)
   )+
   labs(y="Logaritmo del PIB per cápita",
-       x="Gasto de Gobierno corriente (porcentaje del PIB)",
-       caption = "Fuente: Elaboración propia")
+       x="Gasto de Gobierno corriente (porcentaje del PIB)"
+ #      caption = "Fuente: Elaboración propia"
+ )
 seas_plot9 
 ggsave("gdp_vs_gov_con_gdp.png", width=18, height =12, units= c("cm"), dpi=500)
 
@@ -490,9 +493,9 @@ nc_seas_plot7 <- ggplot(df_seas, aes(x =df_seas[,3])) +
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(family="serif", size=14, hjust = 0),
-        axis.title.x = element_text(size=14),
-        axis.title.y= element_text(size=14),
-        axis.text.x = element_text(size=11),
+        axis.title.x = element_text(size=14, family="serif"),
+        axis.title.y= element_text(size=14, family="serif"),
+        axis.text.x = element_text(size=11, family="serif"),
         #      plot.caption = element_text(hjust = 0),
         #      plot.title.position = "plot",
         #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -513,10 +516,10 @@ nc_seas_plot8 <- ggplot(df_seas, aes(x =df_seas[,5])) +
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(family="serif", size=14, hjust = 0),
-        axis.title.x = element_text(size=14),
-        axis.title.y= element_text(size=14),
-        axis.text.x = element_text(size=11),
-        axis.text.y = element_text(size=11)
+        axis.title.x = element_text(size=14, family="serif"),
+        axis.title.y= element_text(size=14, family="serif"),
+        axis.text.x = element_text(size=11, family="serif"),
+        axis.text.y = element_text(size=11, family="serif")
         #      plot.caption = element_text(hjust = 0),
         #      plot.title.position = "plot",
         #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -538,10 +541,10 @@ nc_seas_plot9 <- ggplot(df_seas, aes(x =df_seas[,4])) +
   theme_bw()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         plot.caption = element_text(family="serif", size=14, hjust = 0),
-        axis.title.x = element_text(size=14),
-        axis.title.y= element_text(size=14),
-        axis.text.x = element_text(size=11),
-        axis.text.y = element_text(size=11)
+        axis.title.x = element_text(size=14, family="serif"),
+        axis.title.y= element_text(size=14, family="serif"),
+        axis.text.x = element_text(size=11, family="serif"),
+        axis.text.y = element_text(size=11, family="serif")
         #      plot.caption = element_text(hjust = 0),
         #      plot.title.position = "plot",
         #      plot.title = element_text(color = "black", size = 10, face = "bold"),
@@ -569,7 +572,10 @@ annotate_figure(combined_scatterplot, bottom=text_grob("Fuente: Elaboración pro
 ggsave("scatterplot_combined.png", width=40, height =20 , units= c("cm"), dpi=500)
 
 
-#Replicacion - CUADRO 1. Tabla estadisticos descriptivos ----
+
+
+
+# Replicacion - CUADRO 1. Tabla estadisticos descriptivos ----
 
 cuadro_1<-df_seas[,2:7]
 cuadro_1<- cuadro_1 %>%
@@ -594,7 +600,7 @@ cuadro_1 <- stargazer(cuadro_1, type='latex', digits=2)
 stargazer(cuadro_1, type='text', digits=2)
 
                                                         
-#Cuadro 2.Test de Raiz Unitaria ADF ----                  
+# Tabla 2.Test de Raiz Unitaria ADF ----                  
                                                       
 #          Variables en log-niveles                     
 
@@ -653,7 +659,7 @@ cuadro_2 <- cuadro_2 %>%
  print(xtable(cuadro_2), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
  
                                                          
-  #Cuadro 3.Criterio de seleccion de rezagos Gasto Agregado ----
+# Tabla 3.Criterio de seleccion de rezagos Gasto Agregado ----
                                                          
 
  var_gob <-  variables[,1:2]
@@ -685,7 +691,7 @@ cuadro_2 <- cuadro_2 %>%
  print(xtable(cuadro_3), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
  
                                                                 
- ############## Cuadro 4.Criterio de seleccion de rezagos Inversion Fija Publica ############
+# Tabla 4.Criterio de seleccion de rezagos Inversion Fija Publica ############
                                                                   
 
  var_inv <- variables %>%  select(log_gdp_pc, pub_inv_gdp)
@@ -716,7 +722,7 @@ cuadro_2 <- cuadro_2 %>%
  print(xtable(df_cuadro_4), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
 
- ##############               Cuadro 5.Prueba de Precedencia temporal            ############
+# Tabla 5.Prueba de Precedencia temporal            ############
 
  #Prueba de precedencia temporal De Gasto Gobierno Agregado 
  granger_gov_pib <- list()
@@ -746,7 +752,7 @@ cuadro_5[4,1] <- c("PIB per capita no causa a Inversion fija publica")
   cuadro_5[3,i+1] <- granger_inv_pib[[i]][2,4]
   cuadro_5[4,i+1] <- granger_pib_inv[[i]][2,4]
  }
- # Creacion de titulos y subtitulos para exportar cuadro a latex ----
+# Creacion de encabezados para exportar cuadro a latex ----
  addtorow <- list()
  addtorow$pos <- list(0)
  addtorow$command <- c(" \\toprule
@@ -760,7 +766,7 @@ cuadro_5[4,1] <- c("PIB per capita no causa a Inversion fija publica")
   \\bottomrule")
  print(xtable(cuadro_5), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
-############### Exporting data for Eviews ###########
+# Exporttando data para Eviews ###########
 
 
 #exporting the raw data
@@ -772,7 +778,7 @@ write_xlsx(df_seas, paste(path,"df_seas.xlsx", sep="/"))
 write.csv(df_seas, paste(path,"df_seas.csv", sep="/"))
 
 
-#########   Cuadro 6.Prueba de cointegracion de Johansen ----
+# Tabla 6.Prueba de cointegracion de Johansen ----
 
 
 
@@ -814,7 +820,7 @@ Variable & Tipo de test & \\multicolumn{2}{c}{Ninguna}& \\multicolumn{2}{c}{Line
 ")
 print(xtable(cuadro_6, caption="Prueba de cointegración de Johansen", label="tab:cointegracion"), add.to.row = addtorow_johansen , include.rownames = FALSE, include.colnames = FALSE,caption.placement = "top" )
 
-#########   Cuadro 7. Estimacion de largo plazo de gobierno agregado  #########
+# Tabla 7. Estimacion de largo plazo de gobierno agregado  #########
 
 
 #All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
@@ -859,7 +865,7 @@ Variables                           &  Lineal      & Cuadrática     & Cúbica  
 print(xtable(cuadro_7), add.to.row = addtorow_cuadro_7, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x} )
 
 
-#########   Cuadro 8. Estimacion de largo plazo de Inversion Fija Publica  #########
+# Tabla 8. Estimacion de largo plazo de Inversion Fija Publica  #########
 
 #All estimates were performed in Eviews the program is "DF_SEAS_GOV_SIZE.prg", however the table that summirizes all models is imported here to generate the Latex Table
 cuadro_8 <- data.frame(matrix(NA, nrow = 18, ncol = 10))
@@ -904,7 +910,7 @@ print(xtable(cuadro_8), add.to.row = addtorow_cuadro_8, include.rownames = FALSE
 
 
 
-#########   Cuadro 9. Estimacion de tamano optimo                     #########
+# Tabla 9. Estimacion de tamano optimo                     #########
 cuadro9_tamano_optimo <- read.csv(paste(getwd(), "dofiles/cuadro8.csv", sep="/"),header=FALSE)
 cuadro9_tamano_optimo[1,1] <- "OLS"
 cuadro9_tamano_optimo[2,1] <- "FMOLS"
@@ -939,7 +945,7 @@ addtorow$command <- c(" \\toprule
   \\bottomrule")
 print(xtable(cuadro9_tamano_optimo), add.to.row = addtorow, include.rownames = FALSE, include.colnames = FALSE )
 
-#########   Cuadro 10. Bootstrap Tamano de Gobierno                   #########
+# Tabla 10. Bootstrap Tamano de Gobierno                   #########
 
 #The bootstrap exercise was performed in Eviews in the program is "DF_SEAS_GOV_SIZE.prg"
 
@@ -958,7 +964,7 @@ cuadro_10 <- cuadro_10 %>%
     
   )
 
-##### Histogramas de estimaciones de tamano optimo obtenido mediante bootstrap #######
+# Apendice Histogramas de estimaciones de tamano optimo obtenido mediante bootstrap #######
 hist_ag_op<-ggplot(cuadro_10, aes(x=ag_op))+
   geom_histogram(fill="gray", color="black",bins=10)+
   geom_vline(aes(xintercept=mean(ag_op)), color="blue",
@@ -983,7 +989,7 @@ ggsave("hist_inv_op.png", width=12, height =10, units= c("cm"), dpi=500)
 
 
 
-#Replication Tabla 10 Bootstrap ----
+# Tabla 10 (Apedice) Bootstrap ----
 values<-unname(lapply(cuadro_10[5:6], quantile, na.rm=T,  prob = c(0.05,0.95), names = FALSE))
 
 ag_bootstrap <-values[[1]]
@@ -1029,6 +1035,6 @@ addtorow_tabla_10$command <- c(" \\toprule
 print(xtable(tabla_10), add.to.row = addtorow_tabla_10, include.rownames = FALSE, include.colnames = FALSE, sanitize.text.function = function(x){x})
  
 
-#Replicacion tabla14 apendice ----
+# Tabla 14 Anexo ----
 print(xtable(cuadro_10),  include.rownames = FALSE, digits=4)
 
